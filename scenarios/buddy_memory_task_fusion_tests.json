@@ -1,0 +1,358 @@
+[
+  {
+    "id": "fusion_001_rover_live_command_wins",
+    "category": "memory_task_fusion",
+    "description": "A short direct rover command should stay device/task-like, not become episodic recall.",
+    "setup": {
+      "set_last_topic": "rover:session",
+      "seed_temp_topic_memory": {
+        "rover:session": [
+          "User: go forward. Assistant: Moving forward.",
+          "User: turn left. Assistant: Turning left.",
+          "User: faster. Assistant: Increasing rover speed.",
+          "User: stop. Assistant: Stopping rover."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "go forward",
+        "alive_checks": {
+          "must_not_contain": [
+            "brainstorm",
+            "architecture",
+            "from earlier",
+            "let's discuss"
+          ],
+          "must_contain_one_of": [
+            "forward",
+            "moving",
+            "rover"
+          ],
+          "expected_last_topic": "rover:session",
+          "max_response_length": 800
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_002_rover_reflection_memory_wins",
+    "category": "memory_task_fusion",
+    "description": "A rover brainstorming question should recall rover memory instead of treating it as live control.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "rover:session": [
+          "User: go forward. Assistant: Moving forward.",
+          "User: turn left. Assistant: Turning left.",
+          "User: faster. Assistant: Increasing rover speed.",
+          "User: stop. Assistant: Stopping rover."
+        ],
+        "test:episodic_memory": [
+          "User: I am testing memory routing. Assistant: Episodic recall should reconnect previous useful sessions."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "can we brainstorm how to improve the rover movement from earlier?",
+        "alive_checks": {
+          "must_not_contain": [
+            "moving forward now",
+            "executing command",
+            "turning left now"
+          ],
+          "must_contain_one_of": [
+            "rover",
+            "movement",
+            "speed",
+            "turn",
+            "forward",
+            "earlier"
+          ],
+          "expected_last_topic": "rover:session",
+          "max_response_length": 1800
+        }
+      }
+    ]
+  },
+
+{
+  "id": "fusion_003_rover_repeat_prior_action_requires_caution",
+  "category": "memory_task_fusion",
+  "description": "Repeating a previous rover action should recall the sequence and require confirmation before execution.",
+  "setup": {
+    "set_last_topic": "test:robotics_discussion",
+    "seed_temp_topic_memory": {
+      "rover:session": [
+        "User: go forward. Assistant: Moving forward.",
+        "User: turn left. Assistant: Turning left.",
+        "User: stop. Assistant: Stopping rover."
+      ],
+      "test:robotics_discussion": [
+        "User: We discussed safe rover control. Assistant: Direct movement commands should be handled carefully."
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "input": "repeat the same rover movement from earlier",
+      "alive_checks": {
+        "must_not_contain": [
+          "executing now",
+          "command sent",
+          "running the sequence now",
+          "moving the rover now"
+        ],
+        "must_contain_one_of": [
+          "confirm",
+          "sequence",
+          "go forward",
+          "turn left",
+          "stop"
+        ],
+        "expected_last_topic": "rover:session",
+        "expected_pending": "Awaiting_Rover_Sequence_Confirmation",
+        "max_response_length": 1600
+      }
+    },
+    {
+      "turn": 2,
+      "input": "yes",
+      "alive_checks": {
+        "must_contain_one_of": [
+          "go forward",
+          "turn left",
+          "stop",
+          "sequence",
+          "completed"
+        ],
+        "expected_last_topic": "rover:session",
+        "expected_pending": null,
+        "max_response_length": 2000
+      }
+    }
+  ]
+},
+
+
+  {
+    "id": "fusion_004_save_memory_task_wins",
+    "category": "memory_task_fusion",
+    "description": "Explicit save-memory instruction should be treated as a save task, not only a chat recall.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: The router should run before the ContextAssembler. Assistant: Yes, router decides and assembler formats."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remember that the episodic router should run before the ContextAssembler",
+        "alive_checks": {
+          "must_not_contain": [
+            "i don't remember",
+            "could you rephrase"
+          ],
+          "must_contain_one_of": [
+            "remember",
+            "saved",
+            "noted",
+            "router",
+            "ContextAssembler"
+          ],
+          "expected_last_topic": "test:episodic_memory",
+          "max_response_length": 1000
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_005_memory_recall_not_save_task",
+    "category": "memory_task_fusion",
+    "description": "Question asking what was discussed before should recall memory, not save new memory.",
+    "setup": {
+      "set_last_topic": "test:robotic_arm",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: The router should decide continue_current, episodic_recall, or new_topic. Assistant: Then ContextAssembler formats selected memories."
+        ],
+        "test:robotic_arm": [
+          "User: I want to smooth servo movement. Assistant: Use interpolation and rate limits."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what did we say about the episodic router before?",
+        "alive_checks": {
+          "must_not_contain": [
+            "saved",
+            "I'll remember that",
+            "what should I call it"
+          ],
+          "must_contain_one_of": [
+            "continue_current",
+            "episodic_recall",
+            "new_topic",
+            "ContextAssembler",
+            "router"
+          ],
+          "expected_last_topic": "test:episodic_memory",
+          "max_response_length": 1400
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_006_reminder_task_wins",
+    "category": "memory_task_fusion",
+    "description": "Real reminder instruction should trigger schedule/reminder logic.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: We discussed summarization in episode extraction. Assistant: Put summarization before retrieval."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me to check the rover battery at 5 pm",
+        "alive_checks": {
+          "must_not_contain": [
+            "episode extraction",
+            "ContextAssembler",
+            "memory router"
+          ],
+          "must_contain_one_of": [
+            "5 pm",
+            "reminder",
+            "battery",
+            "check"
+          ],
+          "max_response_length": 1200
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_007_remind_me_what_memory_wins",
+    "category": "memory_task_fusion",
+    "description": "Remind me what/how/where should be memory recall, not schedule creation.",
+    "setup": {
+      "set_last_topic": "test:robotic_arm",
+      "seed_temp_topic_memory": {
+        "test:large_llm_memory_design": [
+          "User: Where should summarization happen? Assistant: Summarization should happen during episode extraction, before retrieval and before ContextAssembler formatting."
+        ],
+        "test:robotic_arm": [
+          "User: I want smoother servo control. Assistant: Use interpolation."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me where the summarization layer should happen",
+        "alive_checks": {
+          "must_not_contain": [
+            "what should I call it",
+            "when is it",
+            "reminder set"
+          ],
+          "must_contain_one_of": [
+            "episode extraction",
+            "before retrieval",
+            "ContextAssembler",
+            "summarization"
+          ],
+          "expected_last_topic": "test:large_llm_memory_design",
+          "max_response_length": 1400
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_008_web_navigation_task_wins",
+    "category": "memory_task_fusion",
+    "description": "Web navigation command should remain web navigation when active web topic exists.",
+    "setup": {
+      "set_last_topic": "web:ai_act_search",
+      "seed_temp_topic_memory": {
+        "web:ai_act_search": [
+          "User searched for EU AI Act enforcement guidelines. Results included official EU pages and legal analysis."
+        ],
+        "test:episodic_memory": [
+          "User discussed memory routing architecture."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "open the second result",
+        "alive_checks": {
+          "must_not_contain": [
+            "episodic router",
+            "memory architecture"
+          ],
+          "must_contain_one_of": [
+            "second",
+            "result",
+            "open",
+            "web"
+          ],
+          "expected_last_topic": "web:ai_act_search",
+          "max_response_length": 1200
+        }
+      }
+    ]
+  },
+  {
+    "id": "fusion_009_web_memory_recall_wins",
+    "category": "memory_task_fusion",
+    "description": "Question about prior web research should recall web memory, not perform navigation.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "web:ai_act_search": [
+          "User searched for EU AI Act enforcement guidelines. Important result: enforcement guidance focused on compliance timelines and risk categories."
+        ],
+        "test:episodic_memory": [
+          "User discussed memory routing architecture."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what did we find earlier about the AI Act enforcement guidelines?",
+        "alive_checks": {
+          "must_not_contain": [
+            "opening",
+            "clicking",
+            "second result"
+          ],
+          "must_contain_one_of": [
+            "AI Act",
+            "enforcement",
+            "guidelines",
+            "compliance",
+            "risk categories"
+          ],
+          "expected_last_topic": "web:ai_act_search",
+          "max_response_length": 1600
+        }
+      }
+    ]
+  }
+]

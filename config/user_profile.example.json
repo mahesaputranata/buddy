@@ -1,0 +1,21 @@
+{
+  "buddy": {
+    "name": "Buddy",
+    "wake_phrases": [
+      "buddy",
+      "hey buddy"
+    ],
+    "personality": "sharp, direct, personal"
+  },
+  "user": {
+    "name": "Alex",
+    "preferred_address": "Alex",
+    "communication_style": "concise",
+    "background": [
+      "robotics student"
+    ],
+    "preferences": [
+      "morning reminders"
+    ]
+  }
+}

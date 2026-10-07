@@ -1,0 +1,127 @@
+\section*{Real-Time VAD $\rightarrow$ Speaker Recognition $\rightarrow$ STT: Recap \& Next Steps}
+
+\subsection*{Goal}
+Build a real-time pipeline:
+\[
+\text{Mic Stream} \rightarrow \text{VAD (guard)} \rightarrow 
+\begin{cases}
+\text{Speaker Recognition (SR)} \\
+\text{Speech-to-Text (STT)}
+\end{cases}
+\rightarrow \text{Display/Log Transcript (only if SR accepts)}.
+\]
+
+\subsection*{Architecture (industrial-ish)}
+\begin{itemize}
+  \item \textbf{Thread A (real-time)}: sounddevice callback + lightweight VAD + buffering.
+  \item \textbf{Thread B (worker)}: consumes finalized utterances from a queue and runs SR + STT (heavy compute).
+  \item \textbf{Rule}: \emph{Never run SR/STT inside the audio callback.} Callback must stay fast to avoid dropouts.
+\end{itemize}
+
+\subsection*{Pipeline Data Flow}
+\begin{enumerate}
+  \item \textbf{Audio stream} at 16 kHz mono, frame size 20 ms.
+  \item \textbf{VAD} classifies each frame as speech/non-speech using RMS energy (dB) vs threshold:
+  \[
+  \text{speech} \iff e\_{dB} > (\text{noise}\_{dB} + \text{margin}\_{dB}).
+  \]
+  \item \textbf{Segmentation}: on VAD START, begin collecting frames (include pre-roll); on VAD END, finalize utterance.
+  \item \textbf{Worker thread} saves WAV, extracts ECAPA embedding, compares to centroid (cosine), decides ACCEPT/REJECT.
+  \item \textbf{If ACCEPT}: run Whisper STT and print/log transcript.
+\end{enumerate}
+
+\subsection*{Key VAD Concepts \& Parameters}
+\begin{itemize}
+  \item Frame length: \texttt{FRAME\_MS = 20} (320 samples at 16 kHz).
+  \item \textbf{Noise floor estimate}: updated only during non-speech:
+  \[
+  \text{noise}\_{dB} \leftarrow \alpha \cdot \text{noise}\_{dB} + (1-\alpha)\cdot e\_{dB},
+  \]
+  where $\alpha \in [0.9,0.98]$.
+  \item \textbf{Hangover logic}:
+  \begin{itemize}
+    \item Start when \texttt{speech\_count $\ge$ START\_FRAMES}
+    \item End when \texttt{silence\_count $\ge$ END\_FRAMES}
+  \end{itemize}
+  \item \textbf{Pre-roll} (avoid clipping first phoneme): \texttt{PRE\_ROLL\_MS = 200}.
+  \item \textbf{Min/Max utterance}: drop too-short segments and cap too-long segments.
+  \item \textbf{Cooldown} after finalization to avoid rapid re-triggers: \texttt{COOLDOWN\_MS $\approx$ 200}.
+\end{itemize}
+
+\subsection*{What the Debug Output Told Us}
+Observed logs:
+\begin{verbatim}
+noise=-80dB, thr=-77dB, speech=True almost always
+\end{verbatim}
+Interpretation:
+\begin{itemize}
+  \item Noise floor got stuck at the clamp (\texttt{NOISE\_CLAMP\_DB=-80}), making the threshold extremely low.
+  \item Result: almost any real mic energy (e.g., -30 to -60 dB) will exceed threshold and be classified as speech.
+\end{itemize}
+
+\subsection*{How to Confirm SR/STT Is Triggered}
+SR/STT is triggered only after VAD END finalizes an utterance and pushes it to the worker queue.
+Look for these logs:
+\begin{itemize}
+  \item \texttt{[VAD] finalize OK ...}
+  \item \texttt{[QUEUE] pushed utterance ...}
+  \item \texttt{[UTT] ... score=... ACCEPT/REJECT ...}
+  \item \texttt{[STT] ...} (only if ACCEPT)
+\end{itemize}
+If you only see \texttt{[VAD] START/END} but not \texttt{[UTT]}, either the utterance was dropped
+(\texttt{MIN\_UTTERANCE\_MS} too high) or queue/worker is not receiving it.
+
+\subsection*{Immediate Improvements (high impact)}
+\begin{enumerate}
+  \item \textbf{Fix noise clamp}: choose a more realistic clamp for your mic/room:
+  \[
+  \texttt{NOISE\_CLAMP\_DB} \approx -65 \text{ to } -55\ \mathrm{dB}.
+  \]
+  \item \textbf{Increase margin}: start with:
+  \[
+  \texttt{MARGIN\_DB} \approx 6\ \mathrm{dB}.
+  \]
+  \item \textbf{Make noise adapt faster}: change EMA weight:
+  \[
+  \alpha=0.90 \text{ (faster)} \quad \text{instead of} \quad \alpha=0.95.
+  \]
+  \item \textbf{Avoid early returns on silence}: treat very low energy as non-speech but still update counters,
+  so END detection works reliably.
+  \item \textbf{Log transcript to CSV}: add \texttt{text} column to enable plotting later.
+\end{enumerate}
+
+\subsection*{Speaker Recognition Notes}
+\begin{itemize}
+  \item SR is unstable on very short audio. Consider a separate gate:
+  \[
+  \texttt{MIN\_SR\_MS} \approx 1200\text{--}1500\ \mathrm{ms}.
+  \]
+  \item Threshold tuning (\texttt{THRESHOLD}) is environment-dependent.
+  Collect a few sessions and plot score distributions for ACCEPT vs REJECT.
+  \item Improve robustness by enrolling multiple samples (multiple centroids or storing embeddings and using max/mean score).
+\end{itemize}
+
+\subsection*{STT Notes}
+\begin{itemize}
+  \item Whisper runs in the worker thread; expect noticeable latency on CPU.
+  \item For lower latency: use smaller model (\texttt{tiny/base}) or int8 compute.
+  \item Keep \texttt{vad\_filter=False} since you already do VAD segmentation.
+\end{itemize}
+
+\subsection*{Environment Stability Checklist (Windows)}
+\begin{itemize}
+  \item Keep \texttt{torch} and \texttt{torchaudio} versions matched.
+  \item SpeechBrain + huggingface\_hub versions must be compatible; mismatches can break model downloads.
+  \item If console/handle errors occur during downloads, disable progress bars:
+  \[
+  \texttt{HF\_HUB\_DISABLE\_PROGRESS\_BARS=1}.
+  \]
+\end{itemize}
+
+\subsection*{Next Experiments}
+\begin{enumerate}
+  \item Print and analyze \textbf{score histograms} for your voice vs others.
+  \item Tune VAD: margin, clamp, start/end frames for your room noise.
+  \item Add a \textbf{quality gate}: drop segments with very low RMS or too-short duration.
+  \item Add a UI layer: plot accepted transcripts with timestamps.
+\end{enumerate}

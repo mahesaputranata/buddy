@@ -1,0 +1,21 @@
+# Copy to config.yaml (git-ignored). Every key can also be set as an env var: BUDDY_<KEY> (e.g. BUDDY_TELLO_AGENT_PY).
+# Secrets are NEVER read from this file: use environment variables / a .env file:
+#   OPENAI_API_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, GNEWS_API_KEY, NEWSAPI_KEY,
+#   OPENCLAW_PATH (path to the openclaw CLI if it is not on PATH), FRIDAY_AGENT_ID
+
+default_location: Berlin              # weather / news default
+
+# --- devices (all optional; Buddy runs without hardware) ---
+tello_agent_py: ""                    # path to the Tello agent script; empty = no drone
+tello_python: ""                      # python executable for that agent; empty = this interpreter
+rover_sim_binary: ""                  # rover simulator executable
+rover_analyze_script: ""
+rover_results_dir: ""
+
+# --- delegated projects (Friday) ---
+jastip_test_dir: ""                   # test directory of the project Friday QA-tests
+matlab_exe: matlab
+
+# --- speaker verification (voice stack only) ---
+speaker_python: ""                    # interpreter of the speaker-recognition venv; empty = this interpreter
+speaker_worker_script: ""             # default: speaker_recognition/speaker_worker.py

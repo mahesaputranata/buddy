@@ -1,0 +1,608 @@
+[
+  {
+    "meta": {
+      "title": "Buddy Full Interaction Test — Tony Stark Style",
+      "description": "Tests the complete Buddy experience across all domains. Each scenario simulates how Tony Stark would actually use Jarvis — natural, fast, context-switching, occasionally emotional. Not a unit test. A vibe test.",
+      "levels": {
+        "JARVIS": 0.85,
+        "ALIVE": 0.70,
+        "CHATBOT": 0.50
+      }
+    }
+  },
+
+  {
+    "id": "morning_cold_start",
+    "category": "startup_awareness",
+    "description": "Buddy gives morning picture without being asked",
+    "skip": true,
+    "turns": [
+      {
+        "turn": 1,
+        "input": "__STARTUP_GREETING__",
+        "alive_checks": {
+          "must_contain_one_of": ["Good morning", "Good afternoon", "Good evening", "Systems"],
+          "must_not_contain": ["undefined", "null", "error", "None"],
+          "max_response_length": 500,
+          "must_feel": "confident_jarvis_briefing"
+        }
+      }
+    ]
+  },
+  
+  {
+    "id": "session_seed_weather_followup",
+    "category": "startup_awareness",
+    "setup": {
+      "seed_session_context": true
+    },
+    "description": "After seeding session context, Tony asks weather-related followup — Buddy should answer with context not cold",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "should I bring a jacket today",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I don't have", "no information", "not sure"],
+          "must_contain_one_of": ["weather", "temperature", "degrees", "cold", "warm",
+                                  "jacket", "°c", "forecast", "clear", "rain"],
+          "must_feel": "context_aware_not_cold",
+          "note": "Buddy should answer from seeded session:weather context, not cold LLM"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "session_seed_news_followup",
+    "category": "startup_awareness",
+    "setup": {
+      "seed_session_context": true
+    },
+    "description": "Tony asks about something from the morning news brief — Buddy should reference it",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "anything interesting in the news today",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I don't have access", "no news"],
+          "must_contain_one_of": ["headline", "reported", "update", "today", "news",
+                                  "latest", "development", "briefing"],
+          "must_feel": "session_context_used",
+          "note": "Should draw from session:news seed, not search the web"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "schedule_pivot_rover",
+    "category": "context_switching",
+    "description": "Schedule something, pivot to question, then rover — three domain switch",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me about the lab review meeting on Friday at 2pm",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "got it", "reminder", "friday", "2pm", "14:00", "meeting"],
+          "must_not_contain": ["Let's start over", "having trouble"],
+          "must_feel": "task_acknowledged"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "actually how does YOLO object detection work at a high level",
+        "alive_checks": {
+          "must_not_contain": ["schedule", "reminder", "Let's start over"],
+          "must_contain_one_of": ["detection", "neural", "bounding", "real-time", "object", "yolo", "grid"],
+          "must_feel": "clean_pivot_to_chat"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "alright enough theory, connect to the rover",
+        "alive_checks": {
+          "must_not_contain": ["yolo", "detection", "Let's start over"],
+          "must_contain_one_of": ["rover", "powered", "reach", "connect", "powered up"],
+          "must_feel": "clean_pivot_to_device"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "memory_save_recall_flow",
+    "category": "memory_continuity",
+    "description": "Tony saves a technical decision then recalls it — full save-recall loop",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "take a note — I want to use a Kalman filter for the rover odometry, not just encoders",
+        "alive_checks": {
+          "must_contain_one_of": ["noted", "got it", "saved", "kalman", "topic", "call", "what"],
+          "must_not_contain": ["Let's start over", "having trouble"],
+          "must_feel": "note_acknowledged"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "rover odometry",
+        "alive_checks": {
+          "must_contain_one_of": ["kalman", "odometry", "rover", "save", "topic", "got it"],
+          "must_feel": "topic_named"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "stored", "memory", "long-term", "got it"],
+          "must_feel": "save_confirmed"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "mid_conversation_save",
+    "category": "memory_continuity",
+    "description": "Tony discusses RL for 2 turns then asks to save the conversation — full mid-session save flow",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "explain the difference between on-policy and off-policy reinforcement learning",
+        "alive_checks": {
+          "must_contain_one_of": ["on-policy", "off-policy", "policy", "reward",
+                                  "agent", "q-learning", "sarsa", "experience"],
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "technical_explanation"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "which one is better for robotics applications",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to", "Let's start over"],
+          "must_contain_one_of": ["robotics", "policy", "off-policy", "on-policy",
+                                  "sample", "environment", "real world", "depends"],
+          "must_feel": "natural_continuation",
+          "note": "Context from turn 1 must carry — no mention of RL in this turn"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I think this is important, can you save this conversation",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I don't have", "nothing to save"],
+          "must_contain_one_of": ["found", "conversation", "exchanges", "save",
+                                  "summarize", "reinforcement", "memory", "should I"],
+          "must_feel": "save_flow_triggered",
+          "note": "Should detect the active RL topic and offer to save it"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "yes",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "summarized", "long-term", "done", "stored"],
+          "must_not_contain": ["Let's start over", "I'm not sure"],
+          "must_feel": "save_confirmed"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "mid_conversation_save_then_recall",
+    "category": "memory_continuity",
+    "description": "Tony saves a conversation mid-session then recalls it — full loop",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "let's talk about SLAM algorithms for indoor navigation",
+        "alive_checks": {
+          "must_contain_one_of": ["slam", "mapping", "localization", "navigation",
+                                  "indoor", "simultaneous", "sensor", "lidar"],
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "technical_explanation"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "save this conversation",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "nothing to save", "I don't have"],
+          "must_contain_one_of": ["found", "conversation", "slam", "save",
+                                  "summarize", "should I", "exchanges", "memory"],
+          "must_feel": "save_flow_triggered"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "yes save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "summarized", "long-term", "done", "stored"],
+          "must_feel": "save_confirmed"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "what did we discuss about SLAM earlier",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I don't have", "nothing saved"],
+          "must_contain_one_of": ["slam", "mapping", "localization", "navigation",
+                                  "discussed", "earlier", "saved", "found"],
+          "must_feel": "recall_works",
+          "note": "Full loop — save then recall in same session"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "implicit_continuation",
+    "category": "context_continuity",
+    "description": "Tony asks followups with no explicit context — thread must carry naturally",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "explain model predictive control for a ground rover",
+        "alive_checks": {
+          "must_contain_one_of": ["mpc", "model predictive", "horizon", "optimization", "control", "rover"],
+          "must_feel": "technical_explanation"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "how does it handle obstacles though",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to", "could you clarify", "Let's start over"],
+          "must_contain_one_of": ["obstacle", "constraint", "mpc", "prediction", "path", "collision", "avoid"],
+          "must_feel": "natural_continuation",
+          "note": "No mention of MPC — context must carry from turn 1"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "is it better than a simple PID for this",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to", "Let's start over"],
+          "must_contain_one_of": ["pid", "mpc", "tradeoff", "better", "depends", "complex", "performance"],
+          "must_feel": "honest_comparison"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "mid_conversation_pivot_then_return",
+    "category": "context_continuity",
+    "description": "Tony switches topic mid-session then references back — context should survive the switch",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "how does EKF-SLAM handle non-linear motion models",
+        "alive_checks": {
+          "must_contain_one_of": ["ekf", "kalman", "non-linear", "linearize",
+                                  "jacobian", "slam", "covariance", "motion"],
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "technical_explanation"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "what time is it",
+        "alive_checks": {
+          "must_contain_one_of": [":", "am", "pm", "time", "o'clock"],
+          "max_response_length": 80,
+          "must_feel": "crisp_pivot"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "back to what we were discussing — is particle filter SLAM better for this",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to", "Let's start over",
+                              "could you clarify", "not sure what"],
+          "must_contain_one_of": ["particle", "ekf", "slam", "filter",
+                                  "non-linear", "better", "depends", "kalman"],
+          "must_feel": "context_survived_switch",
+          "note": "After a system query pivot, EKF-SLAM context must still be alive"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "web_search_chain",
+    "category": "web_intelligence",
+    "description": "Tony searches, asks followup, opens a result — full web chain",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "search for latest ROS2 Humble navigation updates",
+        "alive_checks": {
+          "must_contain_one_of": ["nav2", "ros2", "humble", "navigation", "update", "release", "stack"],
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "search_complete"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "what's the most relevant change in those results",
+        "alive_checks": {
+          "must_contain_one_of": ["result", "nav", "ros", "update", "change", "navigation", "release"],
+          "must_feel": "web_followup_natural"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "open the first one",
+        "alive_checks": {
+          "must_contain_one_of": ["opening", "result 1", "browser", "github", "nav2", "docs", "open"],
+          "must_feel": "action_taken"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "physical_troubleshoot_vision",
+    "category": "vision_awareness",
+    "description": "Tony describes hardware problem near him — Buddy should offer camera",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "something's off with the wiring on my motor driver, it's right here on the bench",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I don't understand"],
+          "must_contain_one_of": ["look", "see", "check", "bench", "wiring", "motor", "take a look", "want me"],
+          "should_offer_camera": true,
+          "score_vision_awareness_min": 0.55,
+          "must_feel": "proactive_helper"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "yes check it out",
+        "alive_checks": {
+          "must_contain_one_of": ["based on", "looking at", "from what", "i can see",
+                                  "want me", "check", "setup", "webcam", "bench", "wiring"],
+          "must_feel": "vision_engaged"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "frustration_empathy",
+    "category": "tone_matching",
+    "description": "Tony is frustrated — Buddy should feel it, not robotically diagnose",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I've been staring at this control loop for three hours and it still won't converge",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I'm having trouble", "could you rephrase"],
+          "must_contain_one_of": ["understand", "frustrating", "let's", "look at", "try",
+                                  "check", "converge", "help", "tuning", "that's"],
+          "must_feel": "empathetic_not_robotic"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rapid_fire_system",
+    "category": "responsiveness",
+    "description": "Quick system queries one after another — crisp, no padding",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what time is it",
+        "alive_checks": {
+          "must_contain_one_of": [":", "am", "pm", "time", "o'clock"],
+          "max_response_length": 80,
+          "must_feel": "crisp_answer"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "battery status",
+        "alive_checks": {
+          "must_contain_one_of": ["%", "percent", "battery", "charging", "not available"],
+          "max_response_length": 100,
+          "must_feel": "crisp_answer"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "what's the weather",
+        "alive_checks": {
+          "must_contain_one_of": ["°", "celsius", "weather", "temperature",
+                                  "degrees", "cloud", "sun", "rain", "forecast"],
+          "max_response_length": 200,
+          "must_feel": "crisp_answer"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "self_correction_cancel",
+    "category": "conversational_repair",
+    "description": "Tony corrects himself mid-sentence — nothing should get saved or triggered",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me about the — actually no forget it, I'll handle it myself",
+        "alive_checks": {
+          "must_not_contain": ["saved", "scheduled", "reminder set", "Let's start over"],
+          "must_contain_one_of": ["alright", "okay", "sure", "got it", "no problem",
+                                  "noted", "nothing", "understood"],
+          "must_feel": "graceful_cancel"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "ambient_desk_awareness",
+    "category": "vision_awareness",
+    "description": "Tony mentions new hardware casually — Buddy notices without being asked",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I just put the new Jetson board on the desk, haven't powered it yet",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over"],
+          "must_contain_one_of": ["look", "see", "check", "jetson", "board",
+                                  "desk", "power", "want me", "take a look"],
+          "should_offer_camera": true,
+          "score_vision_awareness_min": 0.40,
+          "must_feel": "situationally_aware"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "technical_deep_dive",
+    "category": "technical_conversation",
+    "description": "Tony goes deep on a technical decision — Buddy stays with him across turns",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I'm thinking of switching from ROS2 Nav2 to a custom MPPI controller for the rover",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over"],
+          "must_contain_one_of": ["mppi", "nav2", "controller", "ros2", "navigation",
+                                  "tradeoff", "custom", "interesting"],
+          "must_feel": "engaged_technical"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "what would I lose by dropping Nav2",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to", "Let's start over"],
+          "must_contain_one_of": ["nav2", "localization", "costmap", "planner",
+                                  "lose", "missing", "behavior", "stack"],
+          "must_feel": "natural_continuation"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "is MPPI worth the implementation cost for a small indoor rover",
+        "alive_checks": {
+          "must_not_contain": ["what are you referring to"],
+          "must_contain_one_of": ["mppi", "worth", "cost", "depends", "performance",
+                                  "tradeoff", "complex", "indoor", "small"],
+          "must_feel": "honest_analysis"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "vision_suppression_abstract",
+    "category": "vision_suppression",
+    "description": "Pure abstract question — camera must never trigger",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what's the difference between reinforcement learning and imitation learning",
+        "alive_checks": {
+          "should_offer_camera": false,
+          "vision_should_trigger": false,
+          "score_vision_awareness_max": 0.30,
+          "must_contain_one_of": ["reinforcement", "imitation", "learning",
+                                  "reward", "policy", "demonstration", "agent"],
+          "must_feel": "pure_intellectual"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "delete_memory_flow",
+    "category": "memory_management",
+    "description": "Tony cleans up — delete a topic with confirmation",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "forget everything we discussed about rover odometry",
+        "alive_checks": {
+          "must_contain_one_of": ["sure", "confirm", "delete", "remove", "odometry", "memory"],
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "delete_confirm_requested"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "yes go ahead",
+        "alive_checks": {
+          "must_contain_one_of": ["deleted", "removed", "done", "cleared", "gone", "erased"],
+          "must_feel": "clean_completion"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "schedule_recall_check",
+    "category": "schedule_intelligence",
+    "description": "Tony checks his calendar — should get a real answer not an error",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what do I have coming up this week",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble", "error"],
+          "must_contain_one_of": ["schedule", "upcoming", "nothing", "meeting",
+                                  "reminder", "this week", "no events", "friday", "lab"],
+          "must_feel": "schedule_aware"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rover_explain_repair",
+    "category": "device_context_repair",
+    "description": "Rover not on, Tony explains why, Buddy looks and guides",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "activate the rover",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I'm sorry"],
+          "must_contain_one_of": ["rover", "powered", "reach", "connect", "powered up"],
+          "must_feel": "engaged_not_dead",
+          "follow_up_state_expected": true
+        }
+      },
+      {
+        "turn": 2,
+        "input": "oh I haven't started it yet, it's sitting on the floor next to me",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble", "lost contact"],
+          "must_contain_one_of": ["makes sense", "look", "see", "floor", "powered",
+                                  "start", "want me", "ready", "ah"],
+          "must_feel": "understanding_companion",
+          "follow_up_state_expected": true
+        }
+      },
+      {
+        "turn": 3,
+        "input": "yeah take a look",
+        "alive_checks": {
+          "must_contain_one_of": ["based on", "looking at", "from what", "i can see",
+                                  "setup", "powered", "activate", "ready", "want me",
+                                  "check", "webcam", "floor", "rover"],
+          "must_feel": "situationally_aware",
+          "vision_should_trigger": true
+        }
+      }
+    ]
+  }
+]

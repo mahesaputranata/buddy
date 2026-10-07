@@ -1,0 +1,235 @@
+[
+  {
+    "id": "episodic_recall_001_memory_router",
+    "category": "episodic_memory_recall",
+    "description": "User is currently on robotic arm topic, then asks to continue the episodic memory router idea from an older topic.",
+    "setup": {
+      "set_last_topic": "test:robotic_arm",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: I want to build an episodic memory router for Buddy. Assistant: The router should decide continue_current, episodic_recall, or new_topic before ContextAssembler formats the context.",
+          "User: Should the episodic method be a bridge between input and ContextAssembler? Assistant: Yes. The episodic router should make the memory decision, and ContextAssembler should format selected memories."
+        ],
+        "test:robotic_arm": [
+          "User: I want to control a robotic arm with servo motors. Assistant: We can design inverse kinematics and smooth servo movement."
+        ],
+        "test:sql_optimization": [
+          "User: My SQL join is slow on large tables. Assistant: Check indexes, query plans, and join conditions."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "can we continue the episodic memory router idea from before?",
+        "alive_checks": {
+          "must_not_contain": [
+            "let's start over",
+            "i don't understand",
+            "could you rephrase"
+          ],
+          "must_contain_one_of": [
+            "episodic",
+            "memory router",
+            "ContextAssembler",
+            "continue_current",
+            "episodic_recall"
+          ],
+          "expected_last_topic": "test:episodic_memory",
+          "max_response_length": 1800
+        }
+      }
+    ]
+  },
+  {
+    "id": "episodic_recall_002_sql_from_unrelated_topic",
+    "category": "episodic_memory_recall",
+    "description": "User is on LLM memory topic but asks about a previous SQL issue. System should reconnect to SQL memory.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: I am designing a memory router for Buddy. Assistant: Use route decisions before prompt assembly."
+        ],
+        "test:sql_optimization": [
+          "User: My SQL query is slow when joining user_events and orders. Assistant: Check missing indexes, EXPLAIN plan, join cardinality, and filtering before joining."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what was the fix for my slow SQL join again?",
+        "alive_checks": {
+          "must_not_contain": [
+            "let's start over",
+            "i'm not sure what you mean",
+            "could you rephrase"
+          ],
+          "must_contain_one_of": [
+            "index",
+            "EXPLAIN",
+            "join",
+            "query plan",
+            "filtering"
+          ],
+          "expected_last_topic": "test:sql_optimization",
+          "max_response_length": 1600
+        }
+      }
+    ]
+  },
+  {
+    "id": "episodic_recall_003_new_topic_when_no_memory_matches",
+    "category": "episodic_memory_recall",
+    "description": "User asks about a totally new topic. System should not force old memory.",
+    "setup": {
+      "set_last_topic": "test:robotic_arm",
+      "seed_temp_topic_memory": {
+        "test:robotic_arm": [
+          "User: I want to control a robotic arm. Assistant: We can smooth servo movement."
+        ],
+        "test:episodic_memory": [
+          "User: I want a memory router. Assistant: Use episodic recall before context assembly."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to learn basic guitar chords",
+        "alive_checks": {
+          "must_not_contain": [
+            "robotic arm",
+            "episodic memory",
+            "memory router",
+            "SQL join"
+          ],
+          "must_contain_one_of": [
+            "guitar",
+            "chords",
+            "practice"
+          ],
+          "max_response_length": 1400
+        }
+      }
+    ]
+  },
+  {
+    "id": "episodic_recall_004_rover_reflection",
+    "category": "episodic_memory_recall",
+    "description": "Rover command session should still be usable later for reflective brainstorming.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "rover:session": [
+          "User: go forward. Assistant: Moving forward.",
+          "User: turn left. Assistant: Turning left.",
+          "User: faster. Assistant: Increasing rover speed.",
+          "User: stop. Assistant: Stopping rover."
+        ],
+        "test:episodic_memory": [
+          "User: I am testing memory routing. Assistant: Episodic recall should reconnect previous useful sessions."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "can we brainstorm how to improve the rover movement from earlier?",
+        "alive_checks": {
+          "must_not_contain": [
+            "i don't understand",
+            "could you rephrase",
+            "let's start over"
+          ],
+          "must_contain_one_of": [
+            "rover",
+            "movement",
+            "speed",
+            "turn",
+            "forward"
+          ],
+          "expected_last_topic": "rover:session",
+          "max_response_length": 1800
+        }
+      }
+    ]
+  },
+  {
+    "id": "episodic_recall_005_current_topic_continuation",
+    "category": "episodic_memory_recall",
+    "description": "A pronoun-style follow-up should continue the current topic instead of recalling another memory.",
+    "setup": {
+      "set_last_topic": "test:episodic_memory",
+      "seed_temp_topic_memory": {
+        "test:episodic_memory": [
+          "User: I want to add summarization to the episodic memory router. Assistant: Add summarization during episode extraction before retrieval."
+        ],
+        "test:sql_optimization": [
+          "User: My SQL join is slow. Assistant: Use indexes and query plans."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "where should I put it in the flow?",
+        "alive_checks": {
+          "must_not_contain": [
+            "SQL",
+            "join",
+            "database"
+          ],
+          "must_contain_one_of": [
+            "summarization",
+            "episode extraction",
+            "router",
+            "before retrieval",
+            "ContextAssembler"
+          ],
+          "expected_last_topic": "test:episodic_memory",
+          "max_response_length": 1600
+        }
+      }
+    ]
+  },
+  {
+    "id": "episodic_recall_006_large_memory_summary_pressure",
+    "category": "episodic_memory_recall",
+    "description": "Large memory should not flood the response; Buddy should extract the relevant part.",
+    "setup": {
+      "set_last_topic": "test:robotic_arm",
+      "seed_temp_topic_memory": {
+        "test:large_llm_memory_design": [
+          "User: I am designing a large memory system. Assistant: We discussed many things. Detail A: raw topic memory can become noisy. Detail B: episode extraction should create structured records. Detail C: summarization should happen before retrieval when content is too large. Detail D: the router should decide continue_current, episodic_recall, or new_topic. Detail E: the ContextAssembler should format selected memory, not decide the route. Detail F: special flows like rover, web, and vision should be stored but filtered by recall policy. Detail G: retrieval text should use topic, summary, keywords, and outcome instead of full raw text. Detail H: raw content can be included only as short recent detail."
+        ],
+        "test:robotic_arm": [
+          "User: I want smoother servo motion. Assistant: Use interpolation and rate limits."
+        ]
+      }
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "where should the summarization layer happen in the memory system again?",
+        "alive_checks": {
+          "must_not_contain": [
+            "servo",
+            "robotic arm",
+            "let's start over"
+          ],
+          "must_contain_one_of": [
+            "before retrieval",
+            "episode extraction",
+            "summarization",
+            "ContextAssembler",
+            "router"
+          ],
+          "expected_last_topic": "test:large_llm_memory_design",
+          "max_response_length": 1600
+        }
+      }
+    ]
+  }
+]

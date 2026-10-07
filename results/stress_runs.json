@@ -1,0 +1,425 @@
+{
+  "suite": "scenarios/buddy_tony_stark_tests.json (19 active scenarios)",
+  "model": "llama3.2 (3B) via Ollama; sampling on, so single runs are noisy",
+  "caveats": [
+    "Scenarios and checks were written by the system's author.",
+    "Checks are keyword / behaviour assertions, not human judgement.",
+    "Rover hardware was offline: rover-control outcomes are not meaningful.",
+    "No guards-off control set exists for the context guards."
+  ],
+  "runs": [
+    {
+      "run": "new",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 8,
+      "pass_rate": "42%",
+      "alive_score": 0.83,
+      "context_bleed_turns": null,
+      "failed_scenarios": [
+        "session_seed_weather_followup",
+        "schedule_pivot_rover",
+        "mid_conversation_save",
+        "mid_conversation_save_then_recall",
+        "implicit_continuation",
+        "mid_conversation_pivot_then_return",
+        "frustration_empathy",
+        "self_correction_cancel",
+        "technical_deep_dive",
+        "vision_suppression_abstract",
+        "delete_memory_flow"
+      ],
+      "category_scores": {
+        "startup_awareness": 0.8,
+        "context_switching": 0.833,
+        "memory_continuity": 0.792,
+        "context_continuity": 0.911,
+        "web_intelligence": 1.0,
+        "vision_awareness": 0.912,
+        "tone_matching": 0.75,
+        "responsiveness": 1.0,
+        "conversational_repair": 0.833,
+        "technical_conversation": 0.556,
+        "vision_suppression": 0.667,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 1.0
+      },
+      "note": "first run of this series: before the interrupt-gate, confirmation and save-target fixes, with the (later reverted) clarifier active"
+    },
+    {
+      "run": "new2",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 15,
+      "pass_rate": "79%",
+      "alive_score": 0.934,
+      "context_bleed_turns": null,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "physical_troubleshoot_vision",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 0.895,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.533
+      },
+      "note": "intermediate fixes (interrupt gate, clarifier revert, confirmation handling)"
+    },
+    {
+      "run": "new3",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 15,
+      "pass_rate": "79%",
+      "alive_score": 0.907,
+      "context_bleed_turns": null,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "physical_troubleshoot_vision",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 0.645,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.533
+      },
+      "note": "intermediate fixes (same series as new2)"
+    },
+    {
+      "run": "new4",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 15,
+      "pass_rate": "79%",
+      "alive_score": 0.934,
+      "context_bleed_turns": null,
+      "failed_scenarios": [
+        "memory_save_recall_flow",
+        "mid_conversation_save",
+        "vision_suppression_abstract",
+        "delete_memory_flow"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.861,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 1.0,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 0.667,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 1.0
+      },
+      "note": "intermediate fixes (same series as new2)"
+    },
+    {
+      "run": "new5",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 15,
+      "pass_rate": "79%",
+      "alive_score": 0.957,
+      "context_bleed_turns": 1,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "mid_conversation_pivot_then_return",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 0.967,
+        "web_intelligence": 1.0,
+        "vision_awareness": 1.0,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.833
+      },
+      "note": "after the save-target fix; first run with context-bleed detection"
+    },
+    {
+      "run": "isolated",
+      "date": "2026-10-04",
+      "mode": "isolated",
+      "total": 19,
+      "passed": 16,
+      "pass_rate": "84%",
+      "alive_score": 0.961,
+      "context_bleed_turns": 1,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 1.0,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.833
+      },
+      "note": "--isolate: memory wiped between scenarios (diagnostic, not comparable to continuous runs)"
+    },
+    {
+      "run": "traced",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 14,
+      "pass_rate": "74%",
+      "alive_score": 0.89,
+      "context_bleed_turns": 3,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "physical_troubleshoot_vision",
+        "vision_suppression_abstract",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 0.75,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 0.5,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.5
+      },
+      "note": "--trace-prompts on; used to find the context-bleed mechanism"
+    },
+    {
+      "run": "new6_attempt1",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 16,
+      "pass_rate": "84%",
+      "alive_score": 0.943,
+      "context_bleed_turns": 1,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 1.0,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.5
+      },
+      "note": "after the four context guards were added (flag state not recorded in the report)"
+    },
+    {
+      "run": "new6_attempt2",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 16,
+      "pass_rate": "84%",
+      "alive_score": 0.943,
+      "context_bleed_turns": 0,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "physical_troubleshoot_vision",
+        "delete_memory_flow"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 0.75,
+        "tone_matching": 1.0,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 1.0
+      },
+      "note": "same, repeat run"
+    },
+    {
+      "run": "new6_attempt3",
+      "date": "2026-10-04",
+      "mode": "continuous",
+      "total": 19,
+      "passed": 15,
+      "pass_rate": "79%",
+      "alive_score": 0.947,
+      "context_bleed_turns": 1,
+      "failed_scenarios": [
+        "mid_conversation_save",
+        "frustration_empathy",
+        "delete_memory_flow",
+        "rover_explain_repair"
+      ],
+      "category_scores": {
+        "startup_awareness": 1.0,
+        "context_switching": 1.0,
+        "memory_continuity": 0.972,
+        "context_continuity": 1.0,
+        "web_intelligence": 1.0,
+        "vision_awareness": 1.0,
+        "tone_matching": 0.75,
+        "responsiveness": 1.0,
+        "conversational_repair": 1.0,
+        "technical_conversation": 1.0,
+        "vision_suppression": 1.0,
+        "memory_management": 0.5,
+        "schedule_intelligence": 1.0,
+        "device_context_repair": 0.833
+      },
+      "note": "same, repeat run"
+    }
+  ],
+  "per_scenario_pass_counts_continuous_runs": {
+    "ambient_desk_awareness": {
+      "passed": 9,
+      "runs": 9
+    },
+    "delete_memory_flow": {
+      "passed": 0,
+      "runs": 9
+    },
+    "frustration_empathy": {
+      "passed": 7,
+      "runs": 9
+    },
+    "implicit_continuation": {
+      "passed": 8,
+      "runs": 9
+    },
+    "memory_save_recall_flow": {
+      "passed": 8,
+      "runs": 9
+    },
+    "mid_conversation_pivot_then_return": {
+      "passed": 7,
+      "runs": 9
+    },
+    "mid_conversation_save": {
+      "passed": 0,
+      "runs": 9
+    },
+    "mid_conversation_save_then_recall": {
+      "passed": 8,
+      "runs": 9
+    },
+    "physical_troubleshoot_vision": {
+      "passed": 5,
+      "runs": 9
+    },
+    "rapid_fire_system": {
+      "passed": 9,
+      "runs": 9
+    },
+    "rover_explain_repair": {
+      "passed": 3,
+      "runs": 9
+    },
+    "schedule_pivot_rover": {
+      "passed": 8,
+      "runs": 9
+    },
+    "schedule_recall_check": {
+      "passed": 9,
+      "runs": 9
+    },
+    "self_correction_cancel": {
+      "passed": 8,
+      "runs": 9
+    },
+    "session_seed_news_followup": {
+      "passed": 9,
+      "runs": 9
+    },
+    "session_seed_weather_followup": {
+      "passed": 8,
+      "runs": 9
+    },
+    "technical_deep_dive": {
+      "passed": 8,
+      "runs": 9
+    },
+    "vision_suppression_abstract": {
+      "passed": 6,
+      "runs": 9
+    },
+    "web_search_chain": {
+      "passed": 9,
+      "runs": 9
+    }
+  }
+}

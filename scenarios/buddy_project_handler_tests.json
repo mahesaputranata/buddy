@@ -1,0 +1,365 @@
+[
+  {
+    "id": "project_open_happy_path",
+    "category": "project_handler",
+    "description": "THz trigger detected — note found with high confidence — user confirms resume",
+    "setup": {
+      "mock_note_result": {
+        "path": "Daily_Note_01_04_26.txt",
+        "confidence": 1.0,
+        "file_date": "2026-04-01",
+        "spoken_name": "Daily Note from April 1st, 2026",
+        "ask_user": false,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "not_running",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open my terahertz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "terahertz", "thz", "matlab", "opening", "april"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "i don't understand",
+            "couldn't find"
+          ],
+          "note": "Should open project, read note, speak summary, ask if ready to continue"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Yes let's continue",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "opened", "active", "working on", "what would you like",
+            "terahertz", "discuss"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "i don't understand"
+          ],
+          "note": "Should confirm topic opened and hand off to conversation"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_open_note_confirm_yes",
+    "category": "project_handler",
+    "description": "Note found with borderline confidence — Buddy asks to confirm — user says yes",
+    "setup": {
+      "mock_note_result": {
+        "path": "THz_update_09_04_26.txt",
+        "confidence": 0.81,
+        "file_date": "2026-04-09",
+        "spoken_name": "Daily Note from April 9th, 2026",
+        "ask_user": true,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "correct_folder",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open the terahertz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "found a file", "april 9th", "is that the right",
+            "is that right", "correct one"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "couldn't find"
+          ],
+          "note": "Should ask user to confirm the borderline-confidence note"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Yes that's the one",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "april", "note", "summary", "working on",
+            "what would you like", "continue"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "i don't understand",
+            "is that right"
+          ],
+          "note": "Should accept confirmation, read note, speak summary"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Let's go",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "terahertz", "opened", "active", "discuss",
+            "what would you like", "working"
+          ],
+          "must_not_contain": [
+            "something went wrong"
+          ],
+          "note": "Should open project topic and hand off cleanly"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_open_note_confirm_no",
+    "category": "project_handler",
+    "description": "Note found with borderline confidence — Buddy asks to confirm — user says no — File Explorer opens",
+    "setup": {
+      "mock_note_result": {
+        "path": "THz_update_09_04_26.txt",
+        "confidence": 0.81,
+        "file_date": "2026-04-09",
+        "spoken_name": "Daily Note from April 9th, 2026",
+        "ask_user": true,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "correct_folder",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open the terahertz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "found a file", "april 9th", "is that the right",
+            "is that right", "correct one"
+          ],
+          "must_not_contain": [
+            "something went wrong"
+          ],
+          "note": "Should ask user to confirm the borderline-confidence note"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "No that's not it",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "opened the folder", "notes folder", "point me",
+            "find the right", "let me know"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "saved",
+            "long-term memory"
+          ],
+          "note": "Should open File Explorer, clear pending cleanly"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What is reinforcement learning?",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "reinforcement", "learning", "reward", "agent", "training"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "is that the right",
+            "found a file"
+          ],
+          "note": "Conversation should continue normally after declined note confirm"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_open_no_note",
+    "category": "project_handler",
+    "description": "Notes folder exists but no matching files — File Explorer opens immediately",
+    "setup": {
+      "mock_note_result": {
+        "path": null,
+        "confidence": 0.0,
+        "file_date": null,
+        "spoken_name": "an unknown file",
+        "ask_user": false,
+        "open_explorer": true
+      },
+      "mock_matlab_state": "not_running",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open my thz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "couldn't find", "notes folder", "opened the folder",
+            "point me", "without the note", "continue without"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "i don't understand"
+          ],
+          "note": "Should open File Explorer immediately and offer to continue without note"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Yes continue without it",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "terahertz", "opened", "active", "what would you like",
+            "working", "continue"
+          ],
+          "must_not_contain": [
+            "something went wrong"
+          ],
+          "note": "Should open project topic without note summary"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_resume_cancel",
+    "category": "project_handler",
+    "description": "Project triggered — Buddy presents summary — user says not now",
+    "setup": {
+      "mock_note_result": {
+        "path": "Daily_Note_01_04_26.txt",
+        "confidence": 1.0,
+        "file_date": "2026-04-01",
+        "spoken_name": "Daily Note from April 1st, 2026",
+        "ask_user": false,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "not_running",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open terahertz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "terahertz", "matlab", "april", "opening", "continue"
+          ],
+          "must_not_contain": [
+            "something went wrong"
+          ],
+          "note": "Should open project and present summary"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Not now actually",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "okay", "leave it", "let me know", "whenever",
+            "later", "sure"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "saved",
+            "topic opened"
+          ],
+          "note": "Should cancel cleanly without opening topic"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What is model predictive control?",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "model predictive", "mpc", "control", "prediction",
+            "optimization", "optimisation"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "terahertz",
+            "continue working"
+          ],
+          "note": "Conversation should continue normally after cancel"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_matlab_already_open",
+    "category": "project_handler",
+    "description": "MATLAB already open in correct folder — Buddy skips relaunch",
+    "setup": {
+      "mock_note_result": {
+        "path": "Daily_Note_01_04_26.txt",
+        "confidence": 1.0,
+        "file_date": "2026-04-01",
+        "spoken_name": "Daily Note from April 1st, 2026",
+        "ask_user": false,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "correct_folder",
+      "mock_matlab_open": false
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open my terahertz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "already open", "left it", "as is", "already running"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "opened matlab",
+            "launched matlab"
+          ],
+          "note": "Should detect MATLAB already open and not relaunch"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "project_wrong_folder_matlab",
+    "category": "project_handler",
+    "description": "MATLAB open but in wrong folder — Buddy opens new instance",
+    "setup": {
+      "mock_note_result": {
+        "path": "Daily_Note_01_04_26.txt",
+        "confidence": 1.0,
+        "file_date": "2026-04-01",
+        "spoken_name": "Daily Note from April 1st, 2026",
+        "ask_user": false,
+        "open_explorer": false
+      },
+      "mock_matlab_state": "wrong_folder",
+      "mock_matlab_open": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open the thz project",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "different folder", "new instance", "opened",
+            "wrong folder", "another instance"
+          ],
+          "must_not_contain": [
+            "something went wrong",
+            "already open on the terahertz"
+          ],
+          "note": "Should detect wrong folder and open new MATLAB instance"
+        }
+      }
+    ]
+  }
+]

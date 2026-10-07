@@ -1,0 +1,659 @@
+[
+  {
+    "id": "brutal_mpc_vehicle_dynamics",
+    "category": "deep_brainstorm",
+    "description": "Deep MPC for vehicle dynamics — 8 turns, escalating technical depth, mid-session topic pivot, return to thread",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let's go deep on MPC for vehicle dynamics — I want to understand the prediction horizon trade-off",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand", "could you rephrase"],
+          "must_contain_one_of": ["prediction horizon", "horizon", "mpc", "trade", "stability", "accuracy"],
+          "note": "Opens deep MPC discussion — should engage substantively not surface-level"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "My vehicle model has highly nonlinear tire dynamics — how does that affect the linearization assumption in standard MPC?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "could you rephrase", "let's start over"],
+          "must_contain_one_of": ["lineariz", "nonlinear", "tire", "jacobian", "taylor", "nmpc", "error", "approximat"],
+          "note": "Deep technical — must address the linearization problem specifically for tire dynamics, not generic MPC"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Exactly — so would you go with NMPC or an iterative linearization approach like iLQR for this?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["nmpc", "ilqr", "iterative", "lineariz", "computat", "real-time", "trade"],
+          "note": "Must compare NMPC vs iLQR specifically — not just explain what they are"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Actually hold on — what's the latest news in autonomous vehicle safety regulations? I just heard something about the EU",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "i couldn't find"],
+          "must_contain_one_of": ["search", "look up", "eu", "regulation", "autonomous", "safety", "news", "find"],
+          "note": "Hard pivot to news/web search mid-deep-technical discussion — should handle cleanly, ideally trigger web search"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Interesting — how does that regulatory pressure change the design priorities for my MPC controller?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic"],
+          "must_contain_one_of": ["mpc", "safety", "constraint", "regulation", "design", "certif", "guarantee", "robust"],
+          "note": "CRITICAL context bridge — must connect the news/regulation context back to the MPC design discussion. Tests if Buddy maintains both threads."
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Back to the tire dynamics — if I use a Pacejka model, how do I handle the parameter uncertainty in the MPC cost function?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "i couldn't find", "which topic would you like to open"],
+          "must_contain_one_of": ["pacejka", "tire", "uncertain", "robust", "parameter", "cost", "mpc", "noise"],
+          "note": "Returns to deep technical thread — must remember Pacejka context and uncertainty handling in MPC"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "And how does this compare to what we'd do for a robotic arm — is the uncertainty handling fundamentally different?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["robotic arm", "arm", "manipulator", "vehicle", "differ", "joint", "torque", "compare"],
+          "note": "Cross-domain bridge — must compare vehicle dynamics uncertainty vs robotic arm uncertainty, not just explain one"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Okay save this entire discussion — I want to come back to it",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["save", "saved", "mpc", "vehicle", "discussion", "memory", "summarize", "confirm"],
+          "note": "Save the whole deep conversation — should offer to save or confirm save"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_thz_hiwi_session",
+    "category": "deep_brainstorm",
+    "description": "THz project session — material classification, signal processing, mid-session frustration, web search for paper, return to work",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open my terahertz project — let's work on the material classification pipeline",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["terahertz", "thz", "material", "classif", "project", "pipeline", "matlab"],
+          "note": "Opens THz project — should trigger project handler and engage with classification pipeline"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I'm getting poor separation between plastic and cardboard in the frequency domain — what features should I be extracting?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["frequenc", "feature", "plastic", "cardboard", "spectral", "fft", "absorption", "peak", "thz", "separat"],
+          "note": "Deep domain-specific — must address THz spectral features for material discrimination specifically"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "The absorption peaks are overlapping around 1-2 THz — is there a preprocessing step that could help disambiguate them?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["preprocess", "filter", "baseline", "noise", "deconvolut", "window", "smooth", "peak", "thz", "overlap"],
+          "note": "Must engage with the specific 1-2 THz overlap problem and suggest preprocessing approaches"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "I've been debugging this for four hours and I feel like I'm going in circles — nothing is working",
+        "alive_checks": {
+          "must_not_contain": ["here's a quick summary", "i opened the site", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["understand", "frustrat", "four hours", "difficult", "sounds", "let's", "step back", "circle", "debug", "help"],
+          "note": "CRITICAL empathy test in THz context — must acknowledge frustration before going back to technical help"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Okay let's approach it differently — can you search for recent papers on THz material classification using machine learning?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["search", "look up", "thz", "terahertz", "machine learning", "classif", "paper", "recent", "find"],
+          "note": "Web search pivot after frustration — should cleanly transition to web search for THz ML papers"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Based on what you found — what architecture would make the most sense for my dataset?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "i couldn't find", "which topic would you like to open"],
+          "must_contain_one_of": ["architecture", "network", "cnn", "lstm", "transformer", "dataset", "thz", "classif", "model", "suggest"],
+          "note": "Must synthesize web search results into a concrete architecture recommendation for THz classification"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "My dataset only has 200 samples per class — does that change your recommendation?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["200", "small", "dataset", "augment", "transfer", "overfit", "regulariz", "few-shot", "sample"],
+          "note": "Must adapt the architecture recommendation specifically for small dataset constraint — not just repeat previous answer"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Take a note — dataset size constraint, consider transfer learning from existing THz models or augmentation pipeline",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["note", "topic", "save", "transfer", "augment", "thz", "dataset"],
+          "note": "Should start note-taking flow with the exact content specified"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_rover_slam_deep_dive",
+    "category": "deep_brainstorm",
+    "description": "Rover SLAM — sensor fusion, EKF vs particle filter debate, hardware question mid-discussion, back to algorithm",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to seriously discuss sensor fusion for my rover — I have RPLIDAR, IMU, and wheel encoders",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["sensor fusion", "fusion", "lidar", "imu", "encoder", "rover", "slam", "kalman", "odometry"],
+          "note": "Opens specific sensor configuration — must address fusion of these three sensors specifically"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "My IMU has significant drift — around 0.5 degrees per second — how does that affect the EKF covariance matrix setup?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["covariance", "drift", "imu", "ekf", "noise", "process", "measurement", "0.5", "degree", "q matrix", "r matrix"],
+          "note": "Very specific — must address IMU drift impact on EKF covariance specifically, not generic EKF explanation"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Would a particle filter handle that drift better than EKF in a cluttered indoor environment?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["particle filter", "particle", "ekf", "clutter", "indoor", "nonlinear", "multimodal", "drift", "computa"],
+          "note": "Must make a specific recommendation between particle filter vs EKF for this exact scenario — not just explain both"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "What's the actual compute cost difference — my onboard computer is a Jetson Nano",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["jetson", "nano", "compute", "cpu", "gpu", "particle", "ekf", "cost", "memory", "real-time", "ms"],
+          "note": "Hardware-specific — must address compute feasibility on Jetson Nano specifically for both algorithms"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Remind me — I have a meeting with my supervisor tomorrow at 10am to discuss the rover progress",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["remind", "tomorrow", "10", "supervisor", "meeting", "schedule", "save", "noted", "calendar"],
+          "note": "Mid-discussion schedule save — should save without losing the SLAM context"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Back to the fusion — if I add a camera for visual odometry, how do I weight it against the LiDAR in the state estimate?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["visual odometry", "camera", "lidar", "weight", "fusion", "state", "covariance", "sensor", "trust"],
+          "note": "Returns to fusion thread after schedule save — must remember sensor configuration and continue naturally"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "And what happens when LiDAR gets confused by glass walls — which sensor should the filter trust more?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["glass", "lidar", "reflect", "trust", "weight", "sensor", "outlier", "robust", "camera", "fallback"],
+          "note": "Edge case — glass walls causing LiDAR failure, must address sensor reliability switching"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Okay what are the three most important things I should implement first given my constraints?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["first", "priority", "ekf", "particle", "imu", "lidar", "start", "implement", "recommend", "jetson"],
+          "note": "Synthesis question — must give a concrete prioritized recommendation based on the whole conversation, not generic advice"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_robotic_arm_control",
+    "category": "deep_brainstorm",
+    "description": "Robotic arm control — trajectory planning, singularity avoidance, mid-session pivot to news, return with context intact",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let's discuss trajectory planning for a 6-DOF robotic arm — I'm having issues near singularities",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["singularity", "6-dof", "trajectory", "arm", "joint", "workspace", "planning", "dof"],
+          "note": "Opens arm discussion — must engage with singularity problem specifically"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "The arm loses velocity control near the wrist singularity — Jacobian becomes rank-deficient. How do I handle this in my controller?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["jacobian", "rank", "singularity", "damped", "dls", "pseudo", "inverse", "velocity", "wrist", "manipulability"],
+          "note": "Must address Jacobian rank deficiency and damped least squares or similar approaches specifically"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I'm using DLS but the damping factor causes lag near the singularity — is there a variable damping approach?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["variable", "damping", "dls", "manipulability", "threshold", "adaptive", "singularity", "lagrang", "factor"],
+          "note": "Must go deeper on variable damping — not just explain what DLS is"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Actually — what is the current state of the art for robotic arm control in industry? Are people still using MPC or moving to learning-based?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["industry", "state of the art", "learning", "mpc", "reinforcement", "current", "trend", "search", "look up", "recent"],
+          "note": "Broad state-of-art question — may trigger web search, must give substantive answer about current trends"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Given that trend — should I just train a neural policy for my arm instead of fixing the singularity issue?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["neural", "policy", "singularity", "trade", "training", "data", "certif", "robust", "depend", "recommend"],
+          "note": "Opinion question connecting news/trends to current problem — must give a grounded recommendation, not just describe both options"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Fair point — back to DLS. If I set the damping threshold based on manipulability measure, what's a good starting value for a 6-DOF arm?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["manipulability", "threshold", "0.", "value", "typical", "yoshikawa", "dls", "damping", "start"],
+          "note": "Very specific numerical question — must give a concrete starting value or range, not just theory"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "And how do I tune this threshold experimentally — what should I be observing in my joint velocity plots?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["joint velocity", "velocity", "plot", "observe", "spike", "smooth", "tune", "experiment", "monitor", "threshold"],
+          "note": "Practical tuning advice — must give concrete observables not theoretical explanation"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Save this as robotic arm singularity notes — I'll need this for my thesis",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["save", "saved", "singularity", "robotic arm", "notes", "topic", "thesis", "memory"],
+          "note": "Should save with the specified topic name"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_context_collision",
+    "category": "context_stress",
+    "description": "Maximum context stress — 3 active technical threads, memory saves, web search, recall, all interleaved",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let's talk about my THz project and my rover project at the same time — I want to explore if THz sensing could help the rover detect obstacles",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["thz", "terahertz", "rover", "obstacle", "sensor", "detect", "interesting", "explore"],
+          "note": "Opens two-project cross-domain discussion — should engage with the intersection idea"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "For indoor obstacles, THz can penetrate clothing and cardboard — could that be useful for seeing through boxes on a warehouse floor?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["penetrat", "cardboard", "warehouse", "indoor", "thz", "obstacle", "useful", "box", "see through", "classif"],
+          "note": "Domain-specific THz property — must engage with penetration capability for warehouse scenario"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What is model predictive control?",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["model predictive", "mpc", "optimization", "predict", "control", "horizon"],
+          "note": "Sudden generic question mid-deep-discussion — must answer cleanly without losing THz/rover context"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Okay back to THz for the rover — what would the integration architecture look like?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["thz", "rover", "integrat", "architecture", "sensor", "ros", "pipeline", "detection"],
+          "note": "CRITICAL context return — must come back to the THz+rover thread seamlessly after the MPC detour"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Search for any existing work combining THz sensing with mobile robotics",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["search", "look up", "thz", "terahertz", "robot", "mobile", "find", "paper", "research"],
+          "note": "Web search for novel intersection — should trigger web search for THz + robotics"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Interesting — what do you think is the biggest unsolved challenge for making this practical?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["challenge", "unsolved", "practical", "thz", "cost", "speed", "size", "real-time", "biggest"],
+          "note": "Opinion synthesis question combining web results and domain knowledge — must give a specific opinion"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "Remind me to discuss this THz-rover idea with my supervisor at the Friday meeting",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["remind", "friday", "supervisor", "meeting", "thz", "rover", "schedule", "save", "noted"],
+          "note": "Schedule save with context — should save the meeting note with relevant topic mention"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Now forget the THz-rover idea for now — what's the simplest thing I can do today to improve my rover's SLAM accuracy?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["slam", "accuracy", "today", "simple", "imu", "lidar", "calibrat", "tuning", "encoder", "improve"],
+          "note": "Clean context switch to practical rover SLAM advice — must give a specific actionable recommendation"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_news_to_technical",
+    "category": "context_stress",
+    "description": "News → technical brainstorm → save → recall flow. Tests the full pipeline from web search to domain application",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Search for the latest news about autonomous vehicle regulations in Europe",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["search", "europe", "autonomous", "regulation", "vehicle", "find", "look up"],
+          "note": "Pure web search trigger — should perform web search"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "What does this mean for companies developing ADAS systems right now?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "i couldn't find"],
+          "must_contain_one_of": ["adas", "company", "impact", "compli", "certif", "develop", "regulation", "mean", "require"],
+          "note": "Must connect the search results to practical ADAS development impact — not just repeat search results"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I'm applying to NVIDIA for an ADAS role — how should I position my MPC and computer vision skills given this regulatory trend?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["nvidia", "adas", "mpc", "computer vision", "position", "skill", "regulation", "safety", "certif", "apply"],
+          "note": "Personal career advice connecting regulation trend + technical skills — must give specific positioning advice"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Take a note on this — job application strategy: emphasize safety-certified MPC and regulatory-aware CV pipelines",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["note", "save", "topic", "job", "mpc", "certif", "application", "strategy"],
+          "note": "Note-taking with specific content — should save this strategy note"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Actually wait — what did I save earlier about job application strategy?",
+        "alive_checks": {
+          "must_not_contain": ["which topic would you like to open", "say the topic name", "if you want to continue", "as i remember we've talked about"],
+          "must_contain_one_of": ["job application", "strategy", "mpc", "certif", "computer vision", "found", "saved", "recall"],
+          "note": "CRITICAL specific recall — must answer directly about job application strategy without dumping full topic list"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Good — now going deeper on the technical side: if I need to make my MPC safety-certifiable for ISO 26262, what changes?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["iso 26262", "certif", "safety", "mpc", "formal", "verif", "asil", "functional", "requirement"],
+          "note": "Deep regulatory-technical bridge — must address ISO 26262 requirements for MPC specifically"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "And for the computer vision side — how do I make a perception pipeline certifiable?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["perception", "certif", "neural", "network", "verif", "test", "coverage", "ood", "confidence", "safety"],
+          "note": "Extends certification question to CV — must address neural network certification challenges specifically"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Summarize what we just discussed — I want a clear picture of what I need to learn before this NVIDIA interview",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "which topic would you like to open"],
+          "must_contain_one_of": ["nvidia", "mpc", "certif", "iso", "computer vision", "adas", "regulation", "learn", "interview", "summary", "summar"],
+          "note": "End-of-session synthesis — must pull together the regulatory context, MPC certification, CV certification into a coherent learning plan"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_rapid_fire_context_switch",
+    "category": "context_stress",
+    "description": "Rapid-fire topic switching — 10 turns, no topic stays more than 2 turns, tests context isolation and clean pivots",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Explain EKF-SLAM in one sentence",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["ekf", "extended kalman", "slam", "localization", "mapping", "filter"],
+          "note": "Short, clean — should give a crisp one-sentence answer"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Now explain NMPC in one sentence",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "ekf", "slam"],
+          "must_contain_one_of": ["nonlinear", "nmpc", "mpc", "model predictive", "optimization", "nonlin"],
+          "note": "Immediate pivot — must answer NMPC without bleeding EKF content into it"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What is the Pacejka tire model used for?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["pacejka", "tire", "lateral", "force", "friction", "slip", "vehicle", "model"],
+          "note": "New domain — must answer Pacejka specifically, not bleed MPC or SLAM"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Remind me about my dentist appointment",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "pacejka", "slam", "mpc"],
+          "must_contain_one_of": ["dentist", "appointment", "schedule", "recall", "found", "saved", "memory", "don't have", "haven't"],
+          "note": "Personal recall completely out of domain — must handle cleanly without technical bleed"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "What is THz time domain spectroscopy?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "dentist"],
+          "must_contain_one_of": ["thz", "terahertz", "time domain", "spectroscopy", "pulse", "frequenc", "material"],
+          "note": "Back to technical — must give clean THz-TDS explanation without previous context bleeding"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "How does that relate to what I do in my Hiwi job?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["hiwi", "thz", "terahertz", "classif", "material", "job", "work", "research", "spectroscopy"],
+          "note": "Personal context bridge — must connect THz-TDS to the known Hiwi job context from user profile"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "Search for latest developments in THz imaging systems",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["search", "thz", "terahertz", "imaging", "find", "look up", "latest"],
+          "note": "Web search trigger — should execute search"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Interesting — now back to SLAM: what is the main difference between FastSLAM and GraphSLAM?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "thz", "terahertz"],
+          "must_contain_one_of": ["fastslam", "graphslam", "particle", "graph", "slam", "differ", "map", "node", "factor"],
+          "note": "Hard return to robotics — must give clean comparison without THz bleed"
+        }
+      },
+      {
+        "turn": 9,
+        "input": "Which would you recommend for my indoor rover with the Jetson Nano?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["jetson", "nano", "indoor", "rover", "recommend", "fastslam", "graphslam", "compute", "memory"],
+          "note": "Must remember Jetson Nano constraint from earlier in session and give hardware-specific recommendation"
+        }
+      },
+      {
+        "turn": 10,
+        "input": "Save this whole session — call it rover navigation research",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic would you like to open"],
+          "must_contain_one_of": ["save", "saved", "rover", "navigation", "topic", "memory", "research", "confirm"],
+          "note": "Save with specific topic name — should initiate save flow with the given name"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "brutal_deep_thz_signal_processing",
+    "category": "deep_brainstorm",
+    "description": "Pure THz signal processing depth — bandpass filters, SNR analysis, classifier comparison, no distractions",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Walk me through the full signal processing pipeline for THz-TDS material classification — start from raw time domain data",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["time domain", "raw", "pipeline", "fft", "frequenc", "baseline", "reference", "sample", "thz"],
+          "note": "Must describe the full THz-TDS pipeline from time domain — not generic signal processing"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "At the bandpass filter stage — what cutoff frequencies make sense for distinguishing polymer materials?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over", "could you rephrase"],
+          "must_contain_one_of": ["bandpass", "cutoff", "frequenc", "polymer", "thz", "ghz", "0.", "1.", "2.", "filter", "material"],
+          "note": "Must give specific frequency ranges for polymer discrimination in THz — not just explain bandpass filters"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "My SNR drops significantly above 2 THz — should I discard those frequencies or use weighted features?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["snr", "noise", "weight", "discard", "frequenc", "feature", "2 thz", "above", "quality"],
+          "note": "Must give specific advice on SNR-based frequency selection vs weighting — not generic"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "For the classifier — I've tried SVM and random forest. SVM gets 87%, RF gets 82%. What should I try next?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["svm", "random forest", "87", "82", "next", "try", "cnn", "gradient", "xgboost", "neural", "improve"],
+          "note": "Must recommend a specific next step given the SVM/RF performance numbers — not just explain classifiers"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Wait — I just realized I'm comparing models trained on different feature sets. Does that explain the gap?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["feature", "set", "gap", "explain", "fair", "comparison", "same", "baseline", "control"],
+          "note": "Self-correction moment — must validate the insight and explain why feature set mismatch matters"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Okay assuming same features — what's the theoretical reason SVM might outperform RF on spectral data?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["svm", "random forest", "spectral", "margin", "kernel", "high dimension", "overfit", "theory", "reason"],
+          "note": "Theoretical question — must explain the theoretical advantage of SVM over RF on spectral/high-dimensional data"
+        }
+      },
+      {
+        "turn": 7,
+        "input": "My supervisor wants a conference paper on this by end of May — is my 87% accuracy good enough to publish?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["publish", "conference", "87", "accuracy", "benchmark", "state of the art", "good enough", "thz", "paper", "depend"],
+          "note": "Real-world constraint — must give honest assessment of 87% in context of THz classification literature"
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Search for recent THz material classification papers to see what accuracy others are achieving",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["search", "thz", "terahertz", "classif", "accuracy", "paper", "recent", "find", "look up"],
+          "note": "Evidence-gathering web search to validate the accuracy claim — should execute web search"
+        }
+      }
+    ]
+  }
+]

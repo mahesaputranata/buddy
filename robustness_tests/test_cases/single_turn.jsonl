@@ -1,0 +1,50 @@
+{"id":"st_001","input":"remind me to call the dentist tomorrow at 3pm","expected_intent":"schedule_save","tags":["schedule","time_explicit","event_explicit"]}
+{"id":"st_002","input":"what do i have scheduled for this week","expected_intent":"schedule_recall","tags":["schedule","temporal_week"]}
+{"id":"st_003","input":"save this conversation","expected_intent":"save_memory","tags":["memory","conversation_save"]}
+{"id":"st_004","input":"what did we talk about last time","expected_intent":"recall_memory","tags":["memory","recall_general"]}
+{"id":"st_005","input":"delete our previous conversation about the rover","expected_intent":"delete_memory","tags":["memory","delete_specific"]}
+{"id":"st_006","input":"search for the latest news about electric vehicles","expected_intent":"web_search","tags":["web","explicit_search"]}
+{"id":"st_007","input":"takeoff","expected_intent":"device_control","tags":["device","drone","strong_rule"]}
+{"id":"st_008","input":"what time is it","expected_intent":"system_query","tags":["system","time"]}
+{"id":"st_009","input":"tell me about neural networks","expected_intent":"chat","tags":["chat","curiosity"]}
+{"id":"st_010","input":"what's the weather today","expected_intent":"system_query","tags":["system","weather"]}
+{"id":"st_011","input":"i have a meeting with John tomorrow at 9am","expected_intent":"schedule_save","tags":["schedule","implicit","with_name"]}
+{"id":"st_012","input":"can you recall what we discussed about PID control","expected_intent":"recall_memory","tags":["memory","specific_topic","engineering"]}
+{"id":"st_013","input":"forget about our conversation on the terahertz project","expected_intent":"delete_memory","tags":["memory","delete","engineering_domain"]}
+{"id":"st_014","input":"open 2","expected_intent":"web_followup","tags":["web","followup","index"]}
+{"id":"st_015","input":"summarize the first result","expected_intent":"web_followup","tags":["web","followup","summarize"]}
+{"id":"st_016","input":"connect the rover","expected_intent":"device_control","tags":["device","rover","connect"]}
+{"id":"st_017","input":"what's my battery level","expected_intent":"system_query","tags":["system","battery"]}
+{"id":"st_018","input":"never mind","expected_intent":"chat","tags":["cancel","edge_case"]}
+{"id":"st_019","input":"i think pid controllers are really interesting","expected_intent":"chat","tags":["chat","engineering","opinion"]}
+{"id":"st_020","input":"save this topic","expected_intent":"save_memory","tags":["memory","ambiguous_save"]}
+{"id":"st_021","input":"don't forget i have a gym session on friday at 7am","expected_intent":"schedule_save","tags":["schedule","dont_forget_pattern"]}
+{"id":"st_022","input":"what are my plans for next monday","expected_intent":"schedule_recall","tags":["schedule","temporal_specific"]}
+{"id":"st_023","input":"take a note","expected_intent":"save_memory","tags":["memory","take_note"]}
+{"id":"st_024","input":"where am i","expected_intent":"system_query","tags":["system","location"]}
+{"id":"st_025","input":"google the price of rtx 5090","expected_intent":"web_search","tags":["web","explicit_google"]}
+{"id":"st_026","input":"i want to tell you something important","expected_intent":"save_memory","tags":["memory","save_start_pattern"]}
+{"id":"st_027","input":"delete my schedule for tomorrow","expected_intent":"schedule_delete","tags":["schedule","delete_schedule"]}
+{"id":"st_028","input":"hover","expected_intent":"device_control","tags":["device","drone","flight"]}
+{"id":"st_029","input":"explain how transformer models work","expected_intent":"chat","tags":["chat","explain","ml"]}
+{"id":"st_030","input":"i use a lidar sensor for my rover project","expected_intent":"chat","tags":["chat","engineering","possession_statement"]}
+{"id":"st_031","input":"in my opinion autonomous systems are the future","expected_intent":"chat","tags":["chat","opinion"]}
+{"id":"st_032","input":"do i have any appointments this weekend","expected_intent":"schedule_recall","tags":["schedule","recall","weekend"]}
+{"id":"st_033","input":"erase everything about our drone discussion","expected_intent":"delete_memory","tags":["memory","delete","device_topic"]}
+{"id":"st_034","input":"compare result 1 and result 2","expected_intent":"web_followup","tags":["web","followup","compare"]}
+{"id":"st_035","input":"what's the current situation in ukraine","expected_intent":"web_search","tags":["web","world_event"]}
+{"id":"st_036","input":"i have 3 sensors on my rover","expected_intent":"chat","tags":["chat","engineering","domain_number"]}
+{"id":"st_037","input":"set a reminder for my doctor appointment next thursday at 2pm","expected_intent":"schedule_save","tags":["schedule","set_reminder","time_date"]}
+{"id":"st_038","input":"what did we discuss about trajectory planning","expected_intent":"recall_memory","tags":["memory","recall_specific","engineering"]}
+{"id":"st_039","input":"never mind forget it","expected_intent":"chat","tags":["cancel","compound_cancel"]}
+{"id":"st_040","input":"cpu usage","expected_intent":"system_query","tags":["system","cpu"]}
+{"id":"st_041","input":"my project is about autonomous navigation","expected_intent":"chat","tags":["chat","project_discussion"]}
+{"id":"st_042","input":"land the drone","expected_intent":"device_control","tags":["device","drone","land"]}
+{"id":"st_043","input":"save our conversation about the kalman filter","expected_intent":"save_memory","tags":["memory","conversation_save","engineering"]}
+{"id":"st_044","input":"what's the latest news today","expected_intent":"web_search","tags":["web","news","today"]}
+{"id":"st_045","input":"for an example what if i ask you to remind me something","expected_intent":"chat","tags":["chat","hypothetical"]}
+{"id":"st_046","input":"remind me","expected_intent":"schedule_save","tags":["schedule","bare_remind"]}
+{"id":"st_047","input":"i am using mpc for my control system","expected_intent":"chat","tags":["chat","engineering","possession_declarative"]}
+{"id":"st_048","input":"delete the schedule","expected_intent":"schedule_delete","tags":["schedule","delete_schedule_bare"]}
+{"id":"st_049","input":"what time is my meeting tomorrow","expected_intent":"schedule_recall","tags":["schedule","time_query_for_event"]}
+{"id":"st_050","input":"let's say i want to save a memory how would that work","expected_intent":"chat","tags":["chat","hypothetical","meta"]}

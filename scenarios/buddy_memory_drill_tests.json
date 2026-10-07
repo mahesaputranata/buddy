@@ -1,0 +1,598 @@
+[
+  {
+    "id": "save_happy_path",
+    "category": "memory_save",
+    "description": "Basic save flow: topic name → add note → save trigger",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Can you take a note?",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic", "call this topic"],
+          "must_not_contain": ["something went wrong", "let's start over"],
+          "note": "Should enter Awaiting_Topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Job application strategy",
+        "alive_checks": {
+          "must_contain_one_of": ["job application", "got it", "save this under"],
+          "must_not_contain": ["something went wrong", "what should i call"],
+          "note": "Should confirm topic and enter Awaiting_Topic_Content"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Focus on computer vision and control systems projects",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes", "keep adding"],
+          "must_not_contain": ["something went wrong"],
+          "note": "Should append note and stay in Awaiting_Topic_Content"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory", "stored"],
+          "must_not_contain": ["added that", "current notes", "something went wrong"],
+          "note": "Should trigger save and exit FSM"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_preamble_guard",
+    "category": "memory_save",
+    "description": "Preamble phrases should not be saved as notes",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Can you take a note?",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic", "call this topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "MPC simulation notes",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "mpc", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I want to add something",
+        "alive_checks": {
+          "must_contain_one_of": ["go ahead", "what would you like to add", "sure"],
+          "must_not_contain": ["added that", "user note: i want to add"],
+          "note": "Preamble should prompt not append"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Vehicle dynamics simulation using MATLAB",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"],
+          "must_not_contain": ["user note: i want to add something"],
+          "note": "Only the actual content should be in notes"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Go ahead and save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"],
+          "must_not_contain": ["added that", "user note: go ahead"]
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_varied_triggers",
+    "category": "memory_save",
+    "description": "Different save trigger phrases should all work",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Take a note",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "German language learning plan",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "german", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Practice 30 minutes daily on Duolingo",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"]
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Okay now save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"],
+          "must_not_contain": ["added that", "user note: okay now save"],
+          "note": "okay now save it should trigger save not append"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_then_recall",
+    "category": "memory_chain",
+    "description": "Save a topic then immediately recall it in the same session",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Can you take a note?",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Rover project goals",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "rover", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Highlight computer vision and autonomous navigation",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"]
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"]
+        }
+      },
+      {
+        "turn": 5,
+        "input": "What did we just save about the rover?",
+        "alive_checks": {
+          "must_contain_one_of": ["rover", "computer vision", "navigation", "found"],
+          "must_not_contain": ["couldn't find", "no past", "something went wrong"],
+          "note": "Should recall the just-saved content"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_then_delete",
+    "category": "memory_chain",
+    "description": "Save a topic then delete it and verify it is gone",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Take a note",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Temporary test note",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "temporary", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "This is a test entry to be deleted",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"]
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"]
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Delete my notes about temporary test note",
+        "alive_checks": {
+          "must_contain_one_of": ["delete", "are you sure", "confirm", "temporary"],
+          "must_not_contain": ["something went wrong"],
+          "note": "Should enter delete confirmation flow"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Yes",
+        "alive_checks": {
+          "must_contain_one_of": ["deleted", "removed", "erased", "done"],
+          "must_not_contain": ["something went wrong"],
+          "note": "Should confirm deletion"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "delete_cancel",
+    "category": "memory_delete",
+    "description": "Start delete flow then cancel it",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Delete my notes about rover project",
+        "alive_checks": {
+          "must_contain_one_of": ["are you sure", "delete", "confirm", "rover"],
+          "must_not_contain": ["something went wrong"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Never mind",
+        "alive_checks": {
+          "must_contain_one_of": ["okay", "cancelled", "won't delete", "sure"],
+          "must_not_contain": ["deleted", "removed", "something went wrong"],
+          "note": "Cancel should abort delete without deleting"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_mid_conversation_pivot",
+    "category": "memory_chain",
+    "description": "User starts saving then pivots to chat then comes back",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Can you take a note?",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "ADAS research notes",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "adas", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Actually never mind, what time is it?",
+        "alive_checks": {
+          "must_contain_one_of": ["cancelled", "time", "clock", "okay"],
+          "must_not_contain": ["added that"],
+          "note": "Never mind should cancel the save flow and answer the question"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "recall_no_memory",
+    "category": "memory_recall",
+    "description": "Recall a topic that was never saved — should fail gracefully",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "What did we discuss about quantum computing?",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "couldn't find",
+            "don't have",
+            "no past",
+            "haven't discussed",
+            "nothing saved",
+            "as i remember",
+            "which topic",
+            "would you like to open",
+            "we've talked about"
+          ],
+          "must_not_contain": ["something went wrong", "let's start over"],
+          "note": "Graceful not-found response expected — may list known topics as fallback"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "save_empty_topic_name",
+    "category": "memory_save",
+    "description": "User gives a vague or empty topic name — should ask again",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Can you take a note?",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "It",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "clarify", "name", "topic", "call this"],
+          "must_not_contain": ["got it — i'll save this under it"],
+          "note": "Vague topic 'it' should trigger re-prompt not acceptance"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "multi_save_same_session",
+    "category": "memory_chain",
+    "description": "Save two different topics in one session — both should persist independently",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Take a note",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "First topic",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "first topic", "save this under"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Content for the first topic",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"]
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"]
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Take another note",
+        "alive_checks": {
+          "must_contain_one_of": ["what should i call", "what topic"],
+          "note": "Should start fresh save flow not continue previous"
+        }
+      },
+      {
+        "turn": 6,
+        "input": "Second topic",
+        "alive_checks": {
+          "must_contain_one_of": ["got it", "second topic", "save this under"]
+        }
+      },
+      {
+        "turn": 7,
+        "input": "Content for the second topic",
+        "alive_checks": {
+          "must_contain_one_of": ["added that", "current notes"]
+        }
+      },
+      {
+        "turn": 8,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "long-term memory"]
+        }
+      }
+    ]
+  },
+{
+    "id": "mid_conversation_explicit_save",
+    "category": "memory_chain",
+    "description": "User has a real conversation then explicitly asks to save it",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to work on improving my German language skills",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong", "let's start over"],
+          "note": "Turn 1 builds STM under a topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I think the best approach is daily practice with native speakers",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"],
+          "note": "Turn 2 continues building STM content"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Save this conversation",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "found our conversation",
+            "exchanges",
+            "summarize and save",
+            "should i save",
+            "long-term memory"
+          ],
+          "must_not_contain": ["something went wrong", "what topic", "couldn't find"],
+          "note": "Should detect active topic from STM and ask for confirmation"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Yes",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "summarized", "long-term memory", "done"],
+          "must_not_contain": ["something went wrong", "please say yes or no"],
+          "note": "Confirmation should trigger consolidate_to_long_term"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "mid_conversation_explicit_save_cancel",
+    "category": "memory_chain",
+    "description": "User asks to save conversation then cancels",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I have been thinking about applying to NVIDIA for an ADAS role",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"]
+        }
+      },
+      {
+        "turn": 2,
+        "input": "My main strengths are computer vision and control systems",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"]
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Remember what we talked about",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "found our conversation",
+            "exchanges",
+            "summarize and save",
+            "should i save"
+          ],
+          "must_not_contain": ["something went wrong", "couldn't find"],
+          "note": "Should find STM content and ask for confirmation"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "No",
+        "alive_checks": {
+          "must_contain_one_of": ["okay", "won't save", "alright", "sure"],
+          "must_not_contain": ["saved", "long-term memory", "something went wrong"],
+          "note": "Cancel should abort cleanly without saving"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "adaptive_topic_switch_save_yes",
+    "category": "memory_adaptive",
+    "description": "Topic switches mid-conversation — Buddy detects it and offers to save previous topic — user says yes",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss my MPC simulation project",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"],
+          "note": "Establishes Topic A in STM"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "The main challenge is tuning the prediction horizon for vehicle dynamics",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"],
+          "note": "Continues Topic A — builds STM content"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Actually let me ask about something completely different — what is reinforcement learning?",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "save our previous topic",
+            "save our",
+            "do you want me to save",
+            "reinforcement learning"
+          ],
+          "must_not_contain": ["something went wrong", "let's start over"],
+          "note": "Topic switch should trigger confirm_memory_storage — Buddy answers AND offers to save"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Yes save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "done", "mpc", "previous topic"],
+          "must_not_contain": ["something went wrong"],
+          "note": "Should save Topic A and continue on Topic B"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "adaptive_topic_switch_save_no",
+    "category": "memory_adaptive",
+    "description": "Topic switches mid-conversation — Buddy offers to save — user says no — conversation continues cleanly",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let me tell you about my rover project",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"],
+          "note": "Establishes Topic A"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "It uses ROS2 for navigation and a camera for obstacle detection",
+        "alive_checks": {
+          "must_not_contain": ["something went wrong"],
+          "note": "Builds Topic A STM content"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Anyway what do you think about deep learning for natural language processing?",
+        "alive_checks": {
+          "must_contain_one_of": [
+            "save our previous topic",
+            "save our",
+            "do you want me to save",
+            "deep learning",
+            "natural language"
+          ],
+          "must_not_contain": ["something went wrong", "let's start over"],
+          "note": "Topic switch detected — Buddy answers and offers to save rover topic"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "No don't save it",
+        "alive_checks": {
+          "must_contain_one_of": ["okay", "won't save", "alright", "sure"],
+          "must_not_contain": ["saved", "long-term memory", "something went wrong"],
+          "note": "Should skip save cleanly"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "So what are the main use cases for transformers?",
+        "alive_checks": {
+          "must_contain_one_of": ["transformer", "language", "nlp", "model", "text"],
+          "must_not_contain": ["something went wrong", "let's start over", "save"],
+          "note": "Conversation should continue naturally on new topic after declining save"
+        }
+      }
+    ]
+  }
+]

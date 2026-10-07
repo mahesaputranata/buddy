@@ -1,0 +1,22 @@
+# Core: text mode + evaluation. Versions are deliberately unpinned: pin them once you have a known-good environment.
+# Also needs: Ollama (https://ollama.com) with `ollama pull llama3.2`, and `python -m spacy download en_core_web_sm`.
+ollama
+sentence-transformers
+chromadb
+numpy
+torch
+transformers
+spacy
+dateparser
+python-dateutil
+tzdata
+fuzzywuzzy
+python-Levenshtein
+requests
+beautifulsoup4
+feedparser
+python-dotenv
+pyyaml
+psutil
+websockets
+pytest

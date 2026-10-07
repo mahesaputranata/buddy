@@ -1,0 +1,433 @@
+[
+  {
+    "id": "TSW_001",
+    "category": "topic_switching",
+    "description": "Basic topic switch: robotic arm → 3D printer, expect clean separation and correct answers",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I would like to discuss regarding robotic arm with 6 degrees of freedom",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["robotic arm", "6 degrees", "6 dof", "degrees of freedom"],
+          "note": "Should open robotic arm topic cleanly"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I am thinking to use inverse kinematics for the control",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["inverse kinematics", "ik", "control", "joint"],
+          "note": "Should stay on robotic arm topic and discuss IK"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I am considering to buy a 3D printer, is it worth it?",
+        "alive_checks": {
+          "must_not_contain": ["inverse kinematics", "robotic arm", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["3d printer", "printer", "printing", "worth"],
+          "note": "Topic switch should be detected — should answer 3D printer, NOT continue robotic arm"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "What can I do with it?",
+        "alive_checks": {
+          "must_not_contain": ["inverse kinematics", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["print", "prototype", "design", "create", "model"],
+          "note": "Should stay on 3D printer topic, not drift back to robotic arm"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_002",
+    "category": "topic_switching",
+    "description": "Cross-topic awareness: 3D printer question should retrieve robotic arm as background when user asks about printing robot parts",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let us discuss about robotic arm, I want to build one with 6 DOF",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["robotic arm", "6 dof", "degrees of freedom", "joint"],
+          "note": "Establish robotic arm topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I think I will use servo motors for the joints",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["servo", "motor", "joint", "actuator"],
+          "note": "Continue robotic arm discussion"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "By the way I am considering buying a 3D printer",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["3d printer", "printer", "printing"],
+          "note": "Switch topic to 3D printer cleanly"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Can I use the 3D printer to make parts for my robot?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["robot", "parts", "print", "bracket", "component", "arm"],
+          "note": "KEY TEST: user bridges both topics. System should pull robotic arm as background context and give a connected answer about printing robot parts"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "What specific parts of the robotic arm can I print?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["joint", "bracket", "mount", "gripper", "link", "servo mount", "frame"],
+          "note": "Should use BOTH contexts — 3D printer primary, robotic arm background"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_003",
+    "category": "topic_switching",
+    "description": "Rapid topic switches: 3 topics in sequence, no bleed between unrelated ones",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss MPC controllers for path planning",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["mpc", "model predictive", "path planning", "control", "controller"],
+          "note": "Open MPC topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Now I want to talk about something else, what do you think about buying a 3D printer?",
+        "alive_checks": {
+          "must_not_contain": ["mpc", "model predictive", "couldn't parse"],
+          "must_contain_one_of": ["3d printer", "printer", "printing", "worth"],
+          "note": "Switch to 3D printer — MPC context should NOT appear"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Okay let us now go back to discussing the rover project",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "robot", "project", "navigation", "control"],
+          "note": "Switch to rover topic. No 3D printer bleed"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "What controller should I use for the rover navigation?",
+        "alive_checks": {
+          "must_not_contain": ["3d printer", "printing", "couldn't parse"],
+          "must_contain_one_of": ["controller", "mpc", "pid", "navigation", "path", "control"],
+          "note": "KEY TEST: rover + controller question should ideally pull MPC background context since MPC is relevant to rover navigation — cross-topic link should fire"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_004",
+    "category": "topic_switching",
+    "description": "Device control guard: discussing robotic arm interaction should NOT trigger rover command handler",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss about the robotic arm",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse the exact command", "something went wrong"],
+          "must_contain_one_of": ["robotic arm", "arm", "robot"],
+          "note": "Should open as chat, not device control"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I want to make the robotic arm able to grab objects and interact with humans naturally",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["grab", "interact", "human", "gripper", "natural", "object detection", "vision"],
+          "note": "CRITICAL: the word grab must NOT trigger rover device handler"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I would like to make it able to pick up a glass or a box",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["pick", "grasp", "gripper", "object", "glass", "box", "sensor"],
+          "note": "Physical object manipulation description should remain in chat domain"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_005",
+    "category": "topic_switching",
+    "description": "Return to previous topic: user explicitly wants to go back",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss inverse kinematics for my robotic arm",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["inverse kinematics", "ik", "joint", "control"],
+          "note": "Establish robotic arm topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Should I also use reinforcement learning on top of IK?",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["reinforcement learning", "rl", "q-learning", "reward", "learning"],
+          "note": "Deepen the robotic arm discussion"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "By the way what is your opinion about the latest GPU prices?",
+        "alive_checks": {
+          "must_not_contain": ["inverse kinematics", "reinforcement learning", "couldn't parse"],
+          "must_contain_one_of": ["gpu", "price", "graphics", "nvidia", "amd", "cost"],
+          "note": "Abrupt unrelated pivot — should handle cleanly"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Okay let me go back to the robotic arm discussion",
+        "alive_checks": {
+          "must_not_contain": ["gpu", "graphics card", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["robotic arm", "inverse kinematics", "reinforcement learning", "arm", "we discussed", "earlier"],
+          "note": "KEY TEST: explicit return signal — should resume robotic arm with prior context, not start fresh"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_006",
+    "category": "cross_topic_awareness",
+    "description": "Proactive link: 3D printer + robotic arm should trigger Buddy to connect them without being asked",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Let us talk about building a robotic arm, specifically the structural design",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["robotic arm", "structural", "design", "frame", "material"],
+          "note": "Establish robotic arm structural context"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I am thinking about using aluminium or maybe 3D printed parts for the frame",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["aluminium", "aluminum", "3d print", "material", "frame", "structural"],
+          "note": "User is bridging the two topics themselves — should recognize the connection"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I am considering buying a 3D printer for this purpose",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["3d printer", "printer", "arm", "parts", "robotic", "print"],
+          "note": "KEY TEST: Buddy should connect the 3D printer to the robotic arm project proactively. Response should mention the arm or the parts use case"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_007",
+    "category": "topic_switching",
+    "description": "Same-session topic persistence: continuing a topic after a short interruption",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Tell me about Q-learning for robotic control",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["q-learning", "q learning", "reinforcement", "reward", "state", "action"],
+          "note": "Open Q-learning topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "What is the difference between Q-learning and deep Q-learning?",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["deep q", "dqn", "neural network", "function approximation", "difference"],
+          "note": "Deepen on same topic"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What time is it?",
+        "alive_checks": {
+          "must_not_contain": ["q-learning", "reinforcement", "couldn't parse"],
+          "must_contain_one_of": ["time", "clock", "am", "pm", ":"],
+          "max_response_length": 80,
+          "note": "Short system query interruption — should answer cleanly and briefly"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Okay back to Q-learning, how do I implement the reward function for a robotic arm?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["reward", "function", "q-learning", "reinforcement", "state", "episode"],
+          "note": "Should resume Q-learning context after system query interruption"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_008",
+    "category": "topic_switching",
+    "description": "Repetition guard: same question rephrased should not get copy-pasted robotic arm answer when in 3D printer context",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss robotic arm controllers",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["controller", "control", "robotic arm", "pid", "mpc"],
+          "note": "Establish robotic arm controller context"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "What kind of controller is best for precise motion control?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["pid", "mpc", "controller", "precise", "servo", "feedback"],
+          "note": "Get controller recommendation stored in memory"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Now I want to talk about 3D printers",
+        "alive_checks": {
+          "must_not_contain": ["pid", "mpc", "controller", "couldn't parse"],
+          "must_contain_one_of": ["3d printer", "printer", "printing"],
+          "note": "Switch topic cleanly"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "What kind of controller is best for precise motion on a 3D printer?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong", "robotic arm components for assembly, welding"],
+          "must_contain_one_of": ["stepper", "motor", "marlin", "firmware", "bed", "extruder", "axis", "motion control"],
+          "note": "CRITICAL REPETITION TEST: same question structure but different context. Should NOT paste the robotic arm controller answer. Should answer about 3D printer motion control (stepper motors, firmware etc)"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_009",
+    "category": "cross_topic_awareness",
+    "description": "Multi-hop connection: rover + robotic arm + MPC all discussed, then user asks bridging question",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to build a rover for outdoor navigation",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "navigation", "outdoor", "robot"],
+          "note": "Establish rover topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I am also building a robotic arm to attach to the rover",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["robotic arm", "arm", "attach", "rover", "mount"],
+          "note": "Bridge rover and robotic arm"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What controller architecture would work for both the rover navigation and the arm?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["mpc", "controller", "navigation", "arm", "integrated", "architecture", "pid", "ros"],
+          "note": "KEY TEST: question spans both established topics. Multi-group retrieval should pull both rover and robotic arm context and give a unified answer"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "TSW_010",
+    "category": "topic_switching",
+    "description": "Save and return: user saves robotic arm topic then discusses something else, then asks to go back",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss about robotic arm inverse kinematics",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["inverse kinematics", "ik", "robotic arm", "joint"],
+          "note": "Establish robotic arm IK topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Should I use Denavit-Hartenberg parameters for my 6 DOF arm?",
+        "alive_checks": {
+          "must_not_contain": ["rover", "couldn't parse"],
+          "must_contain_one_of": ["denavit", "hartenberg", "dh", "parameter", "transformation", "frame", "6 dof"],
+          "note": "Deepen IK discussion"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Yes please save our robotic arm discussion",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["saved", "save", "robotic arm", "long-term", "memory", "store"],
+          "note": "Save the robotic arm conversation to long-term memory"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Now let us talk about 3D printing materials",
+        "alive_checks": {
+          "must_not_contain": ["inverse kinematics", "denavit", "couldn't parse"],
+          "must_contain_one_of": ["material", "pla", "abs", "petg", "filament", "3d print"],
+          "note": "Switch to new topic after saving"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Can you remind me what we discussed about the robotic arm earlier?",
+        "alive_checks": {
+          "must_not_contain": ["3d print", "filament", "couldn't parse", "we haven't discussed"],
+          "must_contain_one_of": ["robotic arm", "inverse kinematics", "denavit", "6 dof", "we discussed", "earlier"],
+          "note": "KEY TEST: should recall from long-term memory the saved robotic arm content"
+        }
+      }
+    ]
+  }
+]

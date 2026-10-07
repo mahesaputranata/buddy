@@ -1,0 +1,446 @@
+[
+  {
+    "id": "mt_001",
+    "description": "Complete schedule save with missing title filled in follow-up",
+    "flow_type": "schedule_save_completion",
+    "tags": ["schedule", "multi_turn", "missing_field"],
+    "turns": [
+      {
+        "input": "remind me tomorrow at 9am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": "Awaiting_Schedule_Details",
+        "note": "has time but no title — should ask for title"
+      },
+      {
+        "input": "dentist appointment",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "provides title — flow should complete"
+      }
+    ]
+  },
+  {
+    "id": "mt_002",
+    "description": "Schedule save interrupted mid-flow by weather query — flow survives",
+    "flow_type": "mid_flow_interrupt_soft",
+    "tags": ["schedule", "multi_turn", "mid_flow_switch", "system_query"],
+    "turns": [
+      {
+        "input": "remind me tomorrow at 9am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": "Awaiting_Schedule_Details"
+      },
+      {
+        "input": "wait what's the weather today",
+        "expected_intent": "system_query",
+        "expected_pending_after": "Awaiting_Schedule_Details",
+        "note": "soft query — pending state should survive, weather answered inline"
+      },
+      {
+        "input": "dentist",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "user returns to flow — should complete"
+      }
+    ]
+  },
+  {
+    "id": "mt_003",
+    "description": "Schedule save hard-cancelled by nevermind",
+    "flow_type": "mid_flow_cancel",
+    "tags": ["schedule", "multi_turn", "cancel"],
+    "turns": [
+      {
+        "input": "remind me to pick up groceries on saturday at 10am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "complete — both title and time present"
+      },
+      {
+        "input": "actually never mind",
+        "expected_intent": "chat",
+        "expected_pending_after": null,
+        "note": "cancel after save — no pending to cancel but should not crash"
+      }
+    ]
+  },
+  {
+    "id": "mt_004",
+    "description": "Save memory full flow: ambiguous save → topic naming → content → confirm",
+    "flow_type": "save_memory_full",
+    "tags": ["memory", "save", "multi_turn", "full_flow"],
+    "turns": [
+      {
+        "input": "save this",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_Topic",
+        "note": "bare save — should ask for topic name"
+      },
+      {
+        "input": "kalman filter",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_Topic_Content",
+        "note": "topic named — should ask for content or confirm"
+      },
+      {
+        "input": "save",
+        "expected_intent": "save_memory",
+        "expected_pending_after": null,
+        "note": "confirm save — flow completes"
+      }
+    ]
+  },
+  {
+    "id": "mt_005",
+    "description": "Recall memory: general → user picks topic → specific shown",
+    "flow_type": "recall_memory_general_to_specific",
+    "tags": ["memory", "recall", "multi_turn", "general_to_specific"],
+    "turns": [
+      {
+        "input": "what did we talk about",
+        "expected_intent": "recall_memory",
+        "expected_pending_after": "Awaiting_General_Recall",
+        "note": "general recall — should list topics"
+      },
+      {
+        "input": "the one about pid control",
+        "expected_intent": "recall_memory",
+        "expected_pending_after": null,
+        "note": "user picks topic — should show specific memory"
+      }
+    ]
+  },
+  {
+    "id": "mt_006",
+    "description": "Delete memory: specific topic with confirmation",
+    "flow_type": "delete_memory_confirm",
+    "tags": ["memory", "delete", "multi_turn", "confirmation"],
+    "turns": [
+      {
+        "input": "delete our conversation about the terahertz project",
+        "expected_intent": "delete_memory",
+        "expected_pending_after": "Awaiting_Delete_Confirm",
+        "note": "should ask for confirmation before deleting"
+      },
+      {
+        "input": "yes",
+        "expected_intent": "delete_memory",
+        "expected_pending_after": null,
+        "note": "confirmed — should delete and clear pending"
+      }
+    ]
+  },
+  {
+    "id": "mt_007",
+    "description": "Delete memory: user says no — flow aborts cleanly",
+    "flow_type": "delete_memory_abort",
+    "tags": ["memory", "delete", "multi_turn", "abort"],
+    "turns": [
+      {
+        "input": "delete our conversation about trajectory planning",
+        "expected_intent": "delete_memory",
+        "expected_pending_after": "Awaiting_Delete_Confirm"
+      },
+      {
+        "input": "no",
+        "expected_intent": "chat",
+        "expected_pending_after": null,
+        "note": "user declines — pending cleared, no deletion"
+      }
+    ]
+  },
+  {
+    "id": "mt_008",
+    "description": "Web search → followup open result → followup summarize",
+    "flow_type": "web_search_to_followup",
+    "tags": ["web", "multi_turn", "search_to_followup"],
+    "turns": [
+      {
+        "input": "search for the latest updates on px4 autopilot",
+        "expected_intent": "web_search",
+        "expected_pending_after": null,
+        "note": "fresh search — should run and store results"
+      },
+      {
+        "input": "open the first one",
+        "expected_intent": "web_followup",
+        "expected_pending_after": null,
+        "note": "navigate result — should open browser"
+      },
+      {
+        "input": "summarize it",
+        "expected_intent": "web_followup",
+        "expected_pending_after": null,
+        "note": "summarize active result"
+      }
+    ]
+  },
+  {
+    "id": "mt_009",
+    "description": "Chat topic discussion — intent stays as chat across turns",
+    "flow_type": "sustained_chat",
+    "tags": ["chat", "multi_turn", "topic_continuity"],
+    "turns": [
+      {
+        "input": "tell me about model predictive control",
+        "expected_intent": "chat",
+        "expected_pending_after": null
+      },
+      {
+        "input": "how does it differ from pid",
+        "expected_intent": "chat",
+        "expected_pending_after": null,
+        "note": "follow-up on same topic — should stay chat, not misfire as recall"
+      },
+      {
+        "input": "what are the main drawbacks",
+        "expected_intent": "chat",
+        "expected_pending_after": null
+      }
+    ]
+  },
+  {
+    "id": "mt_010",
+    "description": "HARD: Schedule save interrupted by completely different intent — new task starts",
+    "flow_type": "hard_intent_switch",
+    "tags": ["schedule", "multi_turn", "hard_switch", "adversarial"],
+    "turns": [
+      {
+        "input": "remind me tomorrow at 9am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": "Awaiting_Schedule_Details"
+      },
+      {
+        "input": "actually search for the latest news about openai",
+        "expected_intent": "web_search",
+        "expected_pending_after": null,
+        "note": "explicit new task — should interrupt schedule flow"
+      }
+    ]
+  },
+  {
+    "id": "mt_011",
+    "description": "HARD: Recall then immediately switch to save — two memory intents in sequence",
+    "flow_type": "memory_intent_switch",
+    "tags": ["memory", "multi_turn", "intent_switch", "adversarial"],
+    "turns": [
+      {
+        "input": "what did we talk about last time",
+        "expected_intent": "recall_memory",
+        "expected_pending_after": "Awaiting_General_Recall"
+      },
+      {
+        "input": "actually save this conversation instead",
+        "expected_intent": "save_memory",
+        "expected_pending_after": null,
+        "note": "user pivots from recall to save — should NOT stay in recall pending"
+      }
+    ]
+  },
+  {
+    "id": "mt_012",
+    "description": "HARD: Engineering context — schedule save with engineering terms present",
+    "flow_type": "engineering_schedule_conflict",
+    "tags": ["schedule", "engineering", "adversarial", "domain_override"],
+    "turns": [
+      {
+        "input": "i need to test my pid controller results",
+        "expected_intent": "chat",
+        "expected_pending_after": null,
+        "note": "engineering statement — should be chat not schedule"
+      },
+      {
+        "input": "remind me to submit the pid test report on friday at 5pm",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "explicit schedule save even with engineering term — should save"
+      }
+    ]
+  },
+  {
+    "id": "mt_013",
+    "description": "HARD: Rover control then chat question — topic switch away from device",
+    "flow_type": "device_to_chat_switch",
+    "tags": ["device", "rover", "multi_turn", "topic_switch"],
+    "turns": [
+      {
+        "input": "connect the rover",
+        "expected_intent": "device_control",
+        "expected_pending_after": null
+      },
+      {
+        "input": "by the way what time is it",
+        "expected_intent": "system_query",
+        "expected_pending_after": null,
+        "note": "sidebar system query — should answer without breaking device context"
+      },
+      {
+        "input": "move the rover forward",
+        "expected_intent": "device_control",
+        "expected_pending_after": null,
+        "note": "returns to device — context should still work"
+      }
+    ]
+  },
+  {
+    "id": "mt_014",
+    "description": "HARD: Save conversation after extended chat about a topic",
+    "flow_type": "save_after_chat",
+    "tags": ["memory", "save", "multi_turn", "conversation_save"],
+    "turns": [
+      {
+        "input": "explain the extended kalman filter",
+        "expected_intent": "chat",
+        "expected_pending_after": null
+      },
+      {
+        "input": "how does it handle nonlinear systems",
+        "expected_intent": "chat",
+        "expected_pending_after": null
+      },
+      {
+        "input": "save our conversation about this",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_ConversationSave_Confirm",
+        "note": "save after extended chat — should find ekf in STM and offer to save"
+      },
+      {
+        "input": "yes",
+        "expected_intent": "save_memory",
+        "expected_pending_after": null,
+        "note": "confirm — flow completes, saved to LTM"
+      }
+    ]
+  },
+  {
+    "id": "mt_015",
+    "description": "HARD: Repeated no-answers — stuck state detection",
+    "flow_type": "stuck_state_recovery",
+    "tags": ["edge_case", "stuck_state", "robustness"],
+    "turns": [
+      {
+        "input": "save this",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_Topic"
+      },
+      {
+        "input": "i don't know",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_Topic",
+        "note": "unclear response — should re-ask for topic"
+      },
+      {
+        "input": "whatever",
+        "expected_intent": "chat",
+        "expected_pending_after": null,
+        "note": "stuck_count hits 2 — system should reset and offer fresh start"
+      }
+    ]
+  },
+  {
+    "id": "mt_016",
+    "description": "Schedule recall then immediately a new schedule save",
+    "flow_type": "recall_then_save",
+    "tags": ["schedule", "multi_turn", "recall_to_save"],
+    "turns": [
+      {
+        "input": "what do i have scheduled for tomorrow",
+        "expected_intent": "schedule_recall",
+        "expected_pending_after": null
+      },
+      {
+        "input": "ok add a dentist appointment at 3pm",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "clean switch from recall to save"
+      }
+    ]
+  },
+  {
+    "id": "mt_017",
+    "description": "HARD: Delete rejected then immediately new intent",
+    "flow_type": "delete_abort_then_new_intent",
+    "tags": ["memory", "delete", "multi_turn", "post_abort"],
+    "turns": [
+      {
+        "input": "delete our conversation about sensors",
+        "expected_intent": "delete_memory",
+        "expected_pending_after": "Awaiting_Delete_Confirm"
+      },
+      {
+        "input": "no wait search for lidar sensor comparison instead",
+        "expected_intent": "web_search",
+        "expected_pending_after": null,
+        "note": "user cancels delete AND starts new task in same utterance"
+      }
+    ]
+  },
+  {
+    "id": "mt_018",
+    "description": "Web search then switch to completely unrelated schedule",
+    "flow_type": "web_to_schedule_switch",
+    "tags": ["web", "schedule", "multi_turn", "topic_switch"],
+    "turns": [
+      {
+        "input": "search for autonomous vehicle news",
+        "expected_intent": "web_search",
+        "expected_pending_after": null
+      },
+      {
+        "input": "oh and remind me to check the results tomorrow morning at 8am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null,
+        "note": "schedule while web topic is active — should NOT be web_followup"
+      }
+    ]
+  },
+  {
+    "id": "mt_019",
+    "description": "HARD: Three-way intent switch: chat → schedule → recall in three turns",
+    "flow_type": "three_way_switch",
+    "tags": ["multi_turn", "adversarial", "three_way_switch"],
+    "turns": [
+      {
+        "input": "how does gps work",
+        "expected_intent": "chat",
+        "expected_pending_after": null
+      },
+      {
+        "input": "remind me to calibrate my gps module next monday at 10am",
+        "expected_intent": "schedule_save",
+        "expected_pending_after": null
+      },
+      {
+        "input": "do you remember what we talked about regarding sensor fusion",
+        "expected_intent": "recall_memory",
+        "expected_pending_after": null,
+        "note": "three clean intent switches in three turns"
+      }
+    ]
+  },
+  {
+    "id": "mt_020",
+    "description": "HARD: Conversation save with topic disambiguation — two similar topics in STM",
+    "flow_type": "conversation_save_disambiguation",
+    "tags": ["memory", "save", "disambiguation", "adversarial"],
+    "turns": [
+      {
+        "input": "save our conversation about control",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_ConversationSave_TopicPick",
+        "note": "multiple matching topics — should ask to pick"
+      },
+      {
+        "input": "the pid one",
+        "expected_intent": "save_memory",
+        "expected_pending_after": "Awaiting_ConversationSave_Confirm",
+        "note": "user picks — confirm before saving"
+      },
+      {
+        "input": "yes save it",
+        "expected_intent": "save_memory",
+        "expected_pending_after": null
+      }
+    ]
+  }
+]

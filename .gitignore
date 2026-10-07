@@ -1,0 +1,57 @@
+# secrets
+.env
+.env.*
+*.key
+*token*.json
+credentials*.json
+client_secret*.json
+.spotify_token_cache
+
+# private config (copy the *.example.* files and edit)
+config.yaml
+config/*
+!config/*.example.*
+
+# personal data
+memory/
+memory_db/
+sql_memory/
+episodes/
+chroma*/
+*.sqlite
+*.sqlite3
+*.db
+logs/
+mic_logs/
+transcripts/
+webcam_captures/
+screenshots/
+*.wav
+*.mp3
+*.m4a
+voice_samples/
+watchdog_output/
+speaker_recognition/profile/
+speaker_recognition/data/
+*.npy
+*.pkl
+
+# models / caches
+*.pt
+*.onnx
+*.bin
+models/
+pretrained_models/
+.cache/
+embeddings_cache/
+semantic_episode_embeddings.json
+
+# python / IDE
+__pycache__/
+*.pyc
+venv/
+.venv/
+myenv/
+.idea/
+.vscode/
+.pytest_cache/

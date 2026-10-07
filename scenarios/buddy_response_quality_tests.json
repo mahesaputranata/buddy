@@ -1,0 +1,535 @@
+[
+  {
+    "id": "rq_lidar_topic_continuity",
+    "category": "response_quality",
+    "description": "Multi-turn LiDAR discussion — tests topic continuity, no hallucination of unseen code, correct sensor recognition",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I would like to discuss something about my rover project",
+        "alive_checks": {
+          "must_not_contain": [
+            "let's start over",
+            "i don't understand",
+            "could you rephrase"
+          ],
+          "must_contain_one_of": [
+            "rover", "project", "help", "tell me", "what", "how"
+          ],
+          "max_response_length": 300,
+          "note": "Should open rover topic cleanly, not dump all memory topics"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I am trying to implement a 2D LiDAR which is using RPLIDAR",
+        "alive_checks": {
+          "must_not_contain": [
+            "let's start over",
+            "i don't understand",
+            "not familiar with",
+            "reinforcement learning"
+          ],
+          "must_contain_one_of": [
+            "lidar", "rplidar", "sensor", "2d", "scan", "navigation", "ros"
+          ],
+          "max_response_length": 400,
+          "note": "Must recognize RPLIDAR correctly — not misroute to RL or other topic"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What kind of data processing should I consider for this type of LiDAR?",
+        "alive_checks": {
+          "must_not_contain": [
+            "3d point cloud",
+            "velodyne",
+            "azure",
+            "i've reviewed the code you shared",
+            "from what i can see in your code",
+            "your code shows",
+            "the code you provided"
+          ],
+          "must_contain_one_of": [
+            "scan", "distance", "angle", "filter", "range", "2d", "obstacle", "point", "noise"
+          ],
+          "max_response_length": 500,
+          "note": "CRITICAL: must NOT fabricate a code review. No code was shared. Must stay 2D-specific, not mention Velodyne or Azure Kinect."
+        }
+      },
+      {
+        "turn": 4,
+        "input": "I am using S1 LiDAR and RPLIDAR which are both 2D sensors",
+        "alive_checks": {
+          "must_not_contain": [
+            "3d point cloud",
+            "depth and color images",
+            "i've reviewed",
+            "from what i can see in your code"
+          ],
+          "must_contain_one_of": [
+            "s1", "rplidar", "2d", "scan", "ros", "driver", "serial", "usb", "range"
+          ],
+          "max_response_length": 400,
+          "note": "Should acknowledge both sensors correctly. S1 is Slamtec S1, RPLIDAR is also Slamtec family."
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Do you have any idea about the signal processing code I should use for these LiDAR types?",
+        "alive_checks": {
+          "must_not_contain": [
+            "i've reviewed the lidar signal processing code you've shared",
+            "from what i can see",
+            "it appears that you're using",
+            "gaussian and median filters",
+            "wavelet transformations",
+            "code you shared so far"
+          ],
+          "must_contain_one_of": [
+            "ros", "rplidar", "package", "driver", "scan", "laserscan", "filter", "suggest", "recommend", "consider", "you could", "one approach"
+          ],
+          "max_response_length": 500,
+          "note": "CRITICAL hallucination test — no code was ever shared. Must NOT pretend to review nonexistent code. Must give honest suggestions instead."
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_topic_switch_no_memory_loss",
+    "category": "response_quality",
+    "description": "Topic switch mid-conversation — tests that previous topic context is offered correctly and new topic is engaged cleanly",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss my MPC simulation project",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand"],
+          "must_contain_one_of": ["mpc", "simulation", "control", "project", "help"],
+          "note": "Opens MPC topic normally"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "The main challenge is tuning the prediction horizon for vehicle dynamics",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "could you rephrase"],
+          "must_contain_one_of": [
+            "prediction horizon", "horizon", "stability", "vehicle", "tuning", "trade", "short", "long"
+          ],
+          "max_response_length": 400,
+          "note": "Should engage with prediction horizon tuning specifically"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Actually let me ask about something completely different — what is reinforcement learning?",
+        "alive_checks": {
+          "must_not_contain": [
+            "let's start over",
+            "hi there",
+            "hello"
+          ],
+          "must_contain_one_of": [
+            "reinforcement", "reward", "agent", "environment", "policy", "mpc", "save", "previous"
+          ],
+          "max_response_length": 500,
+          "note": "Should answer RL question AND offer to save MPC topic — the pivot guard. Must not greet again as if session is new."
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Yes save it",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "which topic", "could you clarify"],
+          "must_contain_one_of": ["saved", "mpc", "simulation"],
+          "max_response_length": 150,
+          "note": "Confirmation should be short and specific — must mention MPC, not be generic"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_frustration_empathy",
+    "category": "tone_matching",
+    "description": "Frustration signal in technical context — the known failure from session log turn 29",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "let's talk about my rover control system",
+        "alive_checks": {
+          "must_not_contain": ["let's start over"],
+          "must_contain_one_of": ["rover", "control", "help", "tell me"],
+          "note": "Setup turn"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "I've been staring at this control loop for three hours and it still won't converge",
+        "alive_checks": {
+          "must_not_contain": [
+            "here's a quick summary of result",
+            "i opened the site in your browser",
+            "navigation framework",
+            "github",
+            "let's start over"
+          ],
+          "must_contain_one_of": [
+            "frustrat", "understand", "that's rough", "three hours", "converge",
+            "sounds like", "must be", "let's", "help you", "look at", "check"
+          ],
+          "max_response_length": 400,
+          "note": "CRITICAL empathy test — must NOT misroute to web_followup. Must acknowledge frustration before jumping to technical help."
+        }
+      },
+      {
+        "turn": 3,
+        "input": "The gains seem fine but the system keeps oscillating",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "could you rephrase"],
+          "must_contain_one_of": [
+            "oscillat", "gain", "pid", "derivative", "integral", "tuning", "damping", "frequency", "overshoot"
+          ],
+          "max_response_length": 400,
+          "note": "Now it is appropriate to go technical — should engage with oscillation diagnosis"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_recall_specificity",
+    "category": "response_quality",
+    "description": "Specific recall question — should answer directly, not dump full topic list",
+    "setup": {
+      "seed_session_context": true
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "input": "take a note",
+        "alive_checks": {
+          "must_contain_one_of": ["topic", "call", "name"],
+          "note": "Setup: start a note"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Rover project goals",
+        "alive_checks": {
+          "must_contain_one_of": ["rover", "save", "add", "want"],
+          "note": "Setup: name the topic"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Highlight computer vision and autonomous navigation",
+        "alive_checks": {
+          "must_contain_one_of": ["added", "got it", "save", "keep adding"],
+          "note": "Setup: add content"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Save it",
+        "alive_checks": {
+          "must_contain_one_of": ["saved", "rover"],
+          "note": "Setup: save"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "What did we just save about the rover?",
+        "alive_checks": {
+          "must_not_contain": [
+            "which topic would you like to open",
+            "say the topic name",
+            "say summarize followed by",
+            "if you want to continue"
+          ],
+          "must_contain_one_of": [
+            "rover", "computer vision", "autonomous navigation", "goals"
+          ],
+          "max_response_length": 300,
+          "note": "CRITICAL: must answer the specific question directly. Must NOT dump the full topic list. The answer is about rover project goals."
+        }
+      },
+      {
+        "turn": 6,
+        "input": "What did we discuss about quantum computing?",
+        "alive_checks": {
+          "must_not_contain": [
+            "which topic would you like to open",
+            "say the topic name",
+            "if you want to continue"
+          ],
+          "must_contain_one_of": [
+            "quantum", "don't have", "haven't discussed", "no record", "nothing", "not found", "doesn't appear"
+          ],
+          "max_response_length": 200,
+          "note": "CRITICAL: correct answer is 'we haven't discussed quantum computing'. Must NOT dump topic list as a non-answer."
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_sir_overuse",
+    "category": "tone_matching",
+    "description": "Sir overuse — should appear at most once per multi-turn exchange, never in ALL CAPS, never as a standalone opener every turn",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "What is model predictive control?",
+        "alive_checks": {
+          "must_not_contain": ["SIR,", "SIR.", "SIR!"],
+          "must_contain_one_of": ["mpc", "model predictive", "control", "optimization", "predict"],
+          "note": "Should explain MPC without using SIR in caps"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "How does it handle constraints?",
+        "alive_checks": {
+          "must_not_contain": ["SIR,", "SIR.", "SIR!"],
+          "must_contain_one_of": ["constraint", "limit", "bound", "feasib", "hard", "soft"],
+          "note": "Two consecutive turns should not both start with sir — second turn especially"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Is it better than PID for nonlinear systems?",
+        "alive_checks": {
+          "must_not_contain": ["SIR,", "SIR."],
+          "must_contain_one_of": ["nonlinear", "pid", "mpc", "depend", "trade", "advantage", "better"],
+          "note": "Third consecutive technical turn — should feel like a continuous conversation, not a formal address each time"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_grounding_no_fabrication",
+    "category": "response_quality",
+    "description": "Grounding test — Buddy must not fabricate details about things the user has not shared",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I have a MATLAB script for vehicle dynamics simulation",
+        "alive_checks": {
+          "must_not_contain": [
+            "i can see your script",
+            "your script shows",
+            "from what i can see in your code",
+            "it appears that your script",
+            "i've reviewed your matlab"
+          ],
+          "must_contain_one_of": [
+            "tell me", "what", "share", "describe", "help", "vehicle", "matlab", "simulation"
+          ],
+          "max_response_length": 350,
+          "note": "User mentioned a script exists but did NOT share it. Must not pretend to have seen it."
+        }
+      },
+      {
+        "turn": 2,
+        "input": "What do you think about my approach?",
+        "alive_checks": {
+          "must_not_contain": [
+            "your approach looks",
+            "from what you've shared",
+            "based on your code",
+            "i can see that you are using",
+            "your implementation"
+          ],
+          "must_contain_one_of": [
+            "share", "tell me more", "describe", "what approach", "which", "haven't seen", "don't have", "could you"
+          ],
+          "max_response_length": 300,
+          "note": "CRITICAL: no code or approach details have been shared. Must ask for details rather than invent them."
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_schedule_interrupt_pivot",
+    "category": "response_quality",
+    "description": "Mid-FSM pivot — user starts a schedule entry then abruptly switches topic",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me about the lab review meeting on Friday at 2pm",
+        "alive_checks": {
+          "must_contain_one_of": ["friday", "2pm", "lab review", "remind", "saved", "got it", "day"],
+          "note": "Should start saving schedule entry"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "actually how does YOLO object detection work at a high level",
+        "alive_checks": {
+          "must_not_contain": [
+            "sir, sir",
+            "how does sir feel",
+            "SIR feel"
+          ],
+          "must_contain_one_of": [
+            "yolo", "object detection", "bounding box", "anchor", "grid", "detection", "real-time", "image"
+          ],
+          "max_response_length": 400,
+          "note": "Must explain YOLO correctly. Must NOT address user as SIR in a confusing way or treat SIR as a name/entity."
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_multi_topic_brainstorm",
+    "category": "response_quality",
+    "description": "Extended brainstorm session across robotics topics — tests depth, continuity, and no topic drift",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "let's talk about SLAM algorithms for indoor navigation",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": ["slam", "localization", "mapping", "navigation", "indoor", "sensor"],
+          "note": "Opens SLAM topic"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "which one is better for a small indoor rover with limited compute",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand"],
+          "must_contain_one_of": [
+            "gmapping", "cartographer", "hector", "particle", "ekf", "compute", "lightweight", "resource", "small", "indoor"
+          ],
+          "max_response_length": 500,
+          "note": "Should give a specific recommendation for resource-constrained indoor rover, not generic SLAM overview"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "what would I lose by dropping Nav2 and building a custom controller",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "could you rephrase"],
+          "must_contain_one_of": [
+            "nav2", "navigation", "lose", "custom", "trade", "documentation", "community", "tested", "cost", "development"
+          ],
+          "max_response_length": 500,
+          "note": "Should give honest tradeoff analysis — what specifically Nav2 provides that custom loses"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "is MPPI worth the implementation cost for a small indoor rover",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand"],
+          "must_contain_one_of": [
+            "mppi", "sampling", "trajectory", "indoor", "small", "cost", "worth", "overkill", "depend", "consider"
+          ],
+          "max_response_length": 500,
+          "note": "Should give a grounded opinion on MPPI feasibility for the described use case — not just generic praise"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "back to what we were discussing — how does EKF-SLAM handle non-linear motion models",
+        "alive_checks": {
+          "must_not_contain": [
+            "i couldn't find any past conversations",
+            "no record",
+            "haven't discussed"
+          ],
+          "must_contain_one_of": [
+            "ekf", "extended kalman", "linearize", "jacobian", "nonlinear", "approximat", "taylor"
+          ],
+          "max_response_length": 500,
+          "note": "User says 'back to what we were discussing' — must NOT treat this as a recall query for stored memory. Should continue the SLAM conversation naturally."
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_project_open_missing_path",
+    "category": "project_handler",
+    "description": "Project open with broken MATLAB path — should fail gracefully and not repeat the same error response",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Open my terahertz project",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand"],
+          "must_contain_one_of": [
+            "terahertz", "thz", "matlab", "couldn't", "manually", "folder", "note", "continue"
+          ],
+          "max_response_length": 400,
+          "note": "Real log showed MATLAB path error — should communicate failure clearly and offer fallback"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Okay forget about terahertz for now, I want to discuss my rover",
+        "alive_checks": {
+          "must_not_contain": [
+            "opening the thz",
+            "opening the terahertz",
+            "i've opened matlab"
+          ],
+          "must_contain_one_of": [
+            "rover", "sure", "of course", "what", "tell me", "help"
+          ],
+          "max_response_length": 300,
+          "note": "Must cleanly exit THz project context and pivot to rover — should not re-trigger project open"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "rq_response_consistency",
+    "category": "response_quality",
+    "description": "Same question across turns should get consistent answer, not wildly different responses",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "What is reinforcement learning?",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand"],
+          "must_contain_one_of": ["reinforcement", "reward", "agent", "policy", "trial"],
+          "max_response_length": 350,
+          "note": "First answer to RL question"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Can you explain it differently, maybe with an example?",
+        "alive_checks": {
+          "must_not_contain": ["let's start over", "i don't understand"],
+          "must_contain_one_of": [
+            "example", "imagine", "think of", "like", "game", "robot", "agent", "reward"
+          ],
+          "max_response_length": 450,
+          "note": "Should give a concrete example or analogy — not repeat the same definition"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "How is it different from supervised learning?",
+        "alive_checks": {
+          "must_not_contain": ["i don't understand", "let's start over"],
+          "must_contain_one_of": [
+            "label", "supervised", "feedback", "reward", "trial", "explicit", "compared", "difference", "unlike"
+          ],
+          "max_response_length": 400,
+          "note": "Should distinguish RL from supervised learning concretely"
+        }
+      }
+    ]
+  }
+]

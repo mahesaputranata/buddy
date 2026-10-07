@@ -1,0 +1,362 @@
+[
+  {
+    "id": "FUSION_001",
+    "category": "fusion_gate",
+    "description": "Mid-session brainstorm pause: user actively controlling rover then switches to discussion mode",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Connect to the rover",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "connect", "connected", "connecting"],
+          "note": "Genuine device command — fusion should allow through"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Actually wait, what controller algorithm should I use for the rover navigation before I start?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["controller", "mpc", "pid", "algorithm", "navigation", "control"],
+          "note": "FUSION TEST: user paused mid-device-session to brainstorm. Should NOT trigger rover command handler despite rover context"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Okay now move the rover forward",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong", "chat"],
+          "must_contain_one_of": ["forward", "moving", "rover", "command", "executing"],
+          "note": "Back to genuine command — fusion should restore device_control routing"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_002",
+    "category": "fusion_gate",
+    "description": "Conceptual navigation vocabulary — rover words used in discussion, not commands",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss autonomous navigation strategies for my rover",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["navigation", "autonomous", "strategy", "rover", "path"],
+          "note": "Establish discussion context — should be chat not device_control"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "How should the rover move through unstructured terrain?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["terrain", "navigation", "path", "sensor", "lidar", "obstacle", "algorithm"],
+          "note": "FUSION TEST: move + rover in discussion context. Should stay chat"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What happens when the rover encounters an obstacle and needs to go around it?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["obstacle", "avoidance", "path", "navigate", "sensor", "replanning"],
+          "note": "FUSION TEST: go around sounds like command but is conceptual — must stay chat"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Now actually move the rover forward 2 meters",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["forward", "moving", "rover", "meters", "command", "executing"],
+          "note": "Genuine command after discussion — fusion must switch back to device_control"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_003",
+    "category": "fusion_gate",
+    "description": "Command disguised as question vs question that is genuinely a question",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss the rover project",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "project", "discuss", "navigation"],
+          "note": "Establish discussion context"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "What sensors would work best for outdoor terrain mapping?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["sensor", "lidar", "camera", "gps", "imu", "terrain", "mapping"],
+          "note": "Genuine question — should stay chat"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Can you make the rover go forward?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["forward", "moving", "rover", "command", "executing", "going"],
+          "note": "FUSION TEST: question form but is a genuine command. Fusion must detect command intent despite question phrasing"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Can the rover go forward on steep inclines?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["incline", "steep", "terrain", "capability", "motor", "traction", "slope"],
+          "note": "FUSION TEST: almost identical phrasing to turn 3 but is discussion. Fusion must distinguish"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_004",
+    "category": "fusion_gate",
+    "description": "Discussion disguised as command — declarative sentences that sound like orders",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to talk about my rover project",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "project", "discuss"],
+          "note": "Establish discussion context"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "The rover should navigate using lidar and avoid obstacles automatically",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "i understood this is about the rover"],
+          "must_contain_one_of": ["lidar", "obstacle", "navigate", "autonomous", "sensor", "avoidance"],
+          "note": "FUSION TEST: sounds like a command spec but is a design discussion statement"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "The rover must stop immediately when battery drops below 20 percent",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["battery", "stop", "percent", "threshold", "power", "safety", "low"],
+          "note": "FUSION TEST: must stop sounds commanding but is a design requirement discussion"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Stop the rover now",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["stop", "stopping", "rover", "halting", "command"],
+          "note": "Genuine stop command — fusion must distinguish from design discussion in turn 3"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_005",
+    "category": "fusion_gate",
+    "description": "Rapid command-discuss-command switching — stress tests FSM pivot guard",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Take off the drone",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["take off", "takeoff", "drone", "flying", "altitude"],
+          "note": "Genuine takeoff command"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "By the way what altitude should I fly at for indoor mapping?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["altitude", "indoor", "mapping", "height", "ceiling", "meter", "fly"],
+          "note": "FUSION TEST: mid-flight brainstorm. Must NOT trigger another takeoff or device FSM"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Hover at 2 meters",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["hover", "2 meters", "altitude", "hovering", "meters"],
+          "note": "Back to genuine command — fusion must re-engage device_control"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "What is the battery drain rate when hovering?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["battery", "drain", "hover", "power", "consumption", "rate"],
+          "note": "FUSION TEST: question about hovering — discussion not command"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Land the drone",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["land", "landing", "drone", "ground"],
+          "note": "Genuine land command — must execute cleanly after discussion turns"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_006",
+    "category": "fusion_gate",
+    "description": "Multi-device ambiguity — both rover and drone mentioned, intent must resolve correctly",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I am building a system where a drone scouts ahead and a rover follows on the ground",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "something went wrong"],
+          "must_contain_one_of": ["drone", "rover", "scout", "system", "ground", "follow"],
+          "note": "Establish multi-device discussion context — both mentioned, neither commanded"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "The drone should fly at 10 meters and send lidar data to the rover",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["drone", "rover", "lidar", "data", "fly", "10 meters", "send"],
+          "note": "FUSION TEST: fly + 10 meters sounds like a command but is architecture discussion"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "Take off the drone",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["take off", "takeoff", "drone", "flying"],
+          "note": "FUSION TEST: genuine command after multi-device discussion — must resolve to drone not rover"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "How should the rover process the lidar data it receives from the drone?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["lidar", "process", "data", "rover", "pointcloud", "sensor", "algorithm"],
+          "note": "FUSION TEST: back to discussion despite rover + active drone session — must stay chat"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_007",
+    "category": "fusion_gate",
+    "description": "Belief state phase stress — same words, different phase, different correct routing",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I want to discuss rover navigation controllers",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["rover", "navigation", "controller", "discuss"],
+          "note": "Establish DEEPENING phase in TECHNICAL domain"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "Should I use MPC or PID for the rover?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["mpc", "pid", "controller", "rover", "comparison", "navigation"],
+          "note": "Deepening discussion — phase should be DEEPENING"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What about the rover turning radius with MPC?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["turning", "radius", "mpc", "rover", "constraint", "curvature"],
+          "note": "FUSION TEST: DEEPENING phase — rover + turning should stay chat not command"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Now I want to actually test it, connect to the rover",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["connect", "rover", "connecting", "connected"],
+          "note": "PIVOT phase — user explicitly switching from discussion to action. Fusion must detect phase shift"
+        }
+      },
+      {
+        "turn": 5,
+        "input": "Turn the rover left",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["turn", "left", "rover", "turning", "rotating"],
+          "note": "Now in device session — same turn vocabulary as before but genuine command. Fusion must route correctly"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "FUSION_008",
+    "category": "fusion_gate",
+    "description": "Entity overlap stress — high entity overlap with device terms in discussion context",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "Tell me about rover motor control systems",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command", "something went wrong"],
+          "must_contain_one_of": ["motor", "control", "rover", "system", "actuator"],
+          "note": "Establish high entity overlap context — motor, control, rover all active"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "How do motor encoders improve rover position accuracy?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["encoder", "motor", "position", "accuracy", "feedback", "odometry"],
+          "note": "FUSION TEST: S6 entity overlap very high — motor, rover, position all in active entities. Should heavily suppress device_control"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "What is the rover motor speed limit for safe indoor operation?",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse the exact command"],
+          "must_contain_one_of": ["speed", "motor", "indoor", "safe", "limit", "rpm", "velocity"],
+          "note": "FUSION TEST: speed limit sounds like it could set a device parameter but is discussion"
+        }
+      },
+      {
+        "turn": 4,
+        "input": "Set the rover motor speed to 50 percent",
+        "alive_checks": {
+          "must_not_contain": ["couldn't parse", "something went wrong"],
+          "must_contain_one_of": ["speed", "50", "motor", "rover", "setting", "percent", "set"],
+          "note": "Genuine parameter set command — S6 entity overlap still high but S2 rule strength should dominate"
+        }
+      }
+    ]
+  }
+]

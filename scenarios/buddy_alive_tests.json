@@ -1,0 +1,303 @@
+[
+  {
+    "id": "rover_cold_start",
+    "category": "device_context_repair",
+    "description": "Rover not powered, user tries to activate, explains why it failed",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "activate the rover",
+        "expect_intent": "device_control",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble", "I'm sorry"],
+          "must_feel": "engaged_not_dead",
+          "follow_up_state_expected": true
+        }
+      },
+      {
+        "turn": 2,
+        "input": "just because in here I haven't yet started the rover",
+        "context": "rover connection just failed",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble", "lost contact", "precautionary measure"],
+          "must_contain_one_of": ["makes sense", "ah", "I see", "ready", "powered", "start it"],
+          "must_feel": "understanding_companion",
+          "should_offer_camera": true,
+          "follow_up_state_expected": true
+        }
+      },
+      {
+        "turn": 3,
+        "input": "yes go ahead",
+        "context": "buddy offered to look at setup via camera",
+        "alive_checks": {
+          "must_contain_one_of": ["can see", "looking at", "I see", "setup", 
+                        "Based on", "webcam", "activate", "ready", "powered"],
+          "must_feel": "situationally_aware",
+          "vision_should_trigger": true
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "mid_conversation_pivot",
+    "category": "context_continuity",
+    "description": "User pivots topic mid-sentence using 'but'",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "can you recall all of my schedule?",
+        "expect_intent": "recall_memory",
+        "alive_checks": {
+          "must_feel": "responsive"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "but deactivate the rover",
+        "context": "previous turn was schedule recall",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble"],
+          "must_contain_one_of": ["rover", "deactivate", "disconnect", "sure"],
+          "expect_intent": "device_control",
+          "must_feel": "pivot_handled_naturally",
+          "note": "The word 'but' is a pivot signal — Buddy should treat this as a new command not a continuation"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "physical_explanation_vision",
+    "category": "vision_awareness",
+    "description": "User describes physical situation, Buddy should proactively offer camera",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "the rover is right here on my table but it's not turning on",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I'm not sure"],
+          "must_contain_one_of": ["look", "see", "camera", "table", "check", "setup"],
+          "should_offer_camera": true,
+          "must_feel": "proactive_helper",
+          "score_vision_awareness_min": 0.50
+        }
+      },
+      {
+        "turn": 2,
+        "input": "yeah take a look",
+        "alive_checks": {
+          "vision_should_trigger": true,
+          "must_contain_one_of": [
+            "Based on", "Looking at", "From what", "I can see",
+            "webcam", "rover", "turning on", "power", "check",
+            "want me", "should i", "take a look", "see what",
+            "look at", "in front"
+          ],
+          "must_feel": "natural_vision_response"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "casual_ambient_check",
+    "category": "vision_awareness",
+    "description": "User mentions something near them casually",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "I have the rover right here, any thoughts on the wiring?",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over"],
+          "should_offer_camera": true,
+          "score_vision_awareness_min": 0.40,
+          "must_feel": "curious_engaged"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "pure_abstract_no_vision",
+    "category": "vision_suppression",
+    "description": "Abstract question should NOT trigger camera",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "what do you think about PID controllers for rover navigation?",
+        "alive_checks": {
+          "should_offer_camera": false,
+          "vision_should_trigger": false,
+          "score_vision_awareness_max": 0.35,
+          "must_feel": "intellectual_chat"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "schedule_then_rover",
+    "category": "multi_intent_session",
+    "description": "Schedules a meeting then immediately asks about rover",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "remind me about the team meeting tomorrow at 3pm",
+        "expect_intent": "schedule_save",
+        "alive_checks": {
+          "must_feel": "task_complete"
+        }
+      },
+      {
+        "turn": 2,
+        "input": "alright, now connect to the rover",
+        "expect_intent": "device_control",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over"],
+          "must_feel": "smooth_transition",
+          "note": "'alright now' signals deliberate topic switch — should handle cleanly"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "repeated_failure_pattern",
+    "category": "stuck_detection",
+    "description": "Same command fails multiple times — Buddy should notice the pattern",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "activate the rover",
+        "alive_checks": {"follow_up_state_expected": true}
+      },
+      {
+        "turn": 2,
+        "input": "activate the rover",
+        "context": "rover still not on",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "having trouble with that"],
+          "must_contain_one_of": ["still", "again", "powered", "try", "ready"],
+          "must_feel": "pattern_noticed",
+          "note": "Second attempt at same command — Buddy should acknowledge the repeat not just re-fail"
+        }
+      },
+      {
+        "turn": 3,
+        "input": "I know I keep trying, it's just not booting",
+        "alive_checks": {
+          "must_contain_one_of": ["booting", "power", "see", "look", "check", "cable"],
+          "should_offer_camera": true,
+          "must_feel": "empathetic_troubleshooter"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "jarvis_style_brief",
+    "category": "morning_briefing_quality",
+    "skip": true,
+    "description": "Startup greeting quality check",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "__STARTUP_GREETING__",
+        "context": "system just started",
+        "alive_checks": {
+          "must_contain_one_of": ["Good morning", "Good afternoon", "Good evening", "Systems"],
+          "must_not_contain": ["undefined", "None", "null", "error"],
+          "must_feel": "confident_briefing",
+          "max_response_length": 400,
+          "note": "Greeting should be crisp, informative, Jarvis-like — not a wall of text"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "implicit_vision_pointing",
+    "category": "vision_awareness",
+    "description": "User points at something without explicitly asking for camera",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "look at this thing here, does this look right to you?",
+        "alive_checks": {
+          "vision_should_trigger": true,
+          "score_vision_awareness_min": 0.65,
+          "must_feel": "natural_visual_engagement",
+          "note": "'look at this' + 'here' are strong pointing signals — should be SILENT grab"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "emotional_context_awareness",
+    "category": "tone_matching",
+    "description": "User expresses frustration — Buddy should match tone appropriately",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "this rover keeps failing every single time I try",
+        "alive_checks": {
+          "must_not_contain": ["Let's start over", "I'm having trouble", "I don't understand"],
+          "must_contain_one_of": ["understand", "let's", "try", "check", "look", "help"],
+          "must_feel": "empathetic_not_robotic",
+          "should_offer_camera": true,
+          "note": "Frustration + physical device = empathy + proactive help"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "implicit_continuation",
+    "category": "context_continuity",
+    "description": "Short follow-up with no explicit context should continue previous topic",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "tell me about follow me mode for the rover",
+        "expect_intent": "chat",
+        "alive_checks": {"must_feel": "informative"}
+      },
+      {
+        "turn": 2,
+        "input": "how does it track exactly?",
+        "alive_checks": {
+          "must_not_start_new_topic": true,
+          "must_contain_one_of": ["track", "sensor", "lidar", "camera", "gps", "algorithm"],
+          "must_feel": "natural_continuation"
+        }
+      }
+    ]
+  },
+
+  {
+    "id": "web_then_device",
+    "category": "context_switching",
+    "description": "Web search then device command — clean state switch",
+    "turns": [
+      {
+        "turn": 1,
+        "input": "search for ROS2 navigation stack updates",
+        "expect_intent": "web_search",
+        "alive_checks": {"must_feel": "responsive"}
+      },
+      {
+        "turn": 2,
+        "input": "okay enough of that, start the rover",
+        "expect_intent": "device_control",
+        "alive_checks": {
+          "must_not_contain": ["web search", "result", "article"],
+          "must_feel": "clean_context_switch",
+          "note": "'okay enough of that' is explicit exit from web context"
+        }
+      }
+    ]
+  }
+]

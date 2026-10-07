@@ -1,0 +1,5 @@
+# Extra, for the intent-classifier pipeline in tools/.
+-r requirements.txt
+datasets
+scikit-learn
+openai

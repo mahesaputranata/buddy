@@ -1,0 +1,12 @@
+# Extra, for the voice stack (microphone, speakers, speaker verification). Not needed for text mode.
+-r requirements.txt
+sounddevice
+soundfile
+faster-whisper
+pyttsx3
+pynput
+speechbrain
+torchaudio
+spotipy
+google-auth-oauthlib
+google-api-python-client
