@@ -3,119 +3,101 @@ from __future__ import annotations
 from dotenv import load_dotenv
 load_dotenv()
 
-import subprocess
+import json
 import os
+import queue
+import random
+import re
 import signal
+import subprocess
 import sys
+import threading
+import time
+import traceback
+import webbrowser
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+from zoneinfo import ZoneInfo
+
+import ollama
+import psutil
+import requests
+
 from brain.adaptive.session_logger import session_logger
 from brain.adaptive.session_recap import SessionRecap
-import webbrowser
-import psutil
-import datetime
-import traceback
-import threading
-import ollama
-import json
-from dataclasses import dataclass, field
-from pathlib import Path
-from dateutil.relativedelta import relativedelta
-import re
-from brain.core.brain import detect_memory_request, extract_topic_name, store_short_term_memory, generate_llm_response, confirm_memory_storage, memory_manager, extract_specificCase_condition, MemoryManager, compute_similarity_hybrid, resolve_save_target
-from brain.core.brain import recall_memory_request, retrieve_long_term_memory, sensory_memory, compute_similarity_llm, temp_topic_memory, delete_memory_from_db, extract_scheduleType_recall, extract_scheduleType_save, _clean_topic
+from brain.core.brain import (
+    extract_topic_name, store_short_term_memory, generate_llm_response, memory_manager, MemoryManager,
+    compute_similarity_hybrid, resolve_save_target, recall_memory_request, retrieve_long_term_memory,
+    sensory_memory, compute_similarity_llm, temp_topic_memory, delete_memory_from_db,
+    extract_scheduleType_recall, _clean_topic, save_memory_request, delete_memory_request,
+    extract_time_reference, retrieve_memory_by_date, delete_memory_by_ids, retrieve_memory_by_month,
+    retrieve_memory_by_year, retrieve_memory_by_week, store_long_term_memory,
+)
 from brain.core.helpers import get_date
-from brain.core.prompts import build_summary_prompt, llmBasedIntentDetection, extract_schedule_details, extractGeneralMemory, schedule_extract_with_followup_prompt
-from brain.core.brain import save_memory_request, delete_memory_request, extract_time_reference, retrieve_memory_by_date, delete_memory_by_ids, retrieve_memory_by_month, retrieve_memory_by_year, retrieve_memory_by_week, store_long_term_memory
-from brain.core.sql_brain import create_schedule, get_all_schedules_as_dicts, validate_schedule, safe_json_parse, smart_schedule_recall, extractScheduleDetails, retrieve_schedule_by_week_sql, init_schedule_table, retrieve_schedule_by_date_sql, retrieve_schedule_by_year_sql, retrieve_schedule_by_month_sql,delete_schedule_by_title,delete_schedules_by_ids
-from brain.utils.time_context import with_time_context
-from zoneinfo import ZoneInfo
-from datetime import datetime
+from brain.core.prompts import (
+    build_summary_prompt, llmBasedIntentDetection, schedule_extract_with_followup_prompt,
+)
+from brain.core.sql_brain import (
+    create_schedule, get_all_schedules_as_dicts, safe_json_parse, smart_schedule_recall,
+    extractScheduleDetails, retrieve_schedule_by_week_sql, init_schedule_table, retrieve_schedule_by_date_sql,
+    retrieve_schedule_by_year_sql, retrieve_schedule_by_month_sql, delete_schedule_by_title,
+    delete_schedules_by_ids,
+)
 from brain.utils.extract_name_context import build_schedule_title
 from brain.core.devices.device_handler import DeviceHandlerFSM
 from devices.tello_client import TelloClient
-import requests
 from devices.rover.rover_bridge import RoverClient
-from devices.fake_tello_client import FakeTelloClient
 from brain.utils.text_sanitizer import sanitize_for_tts
 from brain.utils.context_guards import note_last_reply
 from brain.settings import setting
 from brain.core.internet_access.internet_service import get_explorer
-from brain.adaptive.vision.vision_awareness import get_camera_offer_text
-from datetime import datetime
-from typing import Dict, Any, List, Optional
-from brain.router.confirmation_router import resolve_vision_source_choice, VisionSourceChoice, resolve_confirmation, ConfirmResult
+from brain.adaptive.vision.vision_awareness import (
+    get_camera_offer_text, score_vision_need, VisionDecision, get_silent_prefix,
+)
+from brain.router.confirmation_router import (
+    resolve_vision_source_choice, VisionSourceChoice, resolve_confirmation, ConfirmResult,
+)
 from brain.intent_model.shadow_classifier import get_shadow
-
-from vision.webcam_capture import capture_single_frame, WEBCAM_SAVE_DIR
+from vision.webcam_capture import (
+    capture_single_frame, WEBCAM_SAVE_DIR, capture_burst_frames, wants_burst_mode,
+)
 from vision.run_vision_pipeline import run_vision_pipeline
 from vision.face_recognition_module.recognizer import recognize_face, RecognitionStatus
-from brain.core.brain import store_short_term_memory
-from brain.adaptive.vision.vision_awareness import score_vision_need, VisionDecision, get_silent_prefix
-from brain.core.brain import sensory_memory
 from brain.friday.job_watchdog import JobWatchdog, JOB_WATCHDOG_PHRASES
-from brain.router.briefing import route_via_llm, filter_tool_call, make_dispatch_table, BUDDY_TOOL_TO_INTENT, BUDDY_TOOL_SCHEMAS, _tool_call_name, _tool_call_args, _has_required_tool_args, _passes_grounding
+from brain.router.briefing import (
+    route_via_llm, filter_tool_call, make_dispatch_table, BUDDY_TOOL_TO_INTENT, BUDDY_TOOL_SCHEMAS,
+    _tool_call_name, _tool_call_args, _passes_grounding,
+)
 from brain.memory.episodic_memory_router import EpisodicMemoryRouter, MemoryRoute
 from brain.memory.memory_task_fusion import MemoryTaskFusion
 from devices.rover.simulation_manager import SimulationManager
 from brain.conversation.followup_detector import (
-    is_short_followup,
-    is_explicit_topic_shift,
-    _is_explicit_web_exit
+    is_short_followup, is_explicit_topic_shift, _is_explicit_web_exit,
 )
 from brain.friday.friday import Friday, FridayConfig
-
-# memory management v2
-from brain.memory.context_assembler import retrieve_relevant_groups, ContextAssembler
-
-# awareness
+from brain.memory.context_assembler import ContextAssembler
 from brain.adaptive.agent_core import init_agent, get_agent
-from brain.belief_state import BeliefStateManager, ToolResult, Domain, Phase
-
+from brain.belief_state import BeliefStateManager, Domain, Phase
 from brain.utils.baseline_memory.handler.specific_flow import SpecificFlow
-from brain.utils.baseline_memory.recall_baseline_helper import handleGeneral, compiler_general, resolve_topic_from_utterance,_tts_join
+from brain.utils.baseline_memory.recall_baseline_helper import (
+    handleGeneral, compiler_general, resolve_topic_from_utterance, _tts_join,
+)
 from brain.utils.schedule.recall_helper import handle_general_schedule
-from brain.utils.interupt_detector import is_interrupt, is_pause, looks_like_new_task, is_resume
+from brain.utils.interupt_detector import is_interrupt, is_resume
 from brain.projects.project_handler import ProjectHandler, detect_stressed_test_trigger
-from brain.music_player.spotify_manager import SpotifyManager, MusicWatcher, detect_music_intent, handle_music_command
-
-from ear.push_to_talk import HoldToTalk, VOICE_QUEUE, TextHotkey, VADRecorder
+from brain.music_player.spotify_manager import (
+    SpotifyManager, MusicWatcher, detect_music_intent, handle_music_command,
+)
+from ear.push_to_talk import VOICE_QUEUE, TextHotkey, VADRecorder
 from ear.voice_pipeline import SpeakerWorkerClient
 from ear.stt_faster_whisper import transcribe_wav
 from mouth.debug.mouth_v1 import TTSWorker
-
-import time
-import queue
-
-# EYE
-from vision.clipboard_hotkey import ClipboardHotkey, CLIP_QUEUE
+from vision.clipboard_hotkey import ClipboardHotkey
 from vision.clipboard_capture import grab_clipboard_image
-
-from vision.run_vision_pipeline import run_vision_pipeline
 from vision.screenshot_selector import select_screenshots, SelectionOutcome
-from brain.adaptive.vision.vision_awareness import (
-    score_vision_need,
-    VisionDecision,
-    get_silent_prefix,
-)
-
-
-from vision.face_recognition_module.recognizer import (
-    recognize_face,
-    RecognitionStatus,
-)
-
-from vision.vision_source_classifier import (
-    classify_vision_source,
-    VisionSource,
-)
-from vision.webcam_capture import (
-    capture_single_frame,
-    capture_burst_frames,
-    is_webcam_available,
-    wants_burst_mode,
-    WEBCAM_SAVE_DIR,
-)
-
-## RAG
+from vision.vision_source_classifier import classify_vision_source, VisionSource
 from brain.core.config.features import USE_RAG, RAG_WEB_CONTEXT, RAG_TOP_K, RAG_PER_SOURCE_K
 from brain.core.RAG.engine import RetrievalEngine
 from brain.core.RAG.prompt.builder import PromptBuilder
@@ -124,14 +106,11 @@ from brain.core.RAG.sources.short_term import ShortTermSource
 from brain.core.RAG.sources.web import WebContextSource
 from brain.core.RAG.rag_core import RagCore, RagContext
 from brain.core.RAG.web_actions import parse_web_followup
-
 from brain.core.RAG.web_followup_helper import WebFollowupHelper
-
 from brain.core.RAG.web_page_fetcher import WebPageFetcher
-
 from brain.primary_task.save_task.save_type_classifier import SaveTypeClassifier
-
 from brain.identity.identity_manager import IdentityManager
+from brain.utils.confirmation import is_yes
 
 
 MODEL_NAME = "llama3.2:latest"
@@ -780,7 +759,6 @@ def is_no(text: str) -> bool:
 
     return False
 
-from brain.utils.confirmation import is_no, is_yes
 
 
 def looks_like_vision_question(text: str) -> bool:
@@ -2699,8 +2677,6 @@ Respond with ONLY valid JSON, nothing else. No explanation, no markdown.
 
 #############################################
 
-import json
-from pathlib import Path
 
 def _log_uncertain_intent(text: str, result: dict, signals: dict = None):
     """
@@ -7908,7 +7884,6 @@ def _llm_shorten_headlines(
 
 #####################
 
-import random
 
 WEATHER_PREFIXES = [
     "Weather status:",
@@ -7930,7 +7905,6 @@ CLOSING_LINES = [
     "Ready when you are.",
 ]
 
-from typing import Union
 
 NewsInput = Union[str, List[str]]
 
