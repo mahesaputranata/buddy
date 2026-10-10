@@ -13,7 +13,8 @@ config/*
 !config/*.example.*
 
 # personal data
-memory/
+# (leading slash: root only, brain/memory/ is code)
+/memory/
 memory_db/
 sql_memory/
 episodes/
@@ -22,6 +23,7 @@ chroma*/
 *.sqlite3
 *.db
 logs/
+robustness_tests/results/
 mic_logs/
 transcripts/
 webcam_captures/
