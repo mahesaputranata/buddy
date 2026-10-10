@@ -368,8 +368,8 @@ Hard rules (do not violate):
 5) Keep unknown fields as null (do not omit keys).
 
 Extraction rules:
-- "title": short label like "Meeting with Yamen", "Grocery shopping", "Doctor appointment".
-  - If a person name is present (e.g., "with Zaki"), include it in the title.
+- "title": short label like "Meeting with Alex", "Grocery shopping", "Doctor appointment".
+  - If a person name is present (e.g., "with Alex"), include it in the title.
   - If user input implies an event but no clear title, leave title null.
 - "description": can equal title if nothing else.
 - "timestamp": format "YYYY-MM-DD HH:MM" (24h).
@@ -379,7 +379,7 @@ Missing logic:
 - If missing any required field, list them in "missing_fields" (subset of ["title","timestamp"]).
 - If missing_fields is not empty, set "followup_question" to ONE natural question that asks ONLY for the missing info.
   - No markdown, no bold, TTS-friendly.
-  - Use known info if helpful (e.g., "When is your meeting with Zaki?").
+  - Use known info if helpful (e.g., "When is your meeting with Alex?").
   - If date is known but time missing: ask for time.
   - If time is known but date missing: ask for date/day.
   - If title missing: ask what the event should be called.

@@ -26,7 +26,7 @@ def build_schedule_title(user_text: str, extracted: dict | None = None) -> str:
     person = extract_with_person(user_text)
     loc = (extracted.get("location") or "").strip()
 
-    # Prefer: Meeting with Zaki
+    # Prefer: Meeting with Alex
     if person:
         return f"{event_type} with {person}"
 

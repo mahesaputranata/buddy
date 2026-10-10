@@ -66,11 +66,11 @@ SPOTIFY_OUTPUT_DEVICE_HINT = "Realtek"   # matches "Realtek(R) Audio" or similar
 # ──────────────────────────────────────────────────────────────────────────────
 
 MOOD_PLAYLISTS: dict[str, str] = {
-    "focus":    "https://open.spotify.com/playlist/37i9dQZF1DX7EF8wVxBVhG?si=32fb8878a3fd4b22",
-    "chill":    "https://open.spotify.com/playlist/513SNdQCspFx7bTakZFU60?si=acb245af596242cd&pt=9c4e6f17babfe6b1c159dfdf6a7525f0",
-    "morning":  "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS?si=31b4c1ff594d4fe0",
-    "energize": "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS?si=7927bfef405f417f",
-    "default":  "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS?si=1c47e26b1bc14dc1",
+    "focus":    "https://open.spotify.com/playlist/37i9dQZF1DX7EF8wVxBVhG",
+    "chill":    "https://open.spotify.com/playlist/513SNdQCspFx7bTakZFU60",
+    "morning":  "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS",
+    "energize": "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS",
+    "default":  "https://open.spotify.com/playlist/4ebfRaqEiAMzWzzPlo4mPS",
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -114,8 +114,8 @@ STRESSED_TEST_TRIGGERS: list[tuple[list[str], str, str]] = [
 PROJECTS: dict[str, dict] = {
     "terahertz": {
         "display_name": "THz TDS Material Classification",
-        "matlab_folder": r"E:1_THz_Hiwi\backup_180226\THz-ML-Material-Classification_150126",
-        "notes_folder": r"E:1_THz_Hiwi\backup_180226\THz-ML-Material-Classification_150126\3_documentation\2_daily_update_note",
+        "matlab_folder": setting("thz_project_folder", ""),
+        "notes_folder": setting("thz_notes_folder", ""),
         "note_pattern": re.compile(
             r"^Daily_Note_(\d{2})_(\d{2})_(\d{2})",
             re.IGNORECASE,
