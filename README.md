@@ -1,5 +1,7 @@
 # Buddy
 
+[![unit](https://github.com/mahesaputranata/buddy/actions/workflows/unit.yml/badge.svg)](https://github.com/mahesaputranata/buddy/actions/workflows/unit.yml)
+
 A voice-first personal assistant that runs on a **local 3B model**, built as a system you can measure: an ear (VAD, speaker
 verification, STT), a layered decision pipeline (interrupts, confirmations, intent routing, memory, belief state), and a mouth
 (TTS with music ducking). It delegates long tasks to an agent (Friday) and has clients for a rover and a Tello drone.
