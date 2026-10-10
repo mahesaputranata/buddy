@@ -433,11 +433,15 @@ class BuddyAliveTestRunner:
         self.checker = AliveChecker()
         self.score_vision_need = _import_vision_scorer()
         import unittest.mock as mock
-        self._webcam_patcher = mock.patch(
-            'vision.webcam_capture.capture_single_frame',
-            return_value=None  # simulates no webcam
-        )
-        self._webcam_patcher.start()
+        # No real camera in tests. conversation_manager imports the capture functions by name,
+        # so they are patched there too; patching only vision.webcam_capture does not reach it.
+        self._webcam_patchers = [
+            mock.patch(f"{module}.{name}", return_value=value)
+            for module in ("vision.webcam_capture", "brain.conversation_manager")
+            for name, value in (("capture_single_frame", None), ("capture_burst_frames", []))
+        ]
+        for p in self._webcam_patchers:
+            p.start()
         self._mock = mock
         self._active_patchers = []
 

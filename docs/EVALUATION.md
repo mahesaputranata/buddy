@@ -62,6 +62,10 @@ Raw numbers: [`results/stress_runs.json`](../results/stress_runs.json) (per-run 
 - The scenarios and checks were written by the same person who wrote the system; keyword checks are shallow. This is a
   regression harness, not a benchmark.
 - The rover hardware was offline, so rover-control outcomes are not meaningful.
+- **Vision runs differ from what the runner does now.** The recorded runs used the live webcam and GPT-5 vision: the runner's
+  camera stub did not reach `conversation_manager`, which imports the capture functions by name. That is fixed; the vision
+  scenarios now exercise the no-camera path (and the no-`OPENAI_API_KEY` path), so their results are not comparable to the
+  table above.
 
 Scenarios that did not pass in every continuous run:
 

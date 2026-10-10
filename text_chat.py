@@ -10,7 +10,9 @@ import unittest.mock as mock
 
 
 def main() -> None:
-    mock.patch("vision.webcam_capture.capture_single_frame", return_value=None).start()  # no camera
+    # no camera; patched before conversation_manager imports these names
+    mock.patch("vision.webcam_capture.capture_single_frame", return_value=None).start()
+    mock.patch("vision.webcam_capture.capture_burst_frames", return_value=[]).start()
 
     from brain.conversation_manager import ConversationManager
     from brain.core.brain import MemoryManager
