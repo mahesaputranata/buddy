@@ -1,4 +1,3 @@
-# note: might hide this from publicate in GitHub, since it is still messy
 from __future__ import annotations
 
 from dotenv import load_dotenv
@@ -77,8 +76,6 @@ from brain.utils.schedule.recall_helper import handle_general_schedule
 from brain.utils.interupt_detector import is_interrupt, is_pause, looks_like_new_task, is_resume
 from brain.projects.project_handler import ProjectHandler, detect_stressed_test_trigger
 from brain.music_player.spotify_manager import SpotifyManager, MusicWatcher, detect_music_intent, handle_music_command
-
-# from mouth.debug.mouth_v1 import speak
 
 from ear.push_to_talk import HoldToTalk, VOICE_QUEUE, TextHotkey, VADRecorder
 from ear.voice_pipeline import SpeakerWorkerClient
@@ -1880,9 +1877,6 @@ def detect_intent(user_input: str):
     if has_delete_strong or (has_delete_action and has_memory_target):
         return {"intent": "delete_memory", "confidence": STRONG_RULE_CONF, "source": "rule_strong"}
 
-    # if any(p in text for p in DEVICE_STRONG):
-    #     return {"intent": "device_control", "confidence": STRONG_RULE_CONF, "source": "rule_strong"}
-    # upgrade for device controln check
     if _matches_device_strong(text):
         return {"intent": "device_control", "confidence": STRONG_RULE_CONF,
                 "source": "rule_strong"}
@@ -2078,133 +2072,6 @@ class IntentHandler:
         }
 
         return system_outputs.get(intent, None)
-
-# def classify_intent(user_input: str, mm) -> dict:
-#     text = (user_input or "").strip().lower()
-
-#     # ── CANCEL GUARD — must be FIRST, before any other check ──
-#     _CANCEL_EXACT = {
-#         "nevermind", "never mind", "forget it", "cancel that",
-#         "actually no", "no wait", "ignore that", "scratch that",
-#         "nvm", "nm", "forget it never mind", "never mind forget it",
-#         "nevermind forget it", "forget what i said",
-#         "actually forget that", "no nevermind", "no never mind",
-#     }
-#     _CANCEL_STARTS = [
-#         "never mind", "nevermind", "forget it",
-#         "actually forget what", "no wait",
-#     ]
-#     _MEMORY_ANCHOR = [
-#         "memory", "conversation", "topic", "history",
-#         "notes", "chat", "discussion",
-#     ]
-
-#     is_cancel = (
-#         text in _CANCEL_EXACT
-#         or any(text.startswith(p) for p in _CANCEL_STARTS)
-#     )
-#     has_memory_anchor = any(w in text for w in _MEMORY_ANCHOR)
-
-#     if is_cancel and not has_memory_anchor:
-#         return {"intent": "chat", "confidence": 0.99, "source": "rule_cancel"}
-
-#     # Step 0: Exact system query matching
-#     if any(text == q or text.startswith(q) for q in SYSTEM_QUERY_EXACT):
-#         return {"intent": "system_query", "confidence": 0.99, "source": "rule_system_exact"}
-
-
-#     # ── Step 1: Strong rules (zero LLM cost, highest precision) ──
-#     has_weak_save = any(p in text for p in [
-#         "save", "store", "keep", "remember this"
-#     ])
-
-#     for patterns, intent in STRONG_RULES:
-#         # ADD THIS guard inside the loop:
-#         if intent == "recall_memory" and has_weak_save:
-#             continue  # save signal present → skip recall, fall through to save check
-
-#         if any(p in text for p in patterns):
-#             return {"intent": intent, "confidence": 0.99, "source": "rule_strong"}
-
-#     # ── Step 2: Web followup detection (replaces score_web_followup) ──
-#     # Only fires if there IS an active web session AND the utterance
-#     # is clearly a navigation command, not a new search or reminder
-#     active_web = mm.get_active_web_topic()
-#     if active_web:
-#         norm = normalize_web_followup(text)
-#         action = parse_web_followup(norm)
-#         bare_idx = parse_index_utterance(norm)
-#         if action is not None or bare_idx is not None:
-#             # Guard: don't treat schedule phrases as followup
-#             schedule_guard = any(p in text for p in [
-#                 "remind", "schedule", "appointment", "remember to",
-#                 "birthday", "meeting", "tomorrow", "today at"
-#             ])
-#             comparison_guard = any(p in text for p in [
-#                 "is it better", "is this better", "which is better",
-#                 "is it worse", "do you think", "what do you think",
-#                 "is it good", "is it bad", "how good", "how bad",
-#             ])
-#             if not schedule_guard and not comparison_guard:
-#                 return {"intent": "web_followup", "confidence": 0.95, "source": "rule_web_followup"}
-
-#     if WORLD_EVENT_RE.search(text):
-#         return {"intent": "web_search", "confidence": 0.92, "source": "rule_world_event"}
-
-#     if POSSESSION_RE.match(text):
-#         return {"intent": "chat", "confidence": 0.90, "source": "rule_possession_statement"}
-
-#     if SENSOR_STATEMENT_RE.match(text):
-#         return {"intent": "chat", "confidence": 0.90, "source": "rule_sensor_statement"}
-
-#     if PROJECT_DISCUSSION_RE.match(text):
-#         return {"intent": "chat", "confidence": 0.90, "source": "rule_project_discussion"}
-
-#     if CURIOSITY_CHAT_RE.match(text):
-#         is_system = any(s in text for s in SYSTEM_QUERY_SIGNALS)
-#         if not is_system and not re.search(r"\b(search|look up|google|latest news)\b", text):
-#             return {"intent": "chat", "confidence": 0.90, "source": "rule_curiosity_chat"}
-
-
-#     # ── Step 3: LLM classifier (single structured call) ──
-
-#     prompt = f"""Classify this voice assistant message into exactly one intent.
-
-# Message: "{user_input}"
-
-# Intents (pick ONE):
-# - schedule_save: user wants to set a reminder, save an event, or be reminded of something
-# - schedule_recall: user asks about their schedule or upcoming events
-# - save_memory: user wants to save a note or topic for later
-# - recall_memory: user wants to recall a previously saved topic
-# - delete_memory: user wants to delete something from memory
-# - web_followup: user is following up on a previous search result (open/summarize/compare)
-# - device_control: user is controlling a drone or robot
-# - system_query: ONLY for device/system status: time, date, battery level, local weather, or GPS location. NOT for news, politics, or world events.
-# - web_search: ONLY when user explicitly says 'search', 'look up', 'google', or asks for NEWS/CURRENT EVENTS (prices, scores, breaking news). General questions like 'how does X work', 'explain X', 'tell me about X', 'I want to learn about X' are ALWAYS chat.
-# - chat: general questions, explanations, curiosity questions, opinions, learning requests, 'how does X work', 'tell me about X', 'explain X'
-
-# IMPORTANT RULES:
-# - "remind me", "I need to remember", "don't forget I have" → ALWAYS schedule_save
-# - "can you remember something" + future task context → schedule_save NOT recall_memory
-# - "search [topic]" → web_search
-# - "tell me about X", "explain X", "how does X work", "I want to learn X" → ALWAYS chat
-# - "summarize 1", "open 2", "compare 1 and 2" → web_followup ONLY if no reminder language
-
-# Reply with ONLY valid JSON, nothing else:
-# {{"intent": "<intent>", "confidence": <0.0-1.0>}}"""
-
-#     try:
-#         response = ollama.generate(model="llama3.2:latest", prompt=prompt)
-#         raw = (response.get("response") or "").strip()
-#         parsed = safe_parse_intent(raw)
-#         if parsed and parsed.get("intent") in ALLOWED_INTENTS:
-#             conf = float(parsed.get("confidence", 0.65))
-#             return {"intent": parsed["intent"], "confidence": conf, "source": "llm"}
-#     except Exception:
-#         pass
-
-#     return {"intent": "chat", "confidence": 0.5, "source": "fallback"}
 
 def get_eligible_intents(mm) -> list[str]:
     last_topic = (mm.get_last_topic() or "").lower()
@@ -2557,12 +2424,6 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         r".{0,20}\b(on|off|connect|disconnect|start|stop|ready|up|down)\b",
         re.IGNORECASE
     )
-
-    # if DEVICE_VERB_RE.search(text):
-    #     return {"intent": "device_control", "confidence": STRONG_RULE_CONF, "source": "rule_device_strong"}
-
-    # if any(p in text for p in DEVICE_STRONG):
-    #     return {"intent": "device_control", "confidence": STRONG_RULE_CONF, "source": "rule_device_strong"}
 
     if DEVICE_VERB_RE.search(text):
         print(f"[CANARY] rule_device_verb fired for: {text[:50]!r}")
@@ -3097,8 +2958,6 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
             return {"intent": "schedule_save", "confidence": 0.85, "source": "guard_remember_future"}
 
     # Guard 4: Low confidence → chat
-    # if result["confidence"] < 35:
-    #     return {"intent": "chat", "confidence": result["confidence"], "source": "guard_low_conf"}
 
     min_conf = CONF_THRESHOLDS.get(intent, 0.40)
     if result["confidence"] < min_conf:
@@ -4202,7 +4061,6 @@ class MemoryHandler:
             topic_name = extract_topic_name(user_input)
 
             # Reject vague topics that are just pronouns or save commands
-            # VAGUE_TOPICS = {"this", "that", "it", "save", "store", "note", "something"}
             if not topic_name or topic_name.strip().lower() in VAGUE_TOPICS:
                 # Fall through to general flow instead
                 self.memory_manager.set_pending_topic("Awaiting_Topic")
@@ -5021,12 +4879,6 @@ class ConversationManager:
     ) -> dict:
 
         source = intent_result.get("source", "")
-
-        # ── Always allow strong rule sources through ──────────────────────────
-        # BYPASS_SOURCES = {"rule_device_strong", "rule_strong", "rule_strong_delete"}
-        # if source in BYPASS_SOURCES:
-        #     print(f"[FUSION] bypassed — strong rule source: {source}")
-        #     return intent_result  # ← dict only, no tuple
 
         ABSOLUTE_BYPASS = [
             "take off", "takeoff", "hover at",
@@ -6119,8 +5971,6 @@ class ConversationManager:
             print(f"[PIVOT_MISS] no match → device_handler")
             return self.device_handler.handle(user_input)
 
-        # if pending_state in ["Awaiting_Topic"]:
-        #     return self.memory_handler.save_memory(user_input)
         if pending_state in ["Awaiting_Topic", "Awaiting_Topic_Content"]:
 
             PIVOT_RE = re.compile(
@@ -6759,8 +6609,6 @@ class ConversationManager:
             try:
                 # Try plain command first if your existing rover flow accepts it.
                 result = self.device_handler.handle(f"rover {command}")
-                # If it asks "Which device?", change the above line to:
-                # result = self.device_handler.handle(f"rover {command}")
 
                 result_text = str(result or "").strip()
                 if not result_text:
@@ -7191,13 +7039,6 @@ class ConversationManager:
                 intent_result
             )
 
-        # if intent == "save_memory":
-        #     result = self.memory_handler.save_memory(user_input, routed_intent="save_memory")
-        #     if result is None:
-        #         # save_memory decided this is mid-conversation — treat as chat
-        #         return _respond(self.start_new_conversation(user_input), intent_result)
-        #     return _respond(result, intent_result)
-
         if intent == "save_memory":
             result = self.memory_handler.save_memory(user_input, routed_intent="save_memory")
 
@@ -7231,9 +7072,6 @@ class ConversationManager:
 
         if intent == "schedule_delete":
             return _respond(self.memory_handler.delete_schedule(user_input), intent_result)
-
-        # if intent == "device_control":
-        #     return _respond(self.device_handler.handle(user_input), intent_result)
 
         if intent == "device_control":
             result = self.device_handler.handle(user_input)
@@ -7797,31 +7635,6 @@ class ConversationManager:
         store_short_term_memory(user_input, response, topic=synthetic_key)
         # Do NOT call self.memory_manager.set_last_topic(synthetic_key)
         return response
-
-    # def start_new_conversation(self, user_input):
-    #     print(f"[DEBUG] start_new_conversation detected being used")
-
-    #     raw_topic = extract_topic_name(user_input)
-    #     clean = self._clean_extracted_topic(raw_topic)
-
-    #     if not clean or clean == "current_conversation":
-    #         existing = self._resolve_return_to_topic(user_input)
-    #         if existing:
-    #             clean = existing
-    #         else:
-    #             clean = f"topic_{int(time.time()) % 10000}"
-
-    #     # Preserve sensory_memory for save/confirm flow
-    #     self.memory_manager._pre_switch_sensory = list(sensory_memory)
-
-    #     # Generate response WITHOUT old sensory context — new topic starts clean
-    #     response = self._llm(user_input, clean, override_sensory=[])
-
-    #     self.memory_manager.set_last_topic(clean)
-    #     store_short_term_memory(user_input, response, topic=clean)
-    #     print(f"[DEBUG] start_new_conversation topic set: {clean!r}")
-
-    #     return response
 
     def start_new_conversation(self, user_input, prefetched_topic: str | None = None):
         print(f"[NEW_CONV] starting (prefetched={prefetched_topic!r})")
@@ -8449,14 +8262,13 @@ def chat(tello_client=None):
         identity=identity,
     )
 
-    # for now muisc feature is being deactivated
+    # music feature is disabled for now; re-enable by uncommenting
     # music_watcher = MusicWatcher(
     #     spotify=conversation_manager.spotify,
     #     identity=identity,
     # )
     # music_watcher.start()
 
-    # vad = VADRecorder(VOICE_QUEUE)
     vad = VADRecorder(
         VOICE_QUEUE,
         margin_db=8.0,
@@ -8470,7 +8282,6 @@ def chat(tello_client=None):
 
     tts = TTSWorker(vad=vad, spotify=conversation_manager.spotify)
     conversation_manager.set_tts(tts)
-    # tts = TTSWorker(vad=vad, spotify=None)
     tts.start()
 
     full_intro = identity.should_do_full_intro()
@@ -8525,7 +8336,6 @@ def chat(tello_client=None):
             wav_path = VOICE_QUEUE.get()
             print(f"[VOICE] wav: {wav_path}")
 
-            # result = verify_wav(wav_path)
             result = speaker_client.verify_wav(wav_path)
             if not result.get("ok"):
                 print(f"[GATE] REJECT score={result.get('score')}")
