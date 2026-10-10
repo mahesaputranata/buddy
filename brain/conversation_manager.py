@@ -4432,6 +4432,7 @@ def _pivot_match(text, signals):
 # Conversation Manager
 class ConversationManager:
     def __init__(self, memory_manager, tello_client, explorer=None, identity=None):
+        init_schedule_table()  # a fresh clone has an empty DB; text mode and the test runner skip chat()
         self.identity = identity
         self.friday = Friday(notify_fn=lambda msg: self.tts.speak(msg) if hasattr(self, 'tts') and self.tts else print(f"[Friday] {msg}"))
         self.job_watchdog = JobWatchdog(friday=self.friday)

@@ -40,6 +40,8 @@ The interesting part is not that it talks, it is that **every failure I fixed wa
 
 ## Quick start (text mode, no hardware)
 
+Needs **Python 3.10+** (CI runs 3.10).
+
 ```bash
 python -m venv .venv && source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt

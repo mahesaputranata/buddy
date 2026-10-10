@@ -1,3 +1,5 @@
+import os
+
 from openai import OpenAI
 import base64
 from pathlib import Path
@@ -128,6 +130,8 @@ def run_vision_pipeline(
     is_webcam: bool = False,
     context_hint: Optional[str] = None,    # ← NEW: from vision_awareness scorer
 ) -> str:
+    if not os.environ.get("OPENAI_API_KEY"):
+        return "I can't look at images right now: vision needs an OpenAI API key (OPENAI_API_KEY)."
     paths = _to_path_list(image_path)
 
     prompt = _build_prompt(
