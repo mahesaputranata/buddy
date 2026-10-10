@@ -4,9 +4,12 @@ A voice-first personal assistant that runs on a **local 3B model**, built as a s
 verification, STT), a layered decision pipeline (interrupts, confirmations, intent routing, memory, belief state), and a mouth
 (TTS with music ducking). It delegates long tasks to an agent (Friday) and has clients for a rover and a Tello drone.
 
-<!-- TODO: demo video link here -->
-
 The interesting part is not that it talks, it is that **every failure I fixed was found by a harness I built to catch it**.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/pass_rate_by_run_dark.png">
+  <img alt="Scenarios passed per run: 8 of 19 at baseline, then 14 to 16 of 19 in every run after the fixes" src="docs/img/pass_rate_by_run_light.png">
+</picture>
 
 | | |
 |---|---|
@@ -47,25 +50,37 @@ python run_eval.py unit        # offline checks, no LLM
 python text_chat.py            # talk to it in the terminal
 python run_eval.py alive       # the 19-scenario conversational suite
 python run_eval.py results     # committed results
+python results/plot_results.py # regenerate the charts (needs matplotlib)
 ```
 
 Machine-specific values (device paths, default city) go in `config.example.yaml` -> `config.yaml`; secrets only in environment
 variables. Nothing personal is read from the repo. The voice stack needs `requirements-voice.txt` plus a microphone.
 
-## What's real, what's still rough
+## Known limitations
 
-**Real**
-- The pipeline runs end to end on my machine (voice in/out, device clients); the evaluation results are from real runs.
-- The harness, the guards and the offline tests are in this repo and runnable.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/scenario_reliability_dark.png">
+  <img alt="Pass count per scenario over 9 continuous runs: two scenarios pass 0 of 9, twelve fail intermittently, five pass every run" src="docs/img/scenario_reliability_light.png">
+</picture>
 
-**Rough (known)**
-- `brain/conversation_manager.py` is ~8.5k lines that grew organically. Splitting it into handlers is the first refactor I would do.
-- Some modules still contain commented-out experiments and mixed-encoding comments.
-- The text mode and `alive` suite were exercised on my Windows machine; they have not been verified on a clean Linux/macOS install.
+- **Two flows fail every run, so they are bugs in my code, not model noise.** `delete_memory_flow` asks for confirmation before
+  checking that the topic exists; `mid_conversation_save` fails on the final "yes". Both are in the confirmation state machine.
+- **The least reliable of the rest are rover and vision scenarios** (3/9, 5/9, 6/9). The rover hardware was offline for these
+  runs, so `rover_explain_repair` is not a meaningful result; the 8/9 cases are within the 3B model's sampling noise.
+- `brain/conversation_manager.py` is ~8.4k lines that grew organically.
 - The context guards are justified by a prompt trace, not yet by a controlled A/B.
+- The text mode and `alive` suite were exercised on my Windows machine; they have not been verified on a clean Linux/macOS install.
 - Speaker verification has no published error rates and no anti-spoofing.
 - The intent-model weights, training data (real conversations) and metrics are not included.
-- A 3B model hallucinates. The harness reduces the visible failure modes; it does not remove the cause.
+
+## Roadmap
+
+In order, each one checked against the scenario suite before and after:
+
+1. Fix the two always-failing confirmation flows (check that the topic exists before asking; trace why the mid-conversation save fails on the final "yes").
+2. Split `ConversationManager` into one handler per layer, using the 19-scenario suite as the regression net.
+3. A/B the context guards: `BUDDY_CONTEXT_GUARDS=0` vs. default, several runs each.
+4. Pin dependency versions and verify a clean install on Linux.
 
 ## License
 

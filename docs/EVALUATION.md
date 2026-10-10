@@ -24,9 +24,15 @@ python run_eval.py alive --output out.json    # needs Ollama + llama3.2
 python run_eval.py alive --isolate
 python run_eval.py alive --trace-prompts
 python run_eval.py results                    # table below, from results/stress_runs.json
+python results/plot_results.py                # charts below (needs matplotlib)
 ```
 
 ## Results (19-scenario core suite)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/pass_rate_by_run_dark.png">
+  <img alt="Scenarios passed per run, grouped by the fix each run belongs to" src="img/pass_rate_by_run_light.png">
+</picture>
 
 | run | date | mode | passed | alive | bleed turns | note |
 |---|---|---|---|---|---|---|
@@ -58,6 +64,11 @@ Raw numbers: [`results/stress_runs.json`](../results/stress_runs.json) (per-run 
 - The rover hardware was offline, so rover-control outcomes are not meaningful.
 
 Scenarios that did not pass in every continuous run:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/scenario_reliability_dark.png">
+  <img alt="Pass count per scenario over 9 continuous runs" src="img/scenario_reliability_light.png">
+</picture>
 
 | scenario | passed / runs |
 |---|---|
