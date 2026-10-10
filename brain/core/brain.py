@@ -5,13 +5,13 @@ import ollama
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from fuzzywuzzy import fuzz
-from brain.core.helpers import get_date 
+from brain.core.helpers import get_date
 from datetime import datetime, timedelta
 import re
-import uuid 
+import uuid
 from brain.core.prompts import detect_similarity_llm, generate_response, detectMemoryRequest, recallMemoryAccess, extractTopicName, storeSummaryLongTermMemory
 from brain.core.prompts import newInfoRelevantCheck, saveMemoryAccess, deleteMemoryAccess, extractTime, saveScheduleCategory, extract_specific_request, recallScheduleCategory
-import dateparser 
+import dateparser
 import json
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -37,8 +37,8 @@ chat_collection = chroma_client.get_or_create_collection(name="chat_memory")
 SENSORY_MEMORY_LIMIT = 3
 sensory_memory = deque(maxlen=SENSORY_MEMORY_LIMIT)
 
-topic_frequency = defaultdict(int)  
-temp_topic_memory = defaultdict(list)  
+topic_frequency = defaultdict(int)
+temp_topic_memory = defaultdict(list)
 long_term_candidates = set()
 
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -54,11 +54,11 @@ class handleGeneral:
             return []
         lines = [l.strip() for l in formatted_topics.splitlines() if l.strip()]
         return [l[2:].strip() for l in lines if l.startswith("- ")]
-    
+
     @staticmethod
     def extract_all_contents(topics: list[str]) -> list[dict]:
         return [{"topic": t, "last_discussed": None, "summary": None} for t in topics]
-    
+
 
 def get_time():
     return datetime.now(TZ)
@@ -67,10 +67,10 @@ def initialize_memory():
     global last_topic, pending_topic
 
     if last_topic is None:
-        last_topic = None  
+        last_topic = None
 
     if pending_topic is None:
-        pending_topic = None  
+        pending_topic = None
 
 
 # temporary normalize input (latrer will be centralized becauyse in here there are many normalized logic)
@@ -79,7 +79,7 @@ def normalize_topic(topic: str) -> str:
     return topic.lower() if topic else None
 
 class MemoryManager:
-    _instance = None 
+    _instance = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -139,7 +139,7 @@ class MemoryManager:
         self._last_topics_shown = []
 
         print("[MemoryManager] session state reset")
-        
+
     def set_last_saved_topic(self, topic: str | None):
         t = (topic or "").strip()
         self.last_saved_topic = t or None
@@ -239,13 +239,13 @@ class MemoryManager:
 
     def get_last_topics_shown(self) -> list[str]:
         return getattr(self, "_last_topics_shown", []) or []
-    
+
     def set_pending_topic(self, topic):
         self.pending_topic = topic
 
     def get_pending_topic(self):
         return self.pending_topic
-    
+
     def prune_web_contexts(self, *, keep_last_n: int = 8, ttl_seconds: int = 60 * 60):
 
         now = time.time()
@@ -274,7 +274,7 @@ class MemoryManager:
             for k in list(self._web_contexts.keys()):
                 if k not in keep:
                     self._web_contexts.pop(k, None)
-    
+
 
         # refresh pointer
         self.last_web_topic = self.get_latest_web_topic()
@@ -333,7 +333,7 @@ class MemoryManager:
 
     def clear_pending_action(self):
         self.pending_action = None
-        self.pending_payload = None 
+        self.pending_payload = None
 
     def merge_pending_payload(self, patch: dict):
         if self.pending_payload is None:
@@ -404,7 +404,7 @@ class MemoryManager:
 
     def clear_pending_vision(self):
         self.pending_vision = None
-        self.active_vision_source = None  
+        self.active_vision_source = None
 
     def set_pending_vision(self, img_path, img_hash: str = ""):
         # normalize to always store a list of paths internally
@@ -431,7 +431,7 @@ class MemoryManager:
 
     def get_pending_vision(self):
         return getattr(self, "pending_vision", None)
-    
+
     def clear_pending_vision(self):
         self.pending_vision = None
 
@@ -440,7 +440,7 @@ memory_manager = MemoryManager()
 
 
 # ---------------------------
-# 🔹 UTILITY FUNCTIONS
+# UTILITY FUNCTIONS
 # ---------------------------
 def extract_specificCase_condition(user_input):
 
@@ -458,7 +458,7 @@ def extract_specificCase_condition(user_input):
 
     if specific_case in ["1", "2", "3"]:
         return specific_case
-    return "1"  
+    return "1"
 
 
 def get_text_embedding(text):
@@ -467,7 +467,7 @@ def get_text_embedding(text):
 
 
 def compute_similarity_llm(user_input, last_topic, short_term_context):
-    
+
     print({short_term_context})
 
     detectSimilarity = detect_similarity_llm(user_input, last_topic, short_term_context)
@@ -481,10 +481,10 @@ def compute_similarity_llm(user_input, last_topic, short_term_context):
 
     print(f"[DEBUG] LAST TOPIC: {last_topic}")
     print(f"[DEBUG] CONTEXT: {short_term_context if short_term_context else 'None'}")
-    print(f"[DEBUG] LLM Decision Raw Output: {response['response']}")  
+    print(f"[DEBUG] LLM Decision Raw Output: {response['response']}")
     print(f"[DEBUG] LLM Parsed Decision: {decision}")
 
-    return decision == "yes" 
+    return decision == "yes"
 
 def compute_similarity_hybrid(
     user_input: str,
@@ -521,7 +521,7 @@ def compute_similarity_hybrid(
     return compute_similarity_llm(user_input, last_topic, short_term_context)
 
 # ---------------------------
-# 🔹 TOPIC IDENTIFICATION
+# TOPIC IDENTIFICATION
 # ---------------------------
 
 def compute_similarity_embedding(text1: str, text2: str, threshold=0.5) -> bool:
@@ -550,13 +550,13 @@ def identify_topic(user_input):
 
     if last_topic:
         if compute_similarity_llm(user_input, last_topic, retrieve_short_term_memory()):
-            return last_topic  
+            return last_topic
 
     all_topics = retrieve_all_topics_from_memory()
 
     if not all_topics:
         print("[DEBUG] No topics found in long-term memory. Checking short-term...")
-        return None  
+        return None
 
     best_match = None
     best_score = 0
@@ -564,25 +564,10 @@ def identify_topic(user_input):
     for topic in all_topics:
         if compute_similarity_llm(user_input, topic, None):
             best_match = topic
-            break  
+            break
 
     return best_match if best_match else None
 
-
-# def confirm_memory_storage(user_input, last_topic, date=None, conversation_history=None):
-#     if date is None:
-#         date = get_date()
-
-#     memory_manager.set_pending_topic("Awaiting_Update_Confirm")
-#     memory_manager.pending_update_payload = {
-#         "topic": last_topic,
-#         "date": date,
-#         "user_input": user_input,
-#         "conversation_history": conversation_history,  
-#     }
-
-#     answer = generate_llm_response(user_input, "General Conversation")
-#     return answer + f"\n\n(Also, do you want me to save our previous topic about **{last_topic}**?"
 
 def confirm_memory_storage(user_input, last_topic, date=None, conversation_history=None):
     if date is None:
@@ -624,25 +609,25 @@ def generate_llm_response(user_input, topic, system_context: str = "", override_
     return response['response'].strip()
 
 # ---------------------------
-# 🔹 MEMORY DETECTION
+# MEMORY DETECTION
 # ---------------------------
 
 # for saving in a middle conversation
 def _fuzzy_match_topic(query: str, topic_list: list[str]) -> str | None:
     if not query or not topic_list:
         return None
-    
+
     q = query.lower().strip()
-    
+
     # exact match first
     if q in topic_list:
         return q
-    
+
     # substring match
     for t in topic_list:
         if q in t or t in q:
             return t
-    
+
     # word overlap
     q_words = set(q.split())
     best, best_score = None, 0
@@ -652,7 +637,7 @@ def _fuzzy_match_topic(query: str, topic_list: list[str]) -> str | None:
         if overlap > best_score:
             best_score = overlap
             best = t
-    
+
     return best if best_score >= 1 else None
 
 def resolve_save_target(
@@ -671,7 +656,7 @@ def resolve_save_target(
     }
     """
     text = (user_input or "").lower().strip()
-    
+
     # Case 1: User named the topic explicitly
     # "save our conversation about reinforcement learning"
     topic_name = extract_topic_name(user_input)
@@ -770,7 +755,7 @@ Do not include filler or small talk.
 Summary:
 """
     response = ollama.generate(
-        model="llama3.2:latest", 
+        model="llama3.2:latest",
         prompt=summary_prompt
     )
     summary = (response.get("response") or "").strip()
@@ -856,7 +841,6 @@ def delete_memory_by_ids(ids):
         return "I encountered an error while trying to delete the memory."
 
 
-
 def detect_memory_request(user_input):
     global memory_ready, pending_topic
 
@@ -924,7 +908,7 @@ def save_memory_request(user_input: str, classifier: SaveTypeClassifier = None) 
         "save our previous discussion",
     ]
     if any(p in user_input.lower() for p in SAVE_CONVERSATION_DIRECT):
-        return "conversation_save"  
+        return "conversation_save"
 
     # ── TIER 1: Hard rules (zero ambiguity, no embedding needed) ──
     # Most specific first to avoid clashes
@@ -1056,7 +1040,7 @@ def extract_scheduleType_save(user_input: str):
 
         if conf < 0.60:
             return "unknown"
-        
+
         if topic:
             return "specific"
 
@@ -1067,7 +1051,6 @@ def extract_scheduleType_save(user_input: str):
     except Exception:
         return "unknown"
 
-        
 
 def clean_llm_label(text: str) -> str:
     text = (text or "").strip().lower()
@@ -1239,7 +1222,6 @@ def recall_memory_request(
     ]
 
 
-
     # If your upstream router already knows schedule, trust it.
     if routed_intent == "schedule_recall":
         return RecallRoute("schedule", 0.95, "Upstream routed_intent == schedule_recall")
@@ -1325,31 +1307,6 @@ PREAMBLE = re.compile(
     re.I
 )
 
-# OLD CLEAN TOPIC
-# def _clean_topic(s: str) -> str | None:
-#     if not s:
-#         return None
-#     s = s.strip().strip(" .!?\"'`")
-#     s = re.sub(r"\s+", " ", s).strip()
-#     s = LEADING_FILLER.sub("", s).strip()   # safety-net cleanup
-
-#     if not s:
-#         return None
-
-#     # reject obvious junk
-#     if s.lower() in STOP_TOPICS:
-#         return None
-
-#     return s]\
-
-# NEW CLEAN TOPIC: TODO -> ALLOCATE THIS ONCE ITS STABLE
-# ─────────────────────────────────────────────────────────────────
-# TOPIC STRUCTURAL VALIDATION (added 2026-05-06)
-# Layer 1 (primary):  spaCy POS tagging
-# Layer 2 (lexical):  known verb forms (catches spaCy mis-tags)
-# Layer 3 (fallback): regex heuristics (if spaCy fails to load)
-# Future: extract to brain/core/topic_validator.py
-# ─────────────────────────────────────────────────────────────────
 
 _nlp = None
 _spacy_load_attempted = False
@@ -1358,14 +1315,14 @@ _spacy_load_failed = False
 def _get_nlp():
     """Lazy-load spaCy model. Caches failure state to avoid retrying."""
     global _nlp, _spacy_load_attempted, _spacy_load_failed
-    
+
     if _spacy_load_failed:
         return None
     if _nlp is not None:
         return _nlp
     if _spacy_load_attempted:
         return None
-    
+
     _spacy_load_attempted = True
     try:
         _nlp = spacy.load("en_core_web_sm")
@@ -1417,7 +1374,7 @@ def _is_valid_topic_structure(s: str) -> bool:
     """
     if not s or not s.strip():
         return False
-    
+
     nlp = _get_nlp()
     if nlp is not None:
         return _is_valid_topic_structure_spacy(s, nlp)
@@ -1438,24 +1395,24 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     except Exception as e:
         print(f"[TopicValidator] spaCy parse failed on {s!r}: {e}")
         return _is_valid_topic_structure_regex(s)
-    
+
     # Filter out punctuation for structural reasoning
     content_tokens = [t for t in doc if t.pos_ != "PUNCT"]
     if not content_tokens:
         return False
-    
+
     first = content_tokens[0]
     last = content_tokens[-1]
-    
+
     # ── Rule 1: Reject if first token is an interjection ──
     if first.pos_ == "INTJ":
         return False
-    
+
     # ── Rule 2: Reject if first token is a known discourse marker ──
     # (catches cases where spaCy doesn't tag as INTJ but the word is one)
     if first.text.lower() in DISCOURSE_MARKERS:
         return False
-    
+
     # ── Rule 3: Reject if any token is a finite verb or auxiliary ──
     # Exception: VBG (gerund) and VBN (past participle) can act as nouns
     # Examples: "machine learning" (VBG=noun-like), "battery mounting" (VBG=noun-like)
@@ -1465,7 +1422,7 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     )
     if has_finite_verb:
         return False
-    
+
     # ── Rule 4: Lexical verb double-check ──
     # spaCy sometimes mis-tags fragment verbs as NOUN (e.g., "hurts" → NN).
     # Cross-reference against known verb lexicon to catch these.
@@ -1475,7 +1432,7 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     )
     if has_lexical_verb:
         return False
-    
+
     # ── Rule 5: Reject disjunctive coordinating conjunctions ──
     # "but" and "or" in the middle of a phrase signal clause-fragment, not topic.
     # ("tear hurts but more" — caught here even though spaCy mis-tagged hurts)
@@ -1485,12 +1442,12 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     )
     if has_disjunctive_conj:
         return False
-    
+
     # ── Rule 6: Reject if last content token is an adverb ──
     # Topics don't typically end on adverbs ("hurts but more" → ends on "more")
     if last.pos_ == "ADV":
         return False
-    
+
     # ── Rule 7: Reject if last content token dangles ──
     # Prepositions, particles, determiners, possessives at the end signal incomplete phrases
     if last.pos_ in ("ADP", "PART"):
@@ -1509,7 +1466,7 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
         "them", "us", "it"
     }:
         return False
-    
+
     # ── Rule 8: Must contain at least one noun-like token ──
     # NOUN, PROPN, or VBG (gerund acting as noun)
     has_noun_like = any(
@@ -1519,7 +1476,7 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     )
     if not has_noun_like:
         return False
-    
+
 
     RELATIONAL_FILLERS = {
         "about", "regarding", "concerning", "around",
@@ -1588,9 +1545,8 @@ def _is_valid_topic_structure_spacy(s: str, nlp) -> bool:
     if tokens_lower[0] in WEAK_TOPIC_HEADS:
         if not any(tok in DOMAIN_NOUN_HINTS for tok in tokens_lower):
             return False
-        
-    return True
 
+    return True
 
 
 def _is_valid_topic_structure_regex(s: str) -> bool:
@@ -1601,7 +1557,7 @@ def _is_valid_topic_structure_regex(s: str) -> bool:
     s_lower = s.lower().strip()
     if not s_lower:
         return False
-    
+
     # Reject leading interjections / discourse markers
     if re.match(
         r"^(?:oh+|ah+|uh+|um+|hmm+|wow|ugh|ouch|hell|damn|"
@@ -1609,7 +1565,7 @@ def _is_valid_topic_structure_regex(s: str) -> bool:
         s_lower
     ):
         return False
-    
+
     # Reject if contains common finite verb forms
     if re.search(
         r"\b(?:is|are|was|were|has|have|had|hurts?|got|gets|"
@@ -1617,11 +1573,11 @@ def _is_valid_topic_structure_regex(s: str) -> bool:
         s_lower
     ):
         return False
-    
+
     # Reject disjunctive conjunctions in the middle
     if re.search(r"\b(?:but|or|yet)\b", s_lower):
         return False
-    
+
     # Reject if dangles on preposition/conjunction/determiner
     if re.search(
         r"\b(?:and|or|but|with|to|of|in|on|for|from|about|regarding|related|"
@@ -1630,7 +1586,7 @@ def _is_valid_topic_structure_regex(s: str) -> bool:
         s_lower
     ):
         return False
-        
+
     # Must have at least one substantive token (length >= 4, non-pronoun)
     pronouns = {"this", "that", "these", "those", "mine", "ours",
                 "your", "their", "them"}
@@ -1638,7 +1594,7 @@ def _is_valid_topic_structure_regex(s: str) -> bool:
     substantive = [t for t in tokens if len(t) >= 4 and t not in pronouns]
     if not substantive:
         return False
-    
+
     return True
 
 
@@ -1752,267 +1708,6 @@ def _strip_time_phrases(s: str) -> str:
     s = re.sub(r"\bat\s+\d{1,2}(:\d{2})?\s*(am|pm)?\b", "", s, flags=re.I).strip()
     return s
 
-# def extract_topic_name(user_input: str):
-#     print("[DBG]: Entering extracting topic name")
-#     text = (user_input or "").strip()
-#     lower = text.lower().strip()
-
-#     # Early early stage filter
-#     if "?" in text:
-#         return None
-
-#     # Better — only block if it's a pure question with no extractable noun
-#     if "?" in text:
-#         # still try to extract if there's a clear subject phrase
-#         noun_match = re.search(
-#             r"\b((?:[\w]+\s+){0,3}(?:signal|controller|system|"
-#             r"laser|diode|sensor|algorithm|method|technique)s?)\b",
-#             text, re.I
-#         )
-#         if not noun_match:
-#             return None
-
-#     # 0) Early filter
-#     STOP_PREFIXES = ("can you", "could you", "do we", "did we", "have we", "what did", "what have", "when did")
-
-#     COMMAND_PREFIXES = [
-#         r"^\s*(summarize|summary|recap)\s+",
-#         r"^\s*(open|show|tell me about)\s+",
-#         r"^\s*(forget|delete|remove)\s+",
-#     ]
-
-#     text_cmd_stripped = text
-#     for rx in COMMAND_PREFIXES:
-#         text_cmd_stripped = re.sub(rx, "", text_cmd_stripped, flags=re.I)
-
-#     lower = text_cmd_stripped.lower().strip()
-
-#     if lower.startswith(STOP_PREFIXES):
-#         return None
- 
-#     if "?" in text:
-#         return None
-
-
-#     # 1) Strong explicit patterns (high precision)
-#     # IMPORTANT: run regex on `text` (not `lower`) to avoid index mismatch.
-#     patterns = [
-#         # "topic: DBR Laser Diode"
-#         r"(?:topic|subject)\s*[:\-]\s*(.+)$",
-
-#         # "call it Project Alpha"
-#         r"(?:call it|name it)\s+(.+)$",
-
-#         # "discuss X" or "discuss about X"  -> capture only X
-#         r"\bdiscuss(?:\s+about)?\s+(.+)$",
-
-#         # "talk about X"
-#         r"\btalk\s+about\s+(.+)$",
-
-#         # "regarding X"
-#         r"\bregarding\s+(.+)$",
-
-#         # Only match "about X" if the message starts with it (reduces false positives)
-#         r"^\s*about\s+(.+)$",
-
-#         # "forget/delete/erase everything about X" or "discussed about X"
-#         r"(?:about|regarding|discussing|discussed\s+about)\s+([a-z][a-z\s]{2,30}?)(?:\s*[?.,]|$)",
-
-#         # "I'm interested in X" / "I'm curious about X"
-#         r"\bi(?:'m| am)\s+(?:interested in|curious about)\s+(.+)$",
-#     ]
-
-#     # Optional: strip common preamble so patterns hit more reliably
-#     # e.g. "I would like to discuss about lqr controller"
-#     # text_for_match = PREAMBLE.sub("", text)
-#     text_for_match = PREAMBLE.sub("", text_cmd_stripped)
-
-
-#     for p in patterns:
-#         m = re.search(p, text_for_match, flags=re.I)
-#         if m:
-#             extracted = m.group(1)
-#             cleaned = _clean_topic(extracted)
-#             cleaned = _strip_time_phrases(cleaned)
-#             if cleaned:
-#                 print(f"[DEBUG] Rule-based topic extract: {cleaned}")
-#                 return cleaned
-
-#     # 2) If user message is short and looks like a title, treat it as a candidate
-#     if 1 <= len(text.split()) <= 6 and len(text) <= 60:
-#         if not any(w in lower for w in ["please", "can you", "could you", "what is", "how do", "help me"]):
-#             candidate = _clean_topic(text_cmd_stripped)
-#             candidate = _strip_time_phrases(candidate)
-
-#             if candidate:
-#                 return candidate
-
-
-#     # 3) Fallback: LLM extraction (guarded)
-#     prompt = extractTopicName(text)
-#     response = ollama.generate(model="llama3.2:latest", prompt=prompt)
-#     topic = (response.get("response") or "").strip()
-
-#     topic = _clean_topic(topic)
-#     if not topic or topic.lower() == "none":
-#         return None
-
-#     # Guard: if LLM returns only one word but input clearly has multi-word phrase, distrust it
-#     if len(topic.split()) == 1 and len(text.split()) >= 2:
-#         print(f"[DEBUG] LLM topic too short ({topic}); falling back to None")
-#         return None
-
-#     print(f"[DEBUG] Extracted Topic Name (LLM): {topic}")
-#     return topic
-
-# new extract topic 01
-# def extract_topic_name(user_input: str):
-#     print("[DBG]: Entering extracting topic name")
-
-#     text = (user_input or "").strip()
-#     if not text:
-#         return None
-
-#     text = re.sub(r"\s+", " ", text).strip()
-#     lower_original = text.lower().strip()
-
-#     # 0) Hard reject conversational fragments that should never become topics.
-#     if lower_original in {
-#         "no need", "never mind", "nevermind", "forget it",
-#         "oh hell no", "hell no", "okay", "ok", "thanks", "thank you",
-#     }:
-#         return None
-
-#     # 1) Question handling.
-#     # Do not blindly reject all questions. First try recall-style topic extraction.
-#     recall_patterns = [
-#         r"\b(?:do we|did we|have we)\s+(?:discuss|talk about|mention)\s+(?:anything\s+)?(?:about|regarding)?\s*(.+?)\??$",
-#         r"\bwhat\s+(?:did|have)\s+we\s+(?:discussed?|talked about|said)\s+(?:about|regarding)\s+(.+?)\??$",
-#     ]
-
-#     for p in recall_patterns:
-#         m = re.search(p, text, flags=re.I)
-#         if m:
-#             cleaned = _clean_topic(m.group(1))
-#             if cleaned:
-#                 cleaned = _strip_time_phrases(cleaned)
-#                 if cleaned:
-#                     print(f"[DEBUG] Recall topic extract: {cleaned}")
-#                     return cleaned
-
-#     # Pure question without clear technical noun -> no topic.
-#     if "?" in text:
-#         noun_match = re.search(
-#             r"\b((?:[\w]+\s+){0,3}(?:signal|controller|system|"
-#             r"laser|diode|sensor|algorithm|method|technique|"
-#             r"battery|mounting|converter|rover|raspberry\s+pi|"
-#             r"server|wiring|paper|publication|model|dataset)s?)\b",
-#             text,
-#             re.I,
-#         )
-#         if not noun_match:
-#             return None
-
-#     # 2) Strip only safe command prefixes.
-#     # Avoid stripping delete/remove/open/show here; those belong to tool routing.
-#     COMMAND_PREFIXES = [
-#         r"^\s*(summarize|summary|recap)\s+",
-#         r"^\s*(tell me about)\s+",
-#     ]
-
-#     text_cmd_stripped = text
-#     for rx in COMMAND_PREFIXES:
-#         text_cmd_stripped = re.sub(rx, "", text_cmd_stripped, flags=re.I).strip()
-
-#     lower = text_cmd_stripped.lower().strip()
-
-#     # 3) Stop prefixes for generic helper questions.
-#     STOP_PREFIXES = (
-#         "can you help",
-#         "could you help",
-#         "can you explain",
-#         "could you explain",
-#     )
-
-#     if lower.startswith(STOP_PREFIXES):
-#         return None
-
-#     # 4) Strong explicit patterns.
-#     patterns = [
-#         r"(?:topic|subject)\s*[:\-]\s*(.+)$",
-#         r"(?:call it|name it)\s+(.+)$",
-
-#         r"\b(?:issue|problem|question|concern|topic|discussion)\s+(?:about|regarding|with)\s+(.+)$",
-
-#         r"\bdiscuss(?:\s+about)?\s+(.+)$",
-#         r"\btalk\s+about\s+(.+)$",
-#         r"\bregarding\s+(.+)$",
-#         r"^\s*about\s+(.+)$",
-
-#         r"(?:about|regarding|discussing|discussed\s+about)\s+([a-z][a-z\s]{2,40}?)(?:\s*[?.,]|$)",
-
-#         r"\bi(?:'m| am)\s+(?:interested in|curious about)\s+(.+)$",
-#     ]
-
-#     text_for_match = PREAMBLE.sub("", text_cmd_stripped).strip()
-
-#     for p in patterns:
-#         m = re.search(p, text_for_match, flags=re.I)
-#         if m:
-#             extracted = m.group(1)
-#             cleaned = _clean_topic(extracted)
-#             if cleaned:
-#                 cleaned = _strip_time_phrases(cleaned)
-#             if cleaned:
-#                 print(f"[DEBUG] Rule-based topic extract: {cleaned}")
-#                 return cleaned
-
-#     # 5) Short title-like input.
-#     if 1 <= len(text_cmd_stripped.split()) <= 6 and len(text_cmd_stripped) <= 60:
-#         if not any(w in lower for w in ["please", "can you", "could you", "what is", "how do", "help me"]):
-#             candidate = _clean_topic(text_cmd_stripped)
-#             if candidate:
-#                 candidate = _strip_time_phrases(candidate)
-#             if candidate:
-#                 return candidate
-
-#     # 6) LLM fallback, heavily guarded.
-#     prompt = extractTopicName(text)
-#     response = ollama.generate(model="llama3.2:latest", prompt=prompt)
-#     topic = (response.get("response") or "").strip()
-
-#     topic = _clean_topic(topic)
-#     if not topic or topic.lower() == "none":
-#         return None
-
-#     if len(topic.split()) == 1 and len(text.split()) >= 2:
-#         print(f"[DEBUG] LLM topic too short ({topic}); falling back to None")
-#         return None
-
-#     if not _topic_is_grounded(topic, text):
-#         print(f"[DEBUG] LLM topic not grounded ({topic!r}); falling back to None")
-#         return None
-
-#     print(f"[DEBUG] Extracted Topic Name (LLM): {topic}")
-#     return topic
-
-# def _topic_is_grounded(topic: str, source_text: str) -> bool:
-#     topic_tokens = {
-#         t.lower()
-#         for t in re.findall(r"[a-zA-Z0-9]+", topic)
-#         if len(t) >= 3
-#     }
-#     source_tokens = {
-#         t.lower()
-#         for t in re.findall(r"[a-zA-Z0-9]+", source_text)
-#         if len(t) >= 3
-#     }
-
-#     if not topic_tokens:
-#         return False
-
-#     overlap = topic_tokens & source_tokens
-#     return len(overlap) / len(topic_tokens) >= 0.5
 
 _BROAD_CATEGORY_STOPLIST = {
     "robotics", "programming", "engineering", "technology",
@@ -2021,7 +1716,7 @@ _BROAD_CATEGORY_STOPLIST = {
     "system", "systems", "discussion", "topic", "question",
     "project", "projects", "general", "stuff",
 }
- 
+
 # Sentence-shape patterns — if input matches these, it's a sentence
 # expressing intent or opinion, NOT a topic label.
 _SENTENCE_SHAPE_RE = re.compile(
@@ -2033,7 +1728,7 @@ _SENTENCE_SHAPE_RE = re.compile(
     r"don'?t|do\s+not)\b",
     re.IGNORECASE,
 )
- 
+
 _FINITE_VERB_RE = re.compile(
     r"\b(?:am|is|are|was|were|have|has|had|will|"
     r"would|could|should|may|might|"
@@ -2052,14 +1747,14 @@ def extract_topic_name(user_input: str):
     If unsure, returns None and lets the caller keep the current topic.
     """
     print("[DBG]: Entering extracting topic name")
- 
+
     text = (user_input or "").strip()
     if not text:
         return None
- 
+
     text = re.sub(r"\s+", " ", text).strip()
     lower_original = text.lower().strip()
- 
+
     # ── NEW GUARD 1: Short followups never produce a topic ──────────
     # This is the shared contract. extract is just an advisor — when
     # the utterance is a followup, we return None and let the routing
@@ -2067,14 +1762,14 @@ def extract_topic_name(user_input: str):
     if is_short_followup(text):
         print(f"[DEBUG] extract_topic_name: short followup, returning None")
         return None
- 
+
     # ── Existing: hard-reject conversational fragments ─────────────
     if lower_original in {
         "no need", "never mind", "nevermind", "forget it",
         "oh hell no", "hell no", "okay", "ok", "thanks", "thank you",
     }:
         return None
- 
+
     # ── 1) Recall question handling (unchanged) ─────────────────────
     recall_patterns = [
         r"\b(?:do we|did we|have we)\s+(?:discuss|talk about|mention)\s+"
@@ -2082,7 +1777,7 @@ def extract_topic_name(user_input: str):
         r"\bwhat\s+(?:did|have)\s+we\s+(?:discussed?|talked about|said)\s+"
         r"(?:about|regarding)\s+(.+?)\??$",
     ]
- 
+
     for p in recall_patterns:
         m = re.search(p, text, flags=re.I)
         if m:
@@ -2092,7 +1787,7 @@ def extract_topic_name(user_input: str):
                 if cleaned:
                     print(f"[DEBUG] Recall topic extract: {cleaned}")
                     return cleaned
- 
+
     # Pure question without clear technical noun -> no topic
     if "?" in text:
         noun_match = re.search(
@@ -2105,19 +1800,19 @@ def extract_topic_name(user_input: str):
         )
         if not noun_match:
             return None
- 
+
     # ── 2) Strip safe command prefixes ──────────────────────────────
     COMMAND_PREFIXES = [
         r"^\s*(summarize|summary|recap)\s+",
         r"^\s*(tell me about)\s+",
     ]
- 
+
     text_cmd_stripped = text
     for rx in COMMAND_PREFIXES:
         text_cmd_stripped = re.sub(rx, "", text_cmd_stripped, flags=re.I).strip()
- 
+
     lower = text_cmd_stripped.lower().strip()
- 
+
     # ── 3) Stop prefixes (unchanged) ────────────────────────────────
     STOP_PREFIXES = (
         "can you help", "could you help",
@@ -2125,7 +1820,7 @@ def extract_topic_name(user_input: str):
     )
     if lower.startswith(STOP_PREFIXES):
         return None
- 
+
     # ── 4) Strong explicit patterns (unchanged) ─────────────────────
     patterns = [
         r"(?:topic|subject)\s*[:\-]\s*(.+)$",
@@ -2140,9 +1835,9 @@ def extract_topic_name(user_input: str):
         r"([a-z][a-z\s]{2,40}?)(?:\s*[?.,]|$)",
         r"\bi(?:'m| am)\s+(?:interested in|curious about)\s+(.+)$",
     ]
- 
+
     text_for_match = PREAMBLE.sub("", text_cmd_stripped).strip()
- 
+
     for p in patterns:
         m = re.search(p, text_for_match, flags=re.I)
         if m:
@@ -2153,7 +1848,7 @@ def extract_topic_name(user_input: str):
             if cleaned:
                 print(f"[DEBUG] Rule-based topic extract: {cleaned}")
                 return cleaned
- 
+
     # ── 5) NEW GUARD: short title-like branch, BUT with sentence rejection ──
     # The old code accepted "I open to any suggestion" as a 5-word title.
     # Now we reject sentence shapes and finite-verb-bearing fragments.
@@ -2162,12 +1857,12 @@ def extract_topic_name(user_input: str):
         if _SENTENCE_SHAPE_RE.match(text_cmd_stripped):
             print(f"[DEBUG] extract_topic_name: sentence shape, no topic")
             return None
- 
+
         # Reject anything with a finite verb
         if _FINITE_VERB_RE.search(text_cmd_stripped):
             print(f"[DEBUG] extract_topic_name: finite verb, no topic")
             return None
- 
+
         # Reject question-shaped short input
         if any(w in lower for w in [
             "please", "can you", "could you",
@@ -2175,28 +1870,28 @@ def extract_topic_name(user_input: str):
             "is it", "are you", "do you",
         ]):
             return None
- 
+
         candidate = _clean_topic(text_cmd_stripped)
         if candidate:
             candidate = _strip_time_phrases(candidate)
         if candidate:
             return candidate
- 
+
     # ── 6) LLM fallback — TIGHTER guards ────────────────────────────
     prompt = extractTopicName(text)
     response = ollama.generate(model="llama3.2:latest", prompt=prompt)
     topic = (response.get("response") or "").strip()
- 
+
     topic = _clean_topic(topic)
     if not topic or topic.lower() == "none":
         return None
- 
+
     # Reject single-word broad categories — LLM hallucinations
     topic_lower = topic.lower().strip()
     if topic_lower in _BROAD_CATEGORY_STOPLIST:
         print(f"[DEBUG] LLM topic too broad ({topic}); falling back to None")
         return None
- 
+
     # Reject single-word topics when input is longer — overgeneralization
     if len(topic.split()) == 1 and len(text.split()) >= 3:
         # BUT: allow single-word if it's a strong content noun
@@ -2207,15 +1902,15 @@ def extract_topic_name(user_input: str):
         if topic_lower not in STRONG_SINGLE_WORDS:
             print(f"[DEBUG] LLM topic too short ({topic}); falling back to None")
             return None
- 
+
     if not _topic_is_grounded(topic, text):
         print(f"[DEBUG] LLM topic not grounded ({topic!r}); falling back to None")
         return None
- 
+
     print(f"[DEBUG] Extracted Topic Name (LLM): {topic}")
     return topic
- 
- 
+
+
 # ─────────────────────────────────────────────────────────────────
 # Tighter grounding check
 # ─────────────────────────────────────────────────────────────────
@@ -2233,19 +1928,18 @@ def _topic_is_grounded(topic: str, source_text: str) -> bool:
         for t in re.findall(r"[a-zA-Z0-9]+", source_text)
         if len(t) >= 3
     }
- 
+
     if not topic_tokens:
         return False
- 
+
     overlap = topic_tokens & source_tokens
- 
+
     # NEW: overlap on broad categories doesn't count
     meaningful_overlap = overlap - _BROAD_CATEGORY_STOPLIST
     if not meaningful_overlap:
         return False
- 
+
     return len(overlap) / len(topic_tokens) >= 0.5
- 
 
 
 WORD_NUMBERS = {
@@ -2304,87 +1998,6 @@ def _week_range(base: datetime, offset_weeks: int, week_start: int = 0):
     start = base_date - timedelta(days=delta_to_start) + timedelta(weeks=offset_weeks)
     end = start + timedelta(days=6)
     return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
-
-# def extract_time_reference(user_input: str):
-#     text = (user_input or "").lower().strip()
-#     now = _now()                 # timezone-aware dt (from your code)
-#     today = now.date()
-
-#     # --- 0) Canonicalize / normalize ---
-#     text = normalize_number_words(text)
-#     text = re.sub(r"\s+", " ", text)
-
-#     # --- 1) High-precision relative offsets (works inside full sentences) ---
-#     # Example: "remember our conversation 3 days ago"
-#     m = re.search(r"\b(\d+)\s+days?\s+ago\b", text)
-#     if m:
-#         n = int(m.group(1))
-#         # guardrail against nonsense; tune to your product
-#         if n < 0 or n > 3650:
-#             return None
-#         return {"type": "date", "value": (today - timedelta(days=n)).strftime("%Y-%m-%d")}
-
-#     m = re.search(r"\b(\d+)\s+weeks?\s+ago\b", text)
-#     if m:
-#         n = int(m.group(1))
-#         if n < 0 or n > 520:
-#             return None
-#         start, end = _week_range(now, offset_weeks=-n, week_start=0)
-#         return {"type": "week", "start": start, "end": end}
-
-#     # --- 2) Fast rule-based keywords ---
-#     if re.search(r"\btoday\b", text):
-#         return {"type": "date", "value": today.strftime("%Y-%m-%d")}
-#     if re.search(r"\btomorrow\b", text):
-#         return {"type": "date", "value": (today + timedelta(days=1)).strftime("%Y-%m-%d")}
-#     if re.search(r"\byesterday\b", text):
-#         return {"type": "date", "value": (today - timedelta(days=1)).strftime("%Y-%m-%d")}
-
-#     if re.search(r"\bnext week\b", text):
-#         start, end = _week_range(now, offset_weeks=1, week_start=0)
-#         return {"type": "week", "start": start, "end": end}
-#     if re.search(r"\bthis week\b", text):
-#         start, end = _week_range(now, offset_weeks=0, week_start=0)
-#         return {"type": "week", "start": start, "end": end}
-#     if re.search(r"\blast week\b", text):
-#         start, end = _week_range(now, offset_weeks=-1, week_start=0)
-#         return {"type": "week", "start": start, "end": end}
-
-#     if re.search(r"\bnext month\b", text):
-#         first = today.replace(day=1)
-#         nm = (first + timedelta(days=32)).replace(day=1)
-#         return {"type": "month", "value": nm.strftime("%Y-%m")}
-#     if re.search(r"\blast month\b", text):
-#         first = today.replace(day=1)
-#         lm = (first - timedelta(days=1)).replace(day=1)
-#         return {"type": "month", "value": lm.strftime("%Y-%m")}
-
-#     if re.search(r"\bnext year\b", text):
-#         return {"type": "year", "value": str(today.year + 1)}
-#     if re.search(r"\blast year\b", text):
-#         return {"type": "year", "value": str(today.year - 1)}
-
-#     # --- 3) Fallback: parse a likely time phrase snippet (not whole sentence) ---
-#     # This makes dateparser much more reliable.
-#     snippet_match = re.search(
-#         r"\b(?:on|at|in|from|around)?\s*"
-#         r"(today|tomorrow|yesterday|last week|this week|next week|last month|next month|last year|next year|"
-#         r"\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2})\b",
-#         text
-#     )
-#     snippet = snippet_match.group(1) if snippet_match else text
-
-#     settings = {
-#         "RELATIVE_BASE": now.replace(tzinfo=None),  # dateparser expects naive
-#         "PREFER_DATES_FROM": "past",                # recall: past is correct
-#         "DATE_ORDER": "DMY",
-#     }
-
-#     parsed = dateparser.parse(snippet, settings=settings)
-#     if parsed:
-#         return {"type": "date", "value": parsed.strftime("%Y-%m-%d")}
-
-#     return None
 
 _WEEKDAY_NAMES = r"(monday|tuesday|wednesday|thursday|friday|saturday|sunday)"
 
@@ -2493,7 +2106,7 @@ def retrieve_short_term_memory(user_input=None):
 
 
 # ---------------------------
-# 🔹 LONG-TERM MEMORY
+# LONG-TERM MEMORY
 # ---------------------------
 
 
@@ -2504,10 +2117,10 @@ def parse_stored_doc(doc: str) -> dict:
     """
     topic, date, summary = "", "", ""
     lines = doc.split("\n")
-    
+
     summary_lines = []
     in_summary = False
-    
+
     for line in lines:
         if line.startswith("Topic:"):
             topic = line.replace("Topic:", "").strip()
@@ -2517,7 +2130,7 @@ def parse_stored_doc(doc: str) -> dict:
             in_summary = True
         elif in_summary:
             summary_lines.append(line)
-    
+
     return {
         "topic": topic,
         "date": date,
@@ -2549,7 +2162,7 @@ def _safe_date_str(date) -> str:
         return str(date)[:10]  # take first 10 chars of string representation
     except Exception:
         return datetime.datetime.now().strftime("%Y-%m-%d")
-    
+
 
 def store_long_term_memory(topic, date=None, conversation_history=None):
     global temp_topic_memory
@@ -2565,17 +2178,17 @@ def store_long_term_memory(topic, date=None, conversation_history=None):
     # Use provided snapshot if available
     if conversation_history is None:
         if topic not in temp_topic_memory or not temp_topic_memory[topic]:
-            print(f"[DEBUG] ❌ No stored short-term memory for '{topic}'. Nothing to save!")
+            print(f"[DEBUG] No stored short-term memory for '{topic}'. Nothing to save!")
             return
         conversation_history = "\n".join(temp_topic_memory[topic])
 
-    print(f"\n[📝 Updating Long-Term Memory] Topic: {topic}\n{conversation_history}\n")
+    print(f"\n[Updating Long-Term Memory] Topic: {topic}\n{conversation_history}\n")
 
     existing_memory, existing_date, topic_id = retrieve_long_term_memory(topic)
     print(f"[DBG] store_ltm existing_memory={repr(existing_memory)}")
     print(f"[DBG] store_ltm existing_date={existing_date}")
     print(f"[DBG] store_ltm topic_id={topic_id}")
-    
+
     # updated_summary = (
     #     f"{existing_memory}\n\n[NEW INFO - {date}]\n{conversation_history}"
     #     if existing_memory else conversation_history
@@ -2616,8 +2229,6 @@ def store_long_term_memory(topic, date=None, conversation_history=None):
         print(f"[✅] Created new topic '{topic}' in long-term memory.")
 
 
-
-
 def update_long_term_memory(topic, new_info):
     try:
         print(f"[DEBUG] Adding new information to topic: {topic}")
@@ -2626,14 +2237,13 @@ def update_long_term_memory(topic, new_info):
 
         updated_memory = f"{existing_memory}\n\n[New Info Added]:\n{new_info}"
 
-        # ✅ Update memory in ChromaDB
         chat_collection.update(
-            ids=[topic_id],  # ✅ Updates existing document
+            ids=[topic_id],
             documents=[updated_memory],
             metadatas=[{"topic": topic}]
         )
 
-        print(f"[✅] Successfully updated topic: {topic}")
+        print(f"Successfully updated topic: {topic}")
 
     except Exception as e:
         print(f"[ERROR] Failed to update memory: {e}")
@@ -2664,7 +2274,7 @@ def retrieve_long_term_memory(user_input):
                 return None, "I couldn't find any past discussions in my memory.", None
 
             formatted_topics = '\n'.join([f"- {t}" for t in stored_topics])
-            return formatted_topics, None, None  
+            return formatted_topics, None, None
 
 
         topic = extract_topic_name(user_input) or memory_manager.get_last_topic()
@@ -2673,7 +2283,7 @@ def retrieve_long_term_memory(user_input):
 
         # Use semantic embedding for query
         query_embedding = embedding_model.encode(topic, convert_to_numpy=True).tolist()
-        
+
         results = chat_collection.query(
             query_embeddings=[query_embedding],  # ← semantic search
             n_results=3,
@@ -2689,10 +2299,10 @@ def retrieve_long_term_memory(user_input):
 
         # Filter by semantic distance threshold instead of fuzzy ratio
         DISTANCE_THRESHOLD = 1.2  # tune this; ChromaDB uses L2 by default
-        
+
         filtered = [
-            (doc, meta) for doc, meta, dist 
-            in zip(docs, metas, distances) 
+            (doc, meta) for doc, meta, dist
+            in zip(docs, metas, distances)
             if dist < DISTANCE_THRESHOLD
         ]
 
@@ -2708,12 +2318,12 @@ def retrieve_long_term_memory(user_input):
                 return None, None, None
 
         # return best_doc, best_meta.get("timestamp"), best_meta.get("id")
-        timestamp = best_meta.get("timestamp")    
+        timestamp = best_meta.get("timestamp")
         return best_doc, _safe_date_str(timestamp), best_meta.get("id")
 
     except Exception as e:
         print(f"[ERROR] Failed to Retrieve Long-Term Memory: {e}")
-        return None, "I encountered an error while retrieving the memory.", None  
+        return None, "I encountered an error while retrieving the memory.", None
 
 def retrieve_memory_by_date(target_date):
     try:
@@ -2798,7 +2408,7 @@ def retrieve_memory_by_year(target_year):
     except Exception as e:
         print(f"[ERROR] Failed to retrieve memory by year: {e}")
         return None, "An error occurred while searching for memories.", None
-    
+
 
 def retrieve_memory_by_week(start_date, end_date):
     try:
@@ -2823,7 +2433,7 @@ def retrieve_memory_by_week(start_date, end_date):
                     if memory_id:
                         ids_to_delete.append(memory_id)
             except:
-                continue  
+                continue
 
         if not matches:
             return None, "I couldn’t find any memories from that week.", None
@@ -2836,7 +2446,6 @@ def retrieve_memory_by_week(start_date, end_date):
         return None, "Something went wrong while retrieving your memory.", None
 
 
-
 #DEBUG LONG-TERM MEMORY
 def view_all_long_term_memory():
     """Retrieves and prints all stored topics and summaries from ChromaDB."""
@@ -2844,26 +2453,25 @@ def view_all_long_term_memory():
         results = chat_collection.get(include=["documents"])
 
         if "documents" in results and results["documents"]:
-            print("\n[📌] **Long-Term Memory Contents:**\n")
+            print("\n**Long-Term Memory Contents:**\n")
             for idx, doc in enumerate(results["documents"], 1):
                 print(f"{idx}. {doc}\n")
-            print("[✅] End of stored memories.\n")
+            print("End of stored memories.\n")
         else:
-            print("[ℹ️] No long-term memory stored yet.")
+            print("No long-term memory stored yet.")
 
     except Exception as e:
-        print(f"[❌ ERROR] Failed to retrieve long-term memory: {e}")
+        print(f"[ERROR] Failed to retrieve long-term memory: {e}")
 
 def store_memory_in_db(topic, summary):
     """Stores a new topic into ChromaDB with a unique ID."""
     try:
-        unique_id = str(uuid.uuid4())  # ✅ Generate a unique identifier
+        unique_id = str(uuid.uuid4())
 
-        # ✅ Ensure "id" is stored in metadata
         chat_collection.add(
-            documents=[summary],  
+            documents=[summary],
             metadatas=[{"id": unique_id, "topic": topic}],
-            ids=[unique_id]  # ✅ Explicitly store ID
+            ids=[unique_id]
         )
 
         print(f"[DEBUG] Successfully stored topic: {topic} with ID {unique_id}")
@@ -2872,7 +2480,7 @@ def store_memory_in_db(topic, summary):
     except Exception as e:
         print(f"[ERROR] Failed to store memory: {e}")
         return "I encountered an error while saving the memory."
-    
+
 def delete_all_memory():
     """Deletes all stored memory from ChromaDB, even those without IDs."""
     try:
@@ -2881,7 +2489,7 @@ def delete_all_memory():
         metadatas = results.get("metadatas", [])
 
         if not documents:
-            print("[ℹ️] No stored memories found. Nothing to delete.")
+            print("No stored memories found. Nothing to delete.")
             return
 
         # Collect all available IDs
@@ -2899,18 +2507,16 @@ def delete_all_memory():
             else:
                 topics_to_delete.append(doc)
 
-        # ✅ Step 1: Delete by ID
         if ids_to_delete:
             chat_collection.delete(ids=ids_to_delete)
-            print(f"[✅] Deleted {len(ids_to_delete)} entries using IDs.")
+            print(f"Deleted {len(ids_to_delete)} entries using IDs.")
 
-        # ✅ Step 2: Delete remaining documents by content
         if topics_to_delete:
             for doc in topics_to_delete:
                 chat_collection.delete(where_document={"$contains": doc})
-            print(f"[✅] Deleted {len(topics_to_delete)} old entries without IDs.")
+            print(f"Deleted {len(topics_to_delete)} old entries without IDs.")
 
-        print("[🎉] All memory has been successfully erased.")
+        print("All memory has been successfully erased.")
 
     except Exception as e:
         print(f"[ERROR] Failed to delete all memories: {e}")
@@ -2940,7 +2546,7 @@ def debug_chroma_db():
                 print(f"🗂️ Metadata: {metadata}")
                 print(f"📝 Topic: {topic}")
 
-        print("\n[✅] End of database debug report.")
+        print("\nEnd of database debug report.")
 
     except Exception as e:
         print(f"[ERROR] Failed to fetch stored data: {e}")
@@ -2954,38 +2560,33 @@ def update_existing_db_entries():
         metadatas = results.get("metadatas", [])
 
         if not documents:
-            print("[ℹ️] No stored documents found.")
+            print("No stored documents found.")
             return
 
         updates = []
-        
+
         for i, doc in enumerate(documents):
             metadata = metadatas[i] if i < len(metadatas) else {}
 
-            # If ID is missing, assign a new one
             if "id" not in metadata:
-                new_id = str(uuid.uuid4())  # Generate a unique ID
+                new_id = str(uuid.uuid4())
                 metadata["id"] = new_id
                 updates.append((doc, metadata, new_id))
 
-        # ✅ Re-store the documents with new IDs
         for doc, metadata, new_id in updates:
             chat_collection.add(
                 documents=[doc],
                 metadatas=[metadata],
-                ids=[new_id]  
+                ids=[new_id]
             )
 
-        print(f"[✅] Updated {len(updates)} entries with missing IDs.")
+        print(f"Updated {len(updates)} entries with missing IDs.")
 
     except Exception as e:
         print(f"[ERROR] Failed to update database: {e}")
 
 
-
-
-# NEWEST UPDATE 06/05/2026 -> FOR SOLVING ISSUE FROM THIS DATE LOG
-# DUMMY TEST -> REMOVE ONCE IS STABLE, this test is purposed for clean topic logic
+# [DUMMY TEST]
 
 # Purpose:
 #   1. Validate _clean_topic() candidate-level topic filtering.

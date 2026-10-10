@@ -442,10 +442,6 @@ class GCalNotAvailableError(Exception):
 
 
 # ── Convenience singleton ────────────────────────────────────────────────────
-# Import this for simple one-liner usage:
-#   from brain.adaptive.awareness.gcal_source import gcal_source
-#   events = gcal_source.get_today()
-
 gcal_source = GCalSource()
 
 

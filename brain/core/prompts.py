@@ -12,7 +12,7 @@ Saved notes:
 Present these notes clearly and naturally in 2-3 sentences.
 Do NOT say there is no discussion. Do NOT say this is a placeholder.
 Just present what is written as factual saved information."""
-    
+
     return f"""
     [SYSTEM INSTRUCTION]
     You are an AI assistant recalling past conversations.
@@ -100,58 +100,6 @@ If intent is device_control, you MAY add extra fields like:
 """.strip()
 
 
-# def llmBasedIntentDetection(user_input):
-#     return f"""
-#         You are an intent classification assistant for a personal AI assistant.
-
-#         Your job is to decide the SINGLE most appropriate intent for routing the user's message.
-
-#         Only choose from the following intents:
-#         - chat
-#         - recall_memory
-#         - save_memory
-#         - delete_memory
-#         - time
-#         - date
-#         - battery
-#         - cpu
-#         - weather
-#         - location
-#         - schedule_save
-#         - schedule_recall
-
-#         INTENT DEFINITIONS:
-#         - recall_memory: user asks about something discussed or saved before
-#         - save_memory: user wants you to remember/store what they are saying
-#         - delete_memory: user wants to remove a stored memory
-#         - schedule_save: user wants to set a reminder, meeting, or appointment
-#         - schedule_recall: user asks about upcoming reminders or schedule
-#         - time/date/battery/cpu/weather/location: direct system queries
-#         - chat: normal conversation or unclear intent
-
-#         CONFIDENCE DEFINITION:
-#         Return a confidence score between 0.0 and 1.0.
-
-#         - 0.90–1.00 → very clear, explicit intent (e.g., “save this”, “delete from memory”, “what time is it”)
-#         - 0.70–0.89 → clear intent but with mild ambiguity
-#         - 0.50–0.69 → ambiguous but best guess
-#         - below 0.50 → very unclear or conversational → use chat
-
-#         IMPORTANT RULES:
-#         - If unsure, prefer "chat" with lower confidence.
-#         - NEVER invent new intent names.
-#         - NEVER return multiple intents.
-#         - Output MUST be valid JSON.
-#         - Do NOT include explanations or extra text.
-
-#         User Input:
-#         "{user_input}"
-
-#         Respond ONLY with JSON in this exact format:
-#         {{"intent": "intent_name", "confidence": 0.0}}
-#         """.strip()
-
-
 def detect_similarity_llm(user_input, last_topic, short_term_context):
     return f"""
     You are an AI assistant helping to determine whether the user is still talking about the same topic.
@@ -166,29 +114,6 @@ def detect_similarity_llm(user_input, last_topic, short_term_context):
     - If the user's message introduces a **new topic**, respond with only **"no"**.
     - Do not add explanations or any other text. Just respond with either **"yes"** or **"no"**.
     """
-
-# def generate_response(user_input, topic, short_term_context):
-
-#     return f"""
-#     You are Buddy, an AI assistant designed for natural and interactive conversations.
-
-#     **Current Topic:** {topic if topic else "General Conversation"}
-
-#     **Last Interaction Context (if available):**
-#     {short_term_context}
-
-#     **User's Question:**
-#     "{user_input}"
-
-#     **Instructions:**
-#     - Respond naturally and concisely (1-2 sentences).
-#     - If the user's question follows directly from the last message, connect the ideas smoothly.
-#     - Avoid repeating information from the previous reply unless necessary.
-#     - If the context is unrelated, provide a standalone response.
-#     - Please also ask some following question to make an interactive conversation.
-
-#     Generate Buddy’s response:
-#     """    
 
 def generate_response(user_input, topic, short_term_context, system_context: str = ""):
 
@@ -353,10 +278,9 @@ Respond ONLY with one word: general, temporal, or specific.
 """
 
 
-
 def extractGeneralMemory(stored_memory, current_time, current_date):
     memory_str = "\n".join(
-        f"- Title: {item['title']}\n  Time: {item['timestamp']}\n  Location: {item['location'] or 'N/A'}\n  Description: {item['description']}" 
+        f"- Title: {item['title']}\n  Time: {item['timestamp']}\n  Location: {item['location'] or 'N/A'}\n  Description: {item['description']}"
         for item in stored_memory
     )
 
@@ -470,7 +394,6 @@ JSON:
 """.strip()
 
 
-
 def extract_specific_request(user_input):
     return f"""
 You are a smart assistant classifying user intent into one of 3 categories:
@@ -491,7 +414,6 @@ Examples:
 
 User Input: "{user_input}"
 """
-
 
 
 def deleteMemoryAccess(user_input):

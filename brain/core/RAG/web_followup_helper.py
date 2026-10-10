@@ -48,36 +48,6 @@ class WebFollowupHelper:
         )
         return self._run_llm(prompt, "Web Search Intro", fallback, max_sentences=4)
 
-    # def llm_summarize_search_results(self, query: str, results: list[dict]) -> str:
-    #     compact = []
-    #     for r in results[:3]:
-    #         compact.append(
-    #             f"- {r.get('title', '(untitled)')}\n"
-    #             f"  Snippet: {r.get('snippet', '')}\n"
-    #             f"  Source: {self.extract_source_name(r.get('url', ''))}"
-    #         )
-
-    #     joined = "\n".join(compact)
-
-    #     prompt = f"""
-    # You are helping present the first response after a web search.
-
-    # User search query:
-    # {query}
-
-    # Top search results:
-    # {joined}
-
-    # Write a short, natural overview in 2 sentences.
-    # Explain what kind of results were found and what they seem to cover.
-    # Do not invent facts.
-    # Do not print full URLs.
-    # Do not use bullet points.
-    # Return only the final answer text.
-    # """
-    #     fallback = f"I found a few results for {query}. The top ones seem to cover related explanations, sources, and summaries."
-    #     return self._run_llm(prompt, "Web Search Intro", fallback, max_sentences=3)
-
     def extract_source_name(self, url: str) -> str:
         if not url:
             return "Unknown source"
@@ -129,33 +99,6 @@ class WebFollowupHelper:
             "source": source,
             "url": url,
         }
-
-    # def _normalize_text(self, text: str) -> str:
-    #     text = (text or "").strip()
-    #     if not text:
-    #         return ""
-
-    #     text = text.replace("**", "").replace("__", "")
-    #     text = re.sub(r"\n{3,}", "\n\n", text)
-
-    #     junk_prefixes = [
-    #         "here is a concise summary:",
-    #         "here’s a concise summary:",
-    #         "summary:",
-    #         "here is a short comparison:",
-    #         "here’s a short comparison:",
-    #         "comparison:",
-    #         "based on the information provided,",
-    #         "based only on the information provided,",
-    #     ]
-
-    #     lower = text.lower()
-    #     for prefix in junk_prefixes:
-    #         if lower.startswith(prefix):
-    #             text = text[len(prefix):].strip(" \n:-")
-    #             break
-
-    #     return text.strip()
 
     def _normalize_text(self, text: str) -> str:
         text = (text or "").strip()

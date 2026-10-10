@@ -194,14 +194,6 @@ def main():
     threading.Thread(target=keyboard_listener, daemon=True).start()
 
     # VAD state
-    # in_speech = False
-    # speech_count = 0
-    # silence_count = 0
-    # noise_db = -60.0
-
-    # cooldown = 0
-    # frame_counter = 0
-    # VAD state
     in_speech = False
     post_speech = False          # we're in "waiting to finalize" mode
     speech_count = 0
@@ -304,7 +296,7 @@ def main():
         else:
             silence_count += 1
             speech_count = 0
-        
+
         # Counters
         if is_speech:
             speech_count += 1
@@ -369,32 +361,6 @@ def main():
                         print(f"\n[VAD] FINALIZE after {END_OF_TURN_SILENCE_SEC:.1f}s silence")
                     finalize_utterance(reason="end_of_turn_timeout")
                     return
-
-        # # Start speech
-        # if (not in_speech) and (speech_count >= START_FRAMES):
-        #     in_speech = True
-        #     utt_frames = list(pre_roll)  # seed with pre-roll
-        #     utt_samples = sum(len(f) for f in utt_frames)
-        #     if DBG_VAD_EVENTS:
-        #         print(f"\n[VAD] START (seed={int(utt_samples/SR*1000)}ms)")
-
-        # # Collect while speaking
-        # if in_speech:
-        #     utt_frames.append(x.copy())
-        #     utt_samples += len(x)
-
-        #     if utt_samples >= max_utt_samples:
-        #         in_speech = False
-        #         finalize_utterance(reason="max_len")
-        #         return
-
-        # # End speech
-        # if in_speech and (silence_count >= END_FRAMES):
-        #     in_speech = False
-        #     if DBG_VAD_EVENTS:
-        #         print("\n[VAD] END")
-        #     finalize_utterance(reason="silence")
-    
 
     # Start audio stream
     with sd.InputStream(

@@ -286,10 +286,6 @@ class HolidayChecker:
 
 
 # ── Convenience singleton ────────────────────────────────────────────────────
-# Import this directly for simple one-liner usage:
-#   from brain.adaptive.awareness.holiday_checker import holiday_checker
-#   is_hol, name = holiday_checker.is_holiday("2026-04-03")
-
 holiday_checker = HolidayChecker()
 
 

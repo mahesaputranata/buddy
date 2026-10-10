@@ -74,8 +74,6 @@ class OpenMeteoWeatherProvider:
 
     @staticmethod
     def _wx_code_to_text(code: Optional[int]) -> str:
-        # Open-Meteo WMO weather interpretation codes.
-        # This mapping is intentionally compact; extend if you want more nuance.
         if code is None:
             return "Unknown"
         mapping = {
@@ -219,21 +217,11 @@ class RSSNewsProvider:
         self.cfg = cfg or ProviderConfig()
         self.sess = _session(self.cfg)
 
-        # A reasonable default mix (you can edit these)
-        # self.feeds = feeds or [
-        #     # Germany / DE
-        #     "https://www.tagesschau.de/xml/rss2",
-        #     "https://www.dw.com/en/top-stories/s-9097?maca=en-rss-en-top-1022-rdf",
-        #     # Tech
-        #     "https://www.theverge.com/rss/index.xml",
-        #     # World
-        #     "https://feeds.bbci.co.uk/news/world/rss.xml",
-        # ]
         self.feeds = feeds or [
             "https://feeds.bbci.co.uk/news/world/rss.xml",
             "https://rss.cnn.com/rss/edition_world.rss",
             "https://www.aljazeera.com/xml/rss/all.xml",
-            "https://www.reuters.com/rssFeed/worldNews",  
+            "https://www.reuters.com/rssFeed/worldNews",
         ]
 
         if feedparser is None:
@@ -295,57 +283,6 @@ class RSSNewsProvider:
 # ----------------------------
 # DuckDuckGo HTML Search Provider (no API key)
 # ----------------------------
-
-# class DuckDuckGoHTMLSearchProvider:
-#     """
-#     Scrapes DuckDuckGo's HTML endpoint.
-#     Not as stable as an official API, but simple and keyless.
-#     """
-
-#     def __init__(self, cfg: Optional[ProviderConfig] = None):
-#         self.cfg = cfg or ProviderConfig()
-#         self.sess = _session(self.cfg)
-#         self.sess.headers.update({
-#             "User-Agent": self.cfg.user_agent,
-#             "Accept-Language": "en-US,en;q=0.9,de;q=0.8",
-#             "Referer": "https://duckduckgo.com/",
-#         })
-
-#     def search(self, *, query: str, limit: int = 5) -> List[Dict[str, str]]:
-#         limit = _clamp(limit, 1, 10)
-#         q = (query or "").strip()
-#         if not q:
-#             return []
-
-#         url = "https://lite.duckduckgo.com/lite/"
-#         r = self.sess.post(url, data={"q": q}, timeout=self.cfg.timeout_s)
-#         r.raise_for_status()
-
-#         if BeautifulSoup is None:
-#             return [{"title": f"Results for: {q}", "snippet": "Install beautifulsoup4 for rich parsing.", "url": ""}]
-
-#         soup = BeautifulSoup(r.text, "html.parser")
-#         results: List[Dict[str, str]] = []
-
-#         # Results are in <a rel="nofollow" class="result-link" ...> sometimes,
-#         # but structure can vary. This approach is robust:
-#         for a in soup.select("a"):
-#             href = a.get("href") or ""
-#             title = a.get_text(" ", strip=True)
-#             if not title or not href:
-#                 continue
-
-#             # DDG lite includes many links; filter for external ones
-#             if "duckduckgo.com" in href:
-#                 continue
-#             if not (href.startswith("http://") or href.startswith("https://")):
-#                 continue
-
-#             results.append({"title": title, "snippet": "", "url": href})
-#             if len(results) >= limit:
-#                 break
-
-#         return results
 
 class DuckDuckGoHTMLSearchProvider:
     def __init__(self, cfg: Optional[ProviderConfig] = None):

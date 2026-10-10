@@ -62,7 +62,7 @@ class HoldToTalk:
         self._lock = threading.Lock()
         self._stream = None
 
-        # hotkey state: Ctrl + Space
+        # hotkey state: Ctrl + Space (old approach)
         self._ctrl = False
         self._space = False
 
@@ -71,12 +71,6 @@ class HoldToTalk:
     def start(self):
         self.listener.start()
         print("[PTT] Hold-to-talk ready (hold Ctrl+Space).")
-
-    # def _audio_callback(self, indata, frames, time_info, status):
-    #     with self._lock:
-    #         if self._recording:
-    #             self._frames.append(indata.copy())
-
 
 
     def _start_recording(self):
@@ -143,18 +137,6 @@ class HoldToTalk:
         except Exception:
             pass
 
-    # def _on_release(self, key):
-    #     try:
-    #         if key in (keyboard.Key.ctrl_l, keyboard.Key.ctrl_r):
-    #             self._ctrl = False
-    #             self._stop_recording()
-
-    #         if key == keyboard.Key.space:
-    #             self._space = False
-    #             self._stop_recording()
-    #     except Exception:
-    #         pass
-
     def _on_release(self, key):
         try:
             if key in (keyboard.Key.ctrl_l, keyboard.Key.ctrl_r):
@@ -167,7 +149,6 @@ class HoldToTalk:
                 self._stop_recording()
         except Exception:
             pass
-
 
 
 class VADRecorder:
@@ -334,7 +315,7 @@ class VADRecorder:
     def _audio_callback(self, indata, frames, time_info, status):
         if not self._running:
             return
-        
+
         if self.muted:
             return
 
@@ -369,15 +350,6 @@ class VADRecorder:
         else:
             self.silence_count += 1
             self.speech_count = 0
-
-        # if self.post_speech and is_speech:
-        #     self.post_speech = False
-        #     self.post_silence = 0
-        #     self.in_speech = True
-        #     self.utt_frames.extend(self.pre_roll)
-        #     self.utt_samples += sum(len(f) for f in self.pre_roll)
-        #     if self.debug:
-        #         print("[VAD] resume")
 
         if self.post_speech and is_speech:
             self.post_speech = False

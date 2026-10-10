@@ -396,23 +396,6 @@ def plot_rover_log(csv_path: str, out_png_path: str) -> str:
     plt.close(fig)
     return out_png_path
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Stage 6: estimate trajectory from COMMANDED setpoints, not measured velocity
-#
-# Deliberately uses spA/spB, NOT velA/velB. With wheels detached, velA/velB
-# are always ~0 regardless of command correctness -- they cannot distinguish
-# a correct differential-drive command from a broken one. spA/spB reflect
-# controller INTENT and are meaningful with or without wheels attached, which
-# makes this the right signal for validating follow_me's command logic
-# (vision -> Twist -> wheel setpoint) safely on a bench test.
-#
-# This estimates what the rover WOULD do if it tracked setpoint perfectly --
-# it is not a measurement, and should never be presented as one. Use
-# WindowSummary/check_summary (measured side) to validate actual physical
-# response once wheels are on.
-# ─────────────────────────────────────────────────────────────────────────────
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 6: estimate trajectory from the COMMAND SEQUENCE, not telemetry
 #
@@ -493,20 +476,13 @@ def estimate_trajectory_from_commands(
         n_steps = max(1, int(duration / STEP))
         dt = duration / n_steps if n_steps else 0.0
 
-        # for _ in range(n_steps):
-        #     x += lin * dt * (1.0 if abs(ang) < 1e-9 else __import__("math").cos(psi))
-        #     y += lin * dt * (0.0 if abs(ang) < 1e-9 else __import__("math").sin(psi))
-        #     psi += ang * dt
-        #     t += dt
-        #     path.append({"t": round(t, 3), "x": round(x, 5), "y": round(y, 5), "psi": round(psi, 5)})
-
         for _ in range(n_steps):
             x += lin * dt * math.cos(psi)
             y += lin * dt * math.sin(psi)
             psi += ang * dt
             t += dt
             path.append({"t": round(t, 3), "x": round(x, 5), "y": round(y, 5), "psi": round(psi, 5)})
-            
+
 
     return path
 

@@ -86,11 +86,6 @@ def parse_web_followup(text: str) -> Optional[Tuple[str, Optional[int]]]:
     if n and n > 0:
         return ("summarize", n)
 
-    # # If no number but it sounds like a reference to “the thing we just opened”
-    # if _mentions_pronoun_ref(t):
-    #     # default to summarize for “it/this/that” unless they said open/show
-    #     return ("summarize", None)
-
     return None
 
 def parse_index_utterance(text: str) -> Optional[int]:

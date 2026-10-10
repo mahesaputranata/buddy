@@ -77,7 +77,7 @@ class IdentityManager:
 
         # ── NEW: relevance filtering ──
         relevance_text = (current_topic + " " + recent_context).lower()
-        
+
         if relevance_text.strip():
             # Filter to items that share at least one meaningful keyword
             background_items = self._filter_by_relevance(all_background, relevance_text)
@@ -124,22 +124,22 @@ class IdentityManager:
             "my", "your", "his", "her", "its", "our", "their", "i", "you",
             "he", "she", "we", "they", "it",
         }
-        
+
         def tokens(text: str) -> set[str]:
             words = re.findall(r"[a-z0-9]{3,}", text.lower())
             return {w for w in words if w not in STOP}
-        
+
         context_tokens = tokens(context)
         if not context_tokens:
             return []
-        
+
         scored = []
         for item in items:
             item_tokens = tokens(item)
             overlap = context_tokens & item_tokens
             if overlap:
                 scored.append((len(overlap), item))
-        
+
         scored.sort(key=lambda x: x[0], reverse=True)
         return [item for _, item in scored[:max_items]]
 
@@ -169,13 +169,7 @@ class IdentityManager:
 
     # ── wake phrase detection (hybrid) ───────────────────────────────────
 
-    # Regex layer: common Jarvis-style check-in patterns that don't need
-    # to be listed explicitly in user_profile.json.
-    # Matches things like:
-    #   "buddy are you up"       "buddy you there"
-    #   "hey buddy"              "buddy you awake"
-    #   "buddy online"           "buddy are you listening"
-    #   "buddy"                  "are you there buddy"
+    # Regex layer:
     _WAKE_RE = re.compile(
         r"^("
         # leading "hey/yo" optional

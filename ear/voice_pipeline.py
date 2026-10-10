@@ -1,10 +1,3 @@
-# import subprocess, json
-
-
-# def verify_wav(wav_path: str) -> dict:
-#     out = subprocess.check_output([SPEAKER_PY, VERIFY_SCRIPT, wav_path], text=True).strip()
-#     return json.loads(out)
-
 import subprocess
 import json
 import sys

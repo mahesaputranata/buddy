@@ -154,15 +154,15 @@ def analyze(data: dict) -> None:
         pct = count / total_failing * 100 if total_failing else 0
 
         if mode in CALIBRATION_MODES or "pending" in mode.lower():
-            verdict = "⚙️  likely calibration"
+            verdict = "likely calibration"
             calibration_count += count
         elif mode in BUG_MODES or "error" in mode.lower():
-            verdict = "🐛 likely real bug"
+            verdict = "likely real bug"
             bug_count += count
         elif mode.startswith("intent_crossfire"):
-            verdict = "🔍 needs investigation"
+            verdict = "needs investigation"
         else:
-            verdict = "❓ unknown"
+            verdict = "unknown"
 
         print(f"  {mode:<45} {count:>5}  {pct:>5.1f}%  {verdict}")
 
@@ -204,14 +204,14 @@ def analyze(data: dict) -> None:
     print()
 
     if dominant_pct >= 60:
-        print(f"  ✅ SINGLE ROOT CAUSE LIKELY — fixing '{dominant_mode}' could")
-        print(f"     resolve ~{dominant_pct:.0f}% of failures in one change.")
+        print(f"SINGLE ROOT CAUSE LIKELY — fixing '{dominant_mode}' could")
+        print(f"resolve ~{dominant_pct:.0f}% of failures in one change.")
     elif dominant_pct >= 30:
-        print(f"  ⚠️  MIXED CAUSES — dominant mode explains ~{dominant_pct:.0f}% of failures.")
-        print(f"     Fix dominant mode first, then re-analyze.")
+        print(f"MIXED CAUSES — dominant mode explains ~{dominant_pct:.0f}% of failures.")
+        print(f"Fix dominant mode first, then re-analyze.")
     else:
-        print(f"  ❌ DISTRIBUTED FAILURES — no single dominant cause.")
-        print(f"     Multiple independent fixes needed.")
+        print(f"DISTRIBUTED FAILURES — no single dominant cause.")
+        print(f"Multiple independent fixes needed.")
 
     print()
 
@@ -221,9 +221,9 @@ def analyze(data: dict) -> None:
         cal_pct = calibration_count / total_failing * 100
         bug_pct = bug_count / total_failing * 100
         unk_pct = 100 - cal_pct - bug_pct
-        print(f"  ⚙️  Likely calibration: {calibration_count:>3} turns  ({cal_pct:.0f}%)")
-        print(f"  🐛 Likely real bugs:    {bug_count:>3} turns  ({bug_pct:.0f}%)")
-        print(f"  ❓ Needs investigation: {int(unk_pct * total_failing / 100):>3} turns  ({unk_pct:.0f}%)")
+        print(f"Likely calibration: {calibration_count:>3} turns  ({cal_pct:.0f}%)")
+        print(f"Likely real bugs:    {bug_count:>3} turns  ({bug_pct:.0f}%)")
+        print(f"Needs investigation: {int(unk_pct * total_failing / 100):>3} turns  ({unk_pct:.0f}%)")
 
     print()
 

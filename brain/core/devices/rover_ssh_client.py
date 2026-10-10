@@ -9,7 +9,7 @@ class RoverSSHClient:
                  script_path = "rover_ws/src/rover_bridge/rover_bridge/rover_server.py",
                  log_path = "/tmp/rover_server.log",
                  workspace = "rover_ws"):
-        
+
         self.host = host
         self.username = username
         self.key_path = os.path.expanduser(key_path)
@@ -22,13 +22,13 @@ class RoverSSHClient:
     def _connect(self):
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(self.host, 
-                       username=self.username, 
+        client.connect(self.host,
+                       username=self.username,
                        key_filename=self.key_path,
                        timeout=8,)
-        
+
         return client
-    
+
     def _run(self, command: str):
         client = self._connect()
         try:
@@ -44,17 +44,17 @@ class RoverSSHClient:
         command = "pgrep -af '[r]over_server.py'"
         exit_code, out, err = self._run(command)
         return bool(out)
-    
+
     def get_rover_server_status(self) -> bool:
         command = "pgrep -af '[r]over_server.py'"
         exit_code, out, err = self._run(command)
         return out
-    
+
     def stop_rover_server(self) -> bool:
         command = "pkill -f '[r]over_server.py'"
         exit_code, out, err = self._run(command)
         return exit_code in (0, 1)
-        
+
     def start_rover_server(self) -> bool:
         script = shlex.quote(self.script_path)
         log = shlex.quote(self.log_path)
@@ -83,7 +83,7 @@ class RoverSSHClient:
             f"source {self.workspace}/install/setup.bash &&"
         )
         return "bash -lc " + shlex.quote(setup + inner_command)
-    
+
     def _start_background(self, process_name: str, ros_command: str, log_path: str):
         cmd = self._ros_command(
             f"nohup {ros_command} > {shlex.quote(log_path)} 2>&1 < /dev/null &"
@@ -91,22 +91,22 @@ class RoverSSHClient:
         self._run(cmd)
         time.sleep(1)
         return self.is_process_running(process_name)
-    
+
     def is_process_running(self, pattern: str) -> bool:
         cmd = f"pgrep -af {shlex.quote(pattern)}"
         exit_code, out, err = self._run(cmd)
         return bool(out)
-    
+
     def get_process(self, pattern:str) -> str:
         cmd = f"pgrep -af {shlex.quote(pattern)}"
         exit_code, out, err = self._run(cmd)
         return out
-    
+
     def stop_process(self, pattern:str) -> str:
         cmd = f"pkill -f {shlex.quote(pattern)}"
         exit_code, out, err = self._run(cmd)
         return exit_code in (0,1)
-    
+
 
     # ros2 activation for bridge node
     def start_bridge_node(self) -> bool:
@@ -115,15 +115,15 @@ class RoverSSHClient:
             ros_command="ros2 run rover_bridge bridge_node",
             log_path="/tmp/rover_bridge_node.log",
         )
-    
+
     def stop_bridge_node(self) -> bool:
         return self.stop_process("ros2 run rover_bridge bridge_node")
-    
+
     def restart_bridge_node(self) -> bool:
         self.stop_bridge_node()
         time.sleep(1)
         return self.start_bridge_node()
-    
+
     def bridge_node_status(self) -> bool:
         return self.is_process_running("ros2 run rover_bridge bridge_node")
 
@@ -174,7 +174,7 @@ class RoverSSHClient:
             "control": self.control_node_status(),
             "bridge": self.bridge_node_status(),
         }
-    
+
     # log
     def tail_log(self, log_path: str, lines: int = 50) -> str:
         cmd = f"tail -n {int(lines)} {shlex.quote(log_path)}"
@@ -254,6 +254,3 @@ class RoverSSHClient:
         cmd = f"rm -f {files}"
         exit_code, out, err = self._run(cmd)
         return exit_code == 0
-
-    # general diagnostics
-        

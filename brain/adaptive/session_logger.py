@@ -239,10 +239,4 @@ class SessionLogger:
 
         return entries
 
-
-# ── Convenience singleton ────────────────────────────────────────────────────
-# Import this in main.py:
-#   from brain.adaptive.session_logger import session_logger
-#   session_logger.log(...)
-
 session_logger = SessionLogger()

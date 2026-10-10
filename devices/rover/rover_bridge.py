@@ -55,7 +55,7 @@ class _AsyncRoverClient:
 
     # ── connection ─────────────────────────────
     async def _connect(self):
-        import websockets  # imported here so top-level import doesn't fail if missing
+        import websockets  # lazy: the app still starts when websockets is not installed
         try:
             self._ws = await asyncio.wait_for(
                 websockets.connect(self.uri),
@@ -190,25 +190,13 @@ class RoverClient:
         result["user_message"] = self._build_user_message(command, result)
         return result
 
-    # ── fallback stop ──────────────────────────
-    # def emergency_stop(self) -> dict:
-    #     """
-    #     Fire-and-forget stop command; used on disconnect / watchdog trigger.
-    #     Returns result dict (best-effort).
-    #     """
-    #     stop_cmd = {
-    #         "action": "stop",
-    #         "direction": "stop",
-    #         "speed_percent": 0,
-    #     }
-    #     return self.send_command(stop_cmd)
     def emergency_stop(self) -> dict:
         import traceback
         print("[DEBUG] emergency_stop called from:")
         traceback.print_stack(limit=6)
         stop_cmd = {
             "action": "stop",
-            "direction": "stop", 
+            "direction": "stop",
             "speed_percent": 0,
         }
         return self.send_command(stop_cmd)

@@ -52,7 +52,7 @@ def delete_schedule_by_title(title: str) -> list[dict]:
     """, (f"%{title}%",))
     rows = cur.fetchall()
     conn.close()
-    return [{"id": r[0], "title": r[1], 
+    return [{"id": r[0], "title": r[1],
              "timestamp": r[2], "location": r[3]} for r in rows]
 
 def delete_schedules_by_ids(ids: list[int]) -> str:
@@ -142,7 +142,7 @@ def retrieve_schedule_by_date_sql(date_yyyy_mm_dd: str):
     matches = []
 
     for s in schedules:
-        ts = clean_text(s.get("timestamp"))  # "YYYY-MM-DD HH:MM"
+        ts = clean_text(s.get("timestamp"))
         if ts and ts.startswith(date_yyyy_mm_dd):
             matches.append(s)
 
@@ -299,8 +299,8 @@ def extractScheduleDetails(user_input):
     extracting = extract_schedule_details(user_input)
     response = ollama.generate(model="llama3.2:latest", prompt=extracting)
     extracted = safe_json_parse(response['response'])
-    print("[DEBUG] Extracted in JSON Format: ", extracted)  
-    
+    print("[DEBUG] Extracted in JSON Format: ", extracted)
+
     return extracted
 
 def smart_schedule_recall(extracted):
@@ -310,7 +310,7 @@ def smart_schedule_recall(extracted):
 
     if not all_schedules:
         return "Sorry, it seems you don't have any schedule yet"
-    
+
     print("[DEBUG] Searching Schedule Start...")
 
     # declare a temporary array
@@ -330,42 +330,36 @@ def smart_schedule_recall(extracted):
                 if query_val == db_val:
                     score += 2
                     matched_fields.append(field)
-            
+
             else:
                 ratio = difflib.SequenceMatcher(None, query_val.lower(), db_val.lower()).ratio()
                 if ratio > 0.6:
                     score += 1
                     matched_fields.append(field)
 
-            # if query_val and db_val:
-            #     ratio = difflib.SequenceMatcher(None, query_val.lower(), db_val.lower()).ratio()
-            #     if ratio > 0.6:
-            #         score += 1
-            #         matched_fields.append(field)
-            
-            
+
         match_scores.append({"score": score, "matched_fields": matched_fields, "schedule": sched})
-    
+
     match_scores = sorted(match_scores, key=lambda x: x["score"], reverse=True)
-    
+
 
     top_matches = [m for m in match_scores if m["score"] > 0]
     if not top_matches:
         return "I couldn't find any schedule that matches what you said. Could you rephrase?"
-    
+
     if len(top_matches) == 1:
         print("[DEBUG] Only one similarity detected")
         s = top_matches[0]["schedule"]
         return f"You have a schedule: **{s['title']}** at **{s['timestamp']}** in **{s['location']}**."
-    
+
     if top_matches and top_matches[0]["score"] >= 3:
         s = top_matches[0]["schedule"]
         return f"I found your exact schedule: **{s['title']}** at **{s['timestamp']}** in **{s['location']}**."
-    
+
     print("[DEBUG] Many Similarities Detected")
     for i, m in enumerate(top_matches[:5]):
         print(f"[{i+1}] {m['schedule']}")
-    
+
     descriptions = {}
     for match in top_matches:
         desc = match["schedule"].get("description", "unknown").lower()
@@ -386,7 +380,6 @@ def smart_schedule_recall(extracted):
         "candidates": [m["schedule"] for m in top],
         "question": "I found multiple matching schedules. Which one did you mean?\n" + "\n".join(options) + "\nReply with 1-5."
     }
-
 
 
 def create_todo(project: str, content: str, priority: int = 3,

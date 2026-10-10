@@ -14,9 +14,9 @@ class TelloClient:
         self._id = itertools.count(1)
 
         self._lock = threading.Lock()
-        self._responses = {}     
-        self._raw_lines = []    
-    
+        self._responses = {}
+        self._raw_lines = []
+
     def is_running(self):
         return self.p is not None and self.p.poll() is None
 
@@ -165,10 +165,6 @@ class TelloClient:
     def request(self, cmd: str, payload=None, timeout=3.0):
         if not self.is_running():
             raise RuntimeError("Tello agent is not running. Call ensure_started() first.")
-        # ensure agent is running
-        # if not self.is_running():
-        #     self.start()
-        #     time.sleep(0.2)  # small warmup so agent prints "ready"
 
         req_id = next(self._id)
         payload_str = "" if payload is None else json.dumps(payload)
@@ -247,7 +243,6 @@ class TelloClient:
         self.p = None
 
 
-
     def ensure_started(self):
         # starts the agent if not running
         if not self.p or self.p.poll() is not None:
@@ -296,7 +291,7 @@ class TelloClient:
     def preflight(self, timeout=10.0) -> dict:
         self.ensure_started()
         return self.request("preflight", timeout=timeout)
-    
+
 
     def start_takeoff_hover_session(self, timeout=10.0) -> dict:
         """
@@ -318,7 +313,7 @@ class TelloClient:
     def takeoff(self, timeout=10.0) -> dict:
         self.ensure_started()
         return self.request("takeoff", timeout=timeout)
-    
+
     def follow(self, mode="FOLLOW_ME", timeout=3.0) -> dict:
         self.ensure_started()
         return self.request("follow", payload={"mode": mode}, timeout=timeout)

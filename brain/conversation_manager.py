@@ -1,3 +1,4 @@
+# note: might hide this from publicate in GitHub, since it is still messy
 from __future__ import annotations
 
 from dotenv import load_dotenv
@@ -22,7 +23,7 @@ from dateutil.relativedelta import relativedelta
 import re
 from brain.core.brain import detect_memory_request, extract_topic_name, store_short_term_memory, generate_llm_response, confirm_memory_storage, memory_manager, extract_specificCase_condition, MemoryManager, compute_similarity_hybrid, resolve_save_target
 from brain.core.brain import recall_memory_request, retrieve_long_term_memory, sensory_memory, compute_similarity_llm, temp_topic_memory, delete_memory_from_db, extract_scheduleType_recall, extract_scheduleType_save, _clean_topic
-from brain.core.helpers import get_date 
+from brain.core.helpers import get_date
 from brain.core.prompts import build_summary_prompt, llmBasedIntentDetection, extract_schedule_details, extractGeneralMemory, schedule_extract_with_followup_prompt
 from brain.core.brain import save_memory_request, delete_memory_request, extract_time_reference, retrieve_memory_by_date, delete_memory_by_ids, retrieve_memory_by_month, retrieve_memory_by_year, retrieve_memory_by_week, store_long_term_memory
 from brain.core.sql_brain import create_schedule, get_all_schedules_as_dicts, validate_schedule, safe_json_parse, smart_schedule_recall, extractScheduleDetails, retrieve_schedule_by_week_sql, init_schedule_table, retrieve_schedule_by_date_sql, retrieve_schedule_by_year_sql, retrieve_schedule_by_month_sql,delete_schedule_by_title,delete_schedules_by_ids
@@ -138,7 +139,6 @@ from brain.identity.identity_manager import IdentityManager
 
 MODEL_NAME = "llama3.2:latest"
 TZ = ZoneInfo("Europe/Berlin")
-
 
 
 # Define Payload Dataclasses
@@ -270,7 +270,7 @@ def user_mentioned_time(text: str) -> bool:
     return bool(_TIME_RE.search(text or ""))
 
 
-VAGUE_TOPICS = {"this", "that", "it", "yes", "no", "ok", "okay", 
+VAGUE_TOPICS = {"this", "that", "it", "yes", "no", "ok", "okay",
                 "none", "something", "nothing", "stuff", "thing"}
 
 DELETE_ACTION_PATTERNS = [
@@ -289,19 +289,19 @@ DELETE_ACTION_PATTERNS = [
         "wipe my",
         "clear our",
         "clear my",
-        "remove about",       
-        "delete about",      
+        "remove about",
+        "delete about",
         "erase about",
-        "forget everything",        
-        "forget everything we",     
-        "erase everything",         
-        "delete everything",       
+        "forget everything",
+        "forget everything we",
+        "erase everything",
+        "delete everything",
 ]
-  
+
 MEMORY_TARGET_WORDS = [
         "conversation", "discussion", "memory", "topic",
         "talk", "notes", "chat", "history", "about",
-        "rover", "drone", "project", "tello",  
+        "rover", "drone", "project", "tello",
 ]
 
 
@@ -331,7 +331,7 @@ SAVE_CONVERSATION_PATTERNS = [
     "save our previous discussion",      # ← add
     "save this discussion",              # ← add
     "save this entire discussion",
-    "save this whole discussion", 
+    "save this whole discussion",
     "save this entire conversation",
     "save this whole conversation",
     "save everything we discussed",
@@ -342,7 +342,7 @@ SAVE_CONVERSATION_PATTERNS = [
     "save this so i can come back",
     "save this entire discussion",
     "save this whole discussion",
-    "save this entire conversation", 
+    "save this entire conversation",
     "save this whole conversation",
     "save everything we discussed",
     "save all of this",
@@ -594,12 +594,12 @@ def _handle_vision_request(user_text: str, conversation_manager, tts) -> str:
                 user_question=augmented_question,
                 conversation_manager=conversation_manager,
                 authorized_user=(recognition.status == RecognitionStatus.AUTHORIZED),
-                is_webcam=True, 
+                is_webcam=True,
             )
             topic_key = _extract_vision_topic(result, paths[0])
 
         else:
-            
+
             path = capture_single_frame(out_dir=WEBCAM_SAVE_DIR)
             if not path:
                 conversation_manager.belief.report_tool_result("webcam", success=False,
@@ -608,7 +608,7 @@ def _handle_vision_request(user_text: str, conversation_manager, tts) -> str:
             else:
                 conversation_manager.belief.report_tool_result("webcam", success=True,
                                                                 summary="frame captured")
-                
+
             recognition = recognize_face(path)
             if recognition.status == RecognitionStatus.UNKNOWN:
                 return recognition.message
@@ -623,7 +623,7 @@ def _handle_vision_request(user_text: str, conversation_manager, tts) -> str:
                 user_question=augmented_question,
                 conversation_manager=conversation_manager,
                 authorized_user=(recognition.status == RecognitionStatus.AUTHORIZED),
-                is_webcam=True, 
+                is_webcam=True,
             )
             topic_key = _extract_vision_topic(result, path)
 
@@ -701,7 +701,7 @@ def is_yes(text: str) -> bool:
     if t in {
         # bare confirmations
         "yes", "y", "yeah", "yep", "sure", "ok", "okay", "alright",
-        # action confirmations  
+        # action confirmations
         "do it", "go ahead", "save it", "store it", "confirm",
         "please", "absolutely", "correct", "affirmative",
         # natural language yes
@@ -953,17 +953,17 @@ def get_weather_from_windows():
     try:
         powershell_command = 'powershell -Command "& {Get-Weather -ErrorAction Stop}"'
         weather_output = subprocess.check_output(
-            powershell_command, 
-            shell=True, 
+            powershell_command,
+            shell=True,
             text=True,
             stderr=subprocess.STDOUT  # capture stderr too
         )
         output = weather_output.strip()
-        
+
         # Guard: if output looks like an error, return clean fallback
         if not output or len(output) > 200 or "not recognized" in output.lower() or "error" in output.lower():
             return "Weather unavailable."
-            
+
         return f"Current weather: {output}"
     except Exception:
         return "Weather unavailable."
@@ -1021,7 +1021,7 @@ def rule_based_intent_detection(user_input):
     keywords = {
         "recall_memory": [ "what did we talk about", "remind me", "recall our talk", "did we talk about", "can you recall"],
         "save_memory": ["save this", "store this", "note this down", "this is important", "keep this in mind", "bookmark this"],
-        "delete_memory": ["forget", "erase", "remove", "delete"],  
+        "delete_memory": ["forget", "erase", "remove", "delete"],
         "time": ["what time", "current time"],
         "date": ["today's date", "what date"],
         "battery": ["battery status", "check battery"],
@@ -1033,7 +1033,7 @@ def rule_based_intent_detection(user_input):
     user_input = user_input.lower()
 
     for intent, triggers in keywords.items():
-        if any(phrase in user_input for phrase in triggers):  
+        if any(phrase in user_input for phrase in triggers):
             return intent
 
     return None
@@ -1071,7 +1071,7 @@ STRONG_RULES: list[tuple[list[str], str]] = [
 
     # Schedule save — the patterns your log missed
     (["remind me", "reminder for", "remind me to", "remind me that",
-      "set a reminder", "add to my schedule", "schedule a", 
+      "set a reminder", "add to my schedule", "schedule a",
       "i need to remember to", "don't forget i have", "note that i have",
       "can you note", "save that i need"], "schedule_save"),
 
@@ -1083,7 +1083,7 @@ STRONG_RULES: list[tuple[list[str], str]] = [
     "can you remember something about my schedule",       # ← add this
     "what's on my schedule"], "schedule_recall"),
 
-    (["what do i have", "what have i got", 
+    (["what do i have", "what have i got",
     "what did i schedule", "when is my",
     "do i have anything"], "schedule_recall"),
 
@@ -1132,7 +1132,7 @@ STRONG_RULES: list[tuple[list[str], str]] = [
             "open my terahertz", "terahertz project", "thz project",
         ],
         "open_project",   # sentinel intent — never actually routed, just for safety
-    ),    
+    ),
 ]
 
 
@@ -1222,7 +1222,7 @@ NEWS_SEARCH_RE = re.compile(
 )
 
 SYSTEM_QUERY_SIGNALS = {
-    "time", "date", "today's date", "battery", 
+    "time", "date", "today's date", "battery",
     "weather", "location", "where am i", "cpu"
 }
 
@@ -1232,16 +1232,16 @@ DEVICE_STRONG = [
     "follow me", "track me", "scan the room", "hit rover", "activate rover",
     "move the rover forward", "move the rover backward",
     "turn the rover left", "turn the rover right",
-    "rover go forward", "rover go back", 
-    "rover stop", "move the rover", "turn the rover"               
+    "rover go forward", "rover go back",
+    "rover stop", "move the rover", "turn the rover"
 ]
 
 
 SAVE_START_PATTERNS = [
     "i want to talk something important",
     "i want to tell you something important",
-    "i have something important",     
-    "something i want you to remember",  
+    "i have something important",
+    "something i want you to remember",
     "take a note",
     "can you take a note",
     "please take a note",
@@ -1319,7 +1319,7 @@ def score_web_followup(text: str, mm) -> float:
     # weak pronouns should NOT push it over the threshold
     if _mentions_weak_pronoun(norm):
         score += 0.02
-    
+
     if looks_like_reflective_chat(norm):
         score -= 0.25
 
@@ -1477,8 +1477,8 @@ def normalize_intent(user_input: str, raw_intent: str) -> str:
         return "chat"
 
     if intent == "schedule_recall":
-        return intent 
-    
+        return intent
+
 
     return intent
 
@@ -1697,7 +1697,7 @@ def post_validate_intent(result, user_input, user_text: str):
             "confidence": min(conf, 0.85),
             "source": "save_this_override",
         }
-    
+
     # 5) System query conflict (time/date) vs schedule
     if intent in ("time", "date") and ("meeting" in text or "appointment" in text or "reminder" in text):
         if "what time" in text and (time_signal or "tomorrow" in text or "next" in text):
@@ -1706,7 +1706,7 @@ def post_validate_intent(result, user_input, user_text: str):
     # 6) Device Control
     ACTION_EVIDENCE = [
         "connect", "disconnect", "start", "stop", "run", "launch", "execute",
-        "stream", "take off", "takeoff", "land", "hover", "follow me", 
+        "stream", "take off", "takeoff", "land", "hover", "follow me",
         "track", "scan", "move forward", "turn left", "turn right",
         "go forward", "go back", "move the",
     ]
@@ -1736,7 +1736,7 @@ def post_validate_intent(result, user_input, user_text: str):
 # Confindence Gate (New Approach, for make the handle intent is more strict and more robust)
 ACTION_INTENTS = {
     "save_memory",
-    "delete_memory", 
+    "delete_memory",
     "schedule_save",
     "device_control",
 }
@@ -1884,7 +1884,7 @@ def detect_intent(user_input: str):
     #     return {"intent": "device_control", "confidence": STRONG_RULE_CONF, "source": "rule_strong"}
     # upgrade for device controln check
     if _matches_device_strong(text):
-        return {"intent": "device_control", "confidence": STRONG_RULE_CONF, 
+        return {"intent": "device_control", "confidence": STRONG_RULE_CONF,
                 "source": "rule_strong"}
 
     if any(p in text for p in SAVE_START_PATTERNS):
@@ -1892,7 +1892,7 @@ def detect_intent(user_input: str):
 
     if any(p in text for p in SAVE_CONVERSATION_PATTERNS):
         return {"intent": "save_memory", "confidence": STRONG_RULE_CONF, "source": "rule_strong"}
-    
+
     # ── Recall strong rules — only fire when there is NO delete signal
     has_weak_delete = any(p in text for p in ["delete", "remove", "forget", "erase", "wipe", "clear"])
     has_weak_save = any(p in text for p in ["save", "store", "keep", "remember this"])
@@ -1926,7 +1926,6 @@ def detect_intent(user_input: str):
     print(f"[DEBUG] Routed: {final}")
 
     return final
-
 
 
 def normalize_schedule_dict(d: dict) -> dict:
@@ -2113,7 +2112,7 @@ class IntentHandler:
 #     if any(text == q or text.startswith(q) for q in SYSTEM_QUERY_EXACT):
 #         return {"intent": "system_query", "confidence": 0.99, "source": "rule_system_exact"}
 
-        
+
 #     # ── Step 1: Strong rules (zero LLM cost, highest precision) ──
 #     has_weak_save = any(p in text for p in [
 #         "save", "store", "keep", "remember this"
@@ -2123,10 +2122,10 @@ class IntentHandler:
 #         # ADD THIS guard inside the loop:
 #         if intent == "recall_memory" and has_weak_save:
 #             continue  # save signal present → skip recall, fall through to save check
-        
+
 #         if any(p in text for p in patterns):
 #             return {"intent": intent, "confidence": 0.99, "source": "rule_strong"}
-    
+
 #     # ── Step 2: Web followup detection (replaces score_web_followup) ──
 #     # Only fires if there IS an active web session AND the utterance
 #     # is clearly a navigation command, not a new search or reminder
@@ -2146,18 +2145,18 @@ class IntentHandler:
 #                 "is it worse", "do you think", "what do you think",
 #                 "is it good", "is it bad", "how good", "how bad",
 #             ])
-#             if not schedule_guard and not comparison_guard: 
+#             if not schedule_guard and not comparison_guard:
 #                 return {"intent": "web_followup", "confidence": 0.95, "source": "rule_web_followup"}
 
 #     if WORLD_EVENT_RE.search(text):
 #         return {"intent": "web_search", "confidence": 0.92, "source": "rule_world_event"}
- 
+
 #     if POSSESSION_RE.match(text):
 #         return {"intent": "chat", "confidence": 0.90, "source": "rule_possession_statement"}
 
 #     if SENSOR_STATEMENT_RE.match(text):
 #         return {"intent": "chat", "confidence": 0.90, "source": "rule_sensor_statement"}
-        
+
 #     if PROJECT_DISCUSSION_RE.match(text):
 #         return {"intent": "chat", "confidence": 0.90, "source": "rule_project_discussion"}
 
@@ -2165,7 +2164,7 @@ class IntentHandler:
 #         is_system = any(s in text for s in SYSTEM_QUERY_SIGNALS)
 #         if not is_system and not re.search(r"\b(search|look up|google|latest news)\b", text):
 #             return {"intent": "chat", "confidence": 0.90, "source": "rule_curiosity_chat"}
-        
+
 
 #     # ── Step 3: LLM classifier (single structured call) ──
 
@@ -2211,7 +2210,7 @@ def get_eligible_intents(mm) -> list[str]:
     last_topic = (mm.get_last_topic() or "").lower()
     base = [
         "chat", "system_query", "save_memory", "recall_memory",
-        "delete_memory", "schedule_save", "schedule_recall", 
+        "delete_memory", "schedule_save", "schedule_recall",
         "device_control", "web_search"
     ]
     # web_followup only when there's an active web session
@@ -2311,7 +2310,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
     # ── Context priming (currently missing) ──
     last_topic = (mm.get_last_topic() or "").lower()
     pending = (mm.get_pending_topic() or "").lower()
-    
+
     # If we're already in a rover/device context, short-circuit
     # before rules even run
     if last_topic.startswith("rover:") or "rover" in last_topic:
@@ -2322,7 +2321,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         if IMPLICIT_DEVICE.match(text):
             return {"intent": "device_control", "confidence": 0.95,
                     "source": "context_rover_continuation"}
-        
+
         SAVE_SIGNAL_RE = re.compile(r"\b(save|store|export)\b", re.I)
         if SAVE_SIGNAL_RE.search(text):
             rover_manager = getattr(getattr(conversation_manager, "device_handler", None), "rover_manager", None)
@@ -2360,7 +2359,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
 
     if is_cancel and not has_memory_anchor:
         return {"intent": "chat", "confidence": 0.99, "source": "rule_cancel"}
-    
+
 
     # ── DELETE guard (must run before recall rules) ──
     has_delete_action = any(p in text for p in DELETE_ACTION_PATTERNS)
@@ -2368,7 +2367,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
     has_delete_strong = any(p in text for p in DELETE_STRONG)
 
     if has_delete_strong or (has_delete_action and has_memory_target):
-        return {"intent": "delete_memory", "confidence": STRONG_RULE_CONF, 
+        return {"intent": "delete_memory", "confidence": STRONG_RULE_CONF,
                 "source": "rule_strong_delete"}
 
     HYPOTHETICAL_PREFIXES = [
@@ -2390,7 +2389,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
     # Step 0: Exact system query matching
     if any(text == q or text.startswith(q) for q in SYSTEM_QUERY_EXACT):
         return {"intent": "system_query", "confidence": 0.99, "source": "rule_system_exact"}
-        
+
     # ── Step 1: Strong rules (zero LLM cost, highest precision) ──
     has_weak_save = any(p in text for p in [
         "save", "store", "keep", "remember this"
@@ -2406,17 +2405,17 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         r"remind me of (our|my|the) (previous|past|earlier)",
     ]
     if any(re.search(p, text) for p in RECALL_OVERRIDE_PATTERNS):
-        return {"intent": "recall_memory", "confidence": 0.99, 
+        return {"intent": "recall_memory", "confidence": 0.99,
                 "source": "rule_recall_override"}
 
     for patterns, intent in STRONG_RULES:
         if intent == "recall_memory" and has_weak_save:
             continue
         if intent == "recall_memory" and has_weak_delete:
-            continue  
+            continue
         if any(p in text for p in patterns):
             return {"intent": intent, "confidence": 0.99, "source": "rule_strong"}
-        
+
 
     if any(p in text for p in SAVE_CONVERSATION_PATTERNS):
         return {"intent": "save_memory", "confidence": 0.99, "source": "rule_save_conversation"}
@@ -2425,14 +2424,14 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         if any(p in text for p in [
             "what did we talk about",
             "previous conversation",
-            "previous chat", 
+            "previous chat",
             "past conversation",
             "recall our talk",
             "can you recall",
             "remember when",
         ]):
             return {"intent": "recall_memory", "confidence": 0.99, "source": "rule_strong"}
-        
+
     # ── ADD THIS: Save start patterns ────────────────────────────
     if any(p in text for p in SAVE_START_PATTERNS):
         return {"intent": "save_memory", "confidence": 0.99, "source": "rule_save_start"}
@@ -2470,7 +2469,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         norm = normalize_web_followup(text)
         action = parse_web_followup(norm)
         bare_idx = parse_index_utterance(norm)
-        
+
         if action is not None or bare_idx is not None:
             # Guard 1: technical domain numbers are NOT result indices
             TECHNICAL_NUMBER_RE = re.compile(
@@ -2484,7 +2483,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
             if TECHNICAL_NUMBER_RE.search(text):
                 print(f"[DBG] web_followup suppressed — technical number: {text[:60]}")
                 # Fall through to rest of classify_intent
-            
+
             else:
                 # Guard 2: schedule phrases
                 schedule_guard = any(p in text for p in [
@@ -2497,17 +2496,17 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
                     "is it worse", "do you think", "what do you think",
                     "is it good", "is it bad", "how good", "how bad",
                 ])
-                
+
                 if not schedule_guard and not comparison_guard:
                     return {
                         "intent": "web_followup",
                         "confidence": 0.95,
                         "source": "rule_web_followup"
                     }
-                
+
     if WORLD_EVENT_RE.search(text):
         return {"intent": "web_search", "confidence": 0.92, "source": "rule_world_event"}
- 
+
     if NEWS_SEARCH_RE.search(text):
         return {"intent": "web_search", "confidence": 0.92, "source": "rule_news_search"}
 
@@ -2516,7 +2515,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
 
     if SENSOR_STATEMENT_RE.match(text):
         return {"intent": "chat", "confidence": 0.90, "source": "rule_sensor_statement"}
-        
+
     if PROJECT_DISCUSSION_RE.match(text):
         return {"intent": "chat", "confidence": 0.90, "source": "rule_project_discussion"}
 
@@ -2533,7 +2532,7 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
 
     # Add this before the zero-shot call in classify_intent
     if HYPOTHETICAL_RE.match(text):
-        return {"intent": "chat", "confidence": 0.90, 
+        return {"intent": "chat", "confidence": 0.90,
                 "source": "rule_hypothetical"}
 
     DECLARATIVE_RE = re.compile(
@@ -2567,11 +2566,11 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
 
     if DEVICE_VERB_RE.search(text):
         print(f"[CANARY] rule_device_verb fired for: {text[:50]!r}")
-        return {"intent": "device_control", "confidence": STRONG_RULE_CONF, 
+        return {"intent": "device_control", "confidence": STRONG_RULE_CONF,
                 "source": "rule_device_verb"}
 
     if _matches_device_strong(text):
-        return {"intent": "device_control", "confidence": STRONG_RULE_CONF, 
+        return {"intent": "device_control", "confidence": STRONG_RULE_CONF,
                 "source": "rule_device_strong"}
 
     # ── Bare "save it" / "save this" — default to save_topic_memory ──────────
@@ -2584,12 +2583,12 @@ def classify_intent(user_input: str, mm, conversation_manager=None) -> dict:
         last_topic = (mm.get_last_topic() or "").strip()
         if not has_time_signal and last_topic and not last_topic.startswith(("web:", "session:", "_pending_")):
             return {"intent": "save_memory", "confidence": 0.95, "source": "rule_bare_save_active_topic"}
-        
+
     # ── Step 3: Context-aware LLM classifier ──
     tier2_result = _evidence_score_classify(text, mm)
     if tier2_result is not None:
         return tier2_result
-    
+
     belief = getattr(conversation_manager, 'belief', None)
     belief_state = belief.state if belief else None
     tool_result = _native_tool_classify_intent(user_input, mm, belief_state=belief_state)
@@ -2624,7 +2623,7 @@ def _evidence_score_classify(text: str, mm) -> dict | None:
         "what setup do you", "surroundings",
     ]
     if any(s in text for s in VISION_FOLLOWUP_SIGNALS):
-        return {"intent": "chat", "confidence": 0.90, 
+        return {"intent": "chat", "confidence": 0.90,
                 "source": "vision_followup_guard"}
 
 
@@ -2810,7 +2809,7 @@ Respond with ONLY valid JSON, nothing else. No explanation, no markdown.
 
         parsed = safe_parse_intent(raw)
         if not parsed or not isinstance(parsed, dict):
-            return {"intent": "chat", "confidence": 0.5, 
+            return {"intent": "chat", "confidence": 0.5,
                     "source": "llm_classify_parse_fail"}
 
         raw_intent = parsed.get("intent", "chat")
@@ -2824,7 +2823,7 @@ Respond with ONLY valid JSON, nothing else. No explanation, no markdown.
         conf = max(0.0, min(1.0, conf))
 
         if raw_intent not in ALLOWED_INTENTS:
-            return {"intent": "chat", "confidence": 0.5, 
+            return {"intent": "chat", "confidence": 0.5,
                     "source": "llm_classify_invalid_intent"}
 
         normalized = normalize_intent(user_input, raw_intent)
@@ -2835,7 +2834,6 @@ Respond with ONLY valid JSON, nothing else. No explanation, no markdown.
     except Exception as e:
         print(f"[LLMClassify] error: {e}")
         return {"intent": "chat", "confidence": 0.4, "source": "llm_classify_error"}
-    
 
 
 #############################################
@@ -2882,7 +2880,7 @@ def _log_uncertain_intent(text: str, result: dict, signals: dict = None):
             f.write(json.dumps(log_entry) + "\n")
 
     except Exception:
-        pass 
+        pass
 
 CONF_THRESHOLDS = {
     "schedule_save":    0.40,   # lower — classifier scores these around 0.45-0.55
@@ -2920,7 +2918,7 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
     if any(t in text for t in ENGINEERING_TERMS) and intent in UNSAFE_IN_ENGINEERING:
         is_direct_flight_command = any(cmd in text for cmd in FLIGHT_COMMANDS)
         is_strong_device_rule = result.get("source") in ("rule_device_strong", "rule_strong")
-        
+
         if intent == "device_control" and (is_direct_flight_command or is_strong_device_rule):
             pass
         elif intent == "device_control":
@@ -2936,7 +2934,7 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
     ]
 
     SYSTEM_QUERY_SAFE_WORDS = [
-        "time", "date", "battery", "weather", 
+        "time", "date", "battery", "weather",
         "cpu", "location", "where am i", "clock"
     ]
 
@@ -2957,27 +2955,27 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
             }
 
     if intent == "system_query":
-        if "what time" in text and any(w in text for w in 
+        if "what time" in text and any(w in text for w in
                 ["meeting", "appointment", "dentist", "doctor", "class"]):
             return {"intent": "schedule_recall", "confidence": 0.88,
                     "source": "guard_time_query_is_schedule"}
 
-  
+
     if intent == "device_control":
-        
+
         # Allow through: direct flight commands or strong rule source
         is_direct_flight = any(cmd in text for cmd in FLIGHT_COMMANDS)
         is_strong_rule = result.get("source") == "rule_strong"
 
         BYPASS_SOURCES = {"rule_strong"}
         is_strong_rule = result.get("source") in BYPASS_SOURCES
-        
+
         # rule_device_verb explicitly falls through to discussion guards
         is_verb_match = result.get("source") == "rule_device_verb"
 
         if is_direct_flight or (is_strong_rule and not is_verb_match):
             pass  # genuine device command — skip all discussion guards
-        
+
         else:
             # Discussion-shape patterns — these catch natural phrasings that
             # substring lists miss
@@ -3012,7 +3010,7 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
                     "confidence": 0.85,
                     "source": "guard_discussion_shape",
                 }
-            
+
             QUESTION_FORM_SIGNALS = [
                 "what kind of", "what type of", "what is the best",
                 "what controller", "what algorithm", "what architecture",
@@ -3053,17 +3051,17 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
             matched_discussion = [s for s in DEVICE_DISCUSSION_SIGNALS if s in text]
             matched_question = [s for s in QUESTION_FORM_SIGNALS if s in text]
             print(f"[GUARD_DEBUG] text={text[:60]!r} discussion={matched_discussion} question={matched_question}")
-            
+
             if any(s in text for s in QUESTION_FORM_SIGNALS):
                 return {"intent": "chat", "confidence": 0.85,
                         "source": "guard_question_not_device"}
-            
+
             if any(s in text for s in DEVICE_DISCUSSION_SIGNALS):
                 # Special case: delete signals need memory object to confirm
                 DELETE_SIGNALS = ["delete", "remove", "erase", "forget", "wipe", "clear"]
                 MEMORY_OBJECTS = ["conversation", "discussion", "memory",
                                 "topic", "chat", "history", "about"]
-                
+
                 if any(s in text for s in DELETE_SIGNALS):
                     if any(w in text for w in MEMORY_OBJECTS):
                         return {"intent": "delete_memory", "confidence": 0.85,
@@ -3071,16 +3069,16 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
                     # delete signal but no memory object — still chat not device
                     return {"intent": "chat", "confidence": 0.80,
                             "source": "guard_discussion_not_device"}
-                
+
                 # All other discussion/how-to/return signals
                 confidence = 0.90 if any(s in text for s in [
                     "back to", "going back", "return to", "let me go back", "okay back to"
                 ]) else 0.80
-                
+
                 return {"intent": "chat", "confidence": confidence,
                         "source": "guard_discussion_not_device"}
 
-    
+
     # Guard 1: Never let web_followup beat schedule_save
     SCHEDULE_SIGNALS = [
         "remind", "birthday", "appointment", "meeting",
@@ -3124,7 +3122,7 @@ def apply_guards(result: dict, user_input: str, mm) -> dict:
         if not has_save_evidence and looks_like_curiosity:
             # Reroute to chat — user is asking a question, not saving
             return {"intent": "chat", "confidence": 0.70, "source": "guard_curiosity_not_save"}
-        
+
     return result
 
 def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optional[str]:
@@ -3142,9 +3140,9 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
     """
     if not user_input or not topics:
         return None
- 
+
     text = user_input.lower().strip()
- 
+
     # ── Filter out generic "what did we talk about" questions ────────────
     # These are asking for the full list, not a specific topic
     GENERAL_LIST_SIGNALS = [
@@ -3156,7 +3154,7 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
     for pattern in GENERAL_LIST_SIGNALS:
         if re.search(pattern, text):
             return None  # genuinely asking for the full list
- 
+
     # ── Check if question contains a specific topic reference ─────────────
     # Signals that the user wants ONE specific thing
     SPECIFIC_SIGNALS = [
@@ -3168,13 +3166,13 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
         r"\blast (thing|topic|note|save)\b",
     ]
     looks_specific = any(re.search(p, text) for p in SPECIFIC_SIGNALS)
- 
+
     # ── Strategy 1: Exact substring match ────────────────────────────────
     for topic in topics:
         topic_lower = topic.lower().strip()
         if topic_lower and topic_lower in text:
             return topic
- 
+
     # ── Strategy 2: Word overlap ──────────────────────────────────────────
     # Only attempt if the question looks like it's asking about something specific
     if looks_specific:
@@ -3190,13 +3188,13 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
             w for w in re.findall(r"[a-z0-9]+", text)
             if len(w) >= 3 and w not in stop_words
         )
- 
+
         if not input_words:
             return None
- 
+
         best_topic = None
         best_overlap = 0
- 
+
         for topic in topics:
             topic_words = set(
                 w for w in re.findall(r"[a-z0-9]+", topic.lower())
@@ -3204,11 +3202,11 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
             )
             if not topic_words:
                 continue
- 
+
             overlap = len(input_words & topic_words)
             # require at least half the topic words to match
             coverage = overlap / len(topic_words)
- 
+
             if overlap >= 1 and len(topic_words) <= 4:
                 # Short topics (1-4 words): one word match is sufficient
                 best_overlap = overlap
@@ -3218,10 +3216,10 @@ def _find_specific_topic_in_query(user_input: str, topics: list[str]) -> Optiona
             if overlap > best_overlap and coverage >= 0.5:
                 best_overlap = overlap
                 best_topic = topic
- 
+
         if best_topic:
             return best_topic
- 
+
     return None
 
 def _extract_queried_subject(user_input: str) -> Optional[str]:
@@ -3235,7 +3233,7 @@ def _extract_queried_subject(user_input: str) -> Optional[str]:
       "What did we save about the rover?" → "the rover"
     """
     text = (user_input or "").strip()
- 
+
     # Pattern: "about X", "regarding X", "on X"
     m = re.search(
         r"\b(?:about|regarding|on|concerning|related to)\s+(.+?)(?:\s*\??\s*$)",
@@ -3247,7 +3245,7 @@ def _extract_queried_subject(user_input: str) -> Optional[str]:
         VAGUE = {"it", "this", "that", "those", "these", "everything", "anything", "something"}
         if subject.lower() not in VAGUE and len(subject.split()) <= 5:
             return subject
- 
+
     # Pattern: "did we talk about X", "what did we discuss on X"
     m = re.search(
         r"\b(?:talk|discuss|cover|save|store|note)\s+(?:about\s+)?(.+?)(?:\s*\??\s*$)",
@@ -3258,15 +3256,15 @@ def _extract_queried_subject(user_input: str) -> Optional[str]:
         VAGUE = {"it", "this", "that", "those", "anything", "everything"}
         if subject.lower() not in VAGUE and len(subject.split()) <= 5:
             return subject
- 
+
     return None
 
 # Memory Handler
 class MemoryHandler:
-    
+
     def __init__(self, memory_manager, conversation_manager):
         self.memory_manager = memory_manager
-        self.conversation_manager = conversation_manager 
+        self.conversation_manager = conversation_manager
         self.specific_flow = SpecificFlow(
             memory_manager=self.memory_manager,
             retrieve_fn=retrieve_long_term_memory,
@@ -3334,18 +3332,18 @@ class MemoryHandler:
             r"\bdo we have (anything|something|notes) (about|on|regarding) (.+?)[\?\.]*$",
             r"\bdid we (discuss|talk about|cover) (.+?)[\?\.]*$",
         ]
-        
+
         for pattern in PRE_SPECIFIC_PATTERNS:
             m = re.search(pattern, user_input.lower().strip())
             if m:
-                subject_words = [w for w in re.findall(r"[a-z]{3,}", subject.lower()) 
+                subject_words = [w for w in re.findall(r"[a-z]{3,}", subject.lower())
                                 if w not in {"the", "our", "this", "that"}]
-                                
+
                 for topic in topics:
                     if any(w in topic.lower() for w in subject_words):
                         print(f"[DEBUG] pre-check direct match: '{subject}' → '{topic}'")
                         return self.specific_flow.start(topic)
-                    
+
                 # Extract the subject from the last capture group
                 subject = m.group(m.lastindex).strip().rstrip("?.,!")
                 if subject and len(subject.split()) <= 5:
@@ -3359,7 +3357,7 @@ class MemoryHandler:
                             return self.specific_flow.start(specific_match)
                         # No match — give clean "not found" response
                         return f"We haven't discussed {subject} in any saved conversations."
-        
+
 
         if routed_intent == "schedule_recall":
             recall_type = "schedule"
@@ -3401,11 +3399,11 @@ class MemoryHandler:
             stored_memory, msg, _ = retrieve_long_term_memory(None)
             if stored_memory is None:
                 return msg or "I couldn't find any past discussions."
-        
+
             topics = handleGeneral.extract_all_topic(stored_memory)
-        
+
             specific_match = _find_specific_topic_in_query(user_input, topics)
-        
+
             if specific_match:
                 # User asked about something specific — answer directly
                 # without dumping the whole list
@@ -3414,7 +3412,7 @@ class MemoryHandler:
                 self.memory_manager.pending_payload = None
                 # Route to the specific recall flow for this topic
                 return self.specific_flow.start(specific_match)
-        
+
             # ── NEW: Check if user asked about something that doesn't exist ───────
             # Extract what they were asking about for a clean "not found" response
             queried_subject = _extract_queried_subject(user_input)
@@ -3429,12 +3427,12 @@ class MemoryHandler:
                     # Clean "not found" using the QUERIED topic, not last_topic
                     print(f"[DEBUG] recall: queried subject '{queried_subject}' not in any topic")
                     return f"We haven't discussed {queried_subject} in any saved conversations."
-        
+
             # ── ORIGINAL: Genuinely general question — dump the list ─────────────
             self.memory_manager.set_last_topics_shown(topics)
             self.memory_manager.set_pending_topic("Awaiting_General_Recall")
             self.memory_manager.pending_payload = {"topics": topics}
-        
+
             return compiler_general(topics) + " Which topic would you like to open?"
 
 
@@ -3492,14 +3490,14 @@ class MemoryHandler:
                 f"{memory_text}"
             )
 
-        
+
         elif recall_type =="schedule":
             schedule_type = extract_scheduleType_recall(user_input)
 
             if ":" in schedule_type:
                 schedule_type, _ = schedule_type.split(":", 1)
                 schedule_type = schedule_type.strip()
-            
+
             schedule_type = schedule_type.lower().strip()
             if schedule_type not in ["general", "specific", "temporal"]:
                 print("[DEBUG] ⚠️ Unexpected schedule type from LLM. Defaulting to general.")
@@ -3525,7 +3523,6 @@ class MemoryHandler:
                 return handle_general_schedule(ollama, stored_memory, current_dt)
 
 
-
             elif schedule_type == "specific":
                 extracted = extractScheduleDetails(user_input)
                 finalResult = smart_schedule_recall(extracted)
@@ -3539,8 +3536,8 @@ class MemoryHandler:
                     return finalResult
 
                 return "I couldn't understand your schedule. Could you rephrase it?"
-                
-            
+
+
             elif schedule_type == "temporal":
                 time_reference = extract_time_reference(user_input)
                 print("[DEBUG] Time Reference: ", time_reference)
@@ -3560,25 +3557,24 @@ class MemoryHandler:
                     return retrieve_schedule_by_week_sql(start, end)
 
                 if ref_type == "month":
-                    month = time_reference["value"]        
+                    month = time_reference["value"]
                     return retrieve_schedule_by_month_sql(month)
 
                 if ref_type == "year":
-                    year = time_reference["value"]          
+                    year = time_reference["value"]
                     return retrieve_schedule_by_year_sql(year)
 
                 return "I recognized a time reference, but I’m not sure how to search for it."
 
 
-
             else:
                 return "I need more info to save this schedule. What should I remind you about and when?"
-        
+
         elif recall_type == "specific":
             topic_name = extract_topic_name(user_input)
             return self.specific_flow.start(topic_name)
 
-    
+
     def summarize_topic(self, topic_name, stored_memory, discussion_date):
         if not stored_memory.strip():
             return {
@@ -3615,13 +3611,13 @@ class MemoryHandler:
                 "Would you like me to elaborate, add new information, or move on?"
             )
         }
-    
+
     ##Schedule Function
-    
+
     def finalize_schedule_creation(self, user_input):
         return
-    
-    
+
+
     def parse_schedule(self, user_input: str) -> dict:
         today = get_date()
         now = get_time_str()
@@ -3693,7 +3689,7 @@ class MemoryHandler:
         if data.get("time") in ("00:00", "0:00", "12:00 am", "12:00 a.m.") and not user_meant_midnight:
             data["time"] = None
             data["timestamp"] = None
- 
+
 
         BAD_STRINGS = {"none", "null", "unknown", "n/a"}
 
@@ -3751,7 +3747,7 @@ class MemoryHandler:
         conversation rather than a genuine save request.
         """
         text = (user_input or "").lower().strip()
-        
+
         # Has explicit save signal → not mid-conversation
         EXPLICIT_SAVE = [
             "save", "store", "remember this", "take a note",
@@ -3759,7 +3755,7 @@ class MemoryHandler:
         ]
         if any(s in text for s in EXPLICIT_SAVE):
             return False
-        
+
         # Looks like a statement continuing a technical discussion
         CONTINUATION_SIGNALS = [
             "i have", "i also have", "i think", "i want",
@@ -3769,14 +3765,14 @@ class MemoryHandler:
         ]
         if any(s in text for s in CONTINUATION_SIGNALS):
             return True
-        
+
         # Active topic exists → probably continuing it
         last_topic = (self.memory_manager.get_last_topic() or "").strip()
         if last_topic:
             return True
-        
+
         return False
-    
+
     def save_from_router(self, topic: str, raw_text: str) -> str:
         """
         Entry point for router-originated save calls. Router already decided
@@ -3817,11 +3813,11 @@ class MemoryHandler:
                 if existing:
                     print(f"[DEBUG] save_memory: router-dispatched with active topic '{last_topic}' — saving directly")
                     return self.save_from_router(last_topic, user_input)
-            
+
         print(f"[DBG save_memory] input={user_input!r} routed={routed_intent!r} pending={pending!r}")
         import traceback
-        traceback.print_stack(limit=4)  
-        
+        traceback.print_stack(limit=4)
+
         def is_blank(v):
             if v is None:
                 return True
@@ -3860,7 +3856,7 @@ class MemoryHandler:
                 self.memory_manager.set_pending_topic(None)
                 self.memory_manager.pending_payload = None
                 self.conversation_manager.handle_request(user_input)
-            
+
             merged = dict(partial)
             merged["_raw_text"] = (merged.get("_raw_text", "") + " " + (user_input or "")).strip()
 
@@ -3934,7 +3930,7 @@ class MemoryHandler:
             VAGUE = {"this", "that", "it", "yes", "no", "ok", "okay", "none", "something"}
             if not topic_name or (isinstance(topic_name, str) and topic_name.strip().lower() in VAGUE):
                 return "That's a bit vague — what should I call this topic?"
-            
+
             if topic_name:
                 # strip common wrappers: "it is about X", "about X", "it's X"
                 for pattern in [
@@ -3957,7 +3953,7 @@ class MemoryHandler:
 
             if not topic_name:
                 return "What should I name this topic? "
-            
+
             self.memory_manager.set_last_topic(topic_name)
 
             payload = self.memory_manager.pending_payload or {}
@@ -3974,7 +3970,7 @@ class MemoryHandler:
                 + (f"I have this so far: {draft}. " if draft else "")
                 + "Want to add anything, or just say save to store it now?"
             )
-                    
+
         if pending == "Awaiting_Topic_Content":
             payload = self.memory_manager.pending_payload
             if isinstance(payload, TopicPayload):
@@ -4077,11 +4073,11 @@ class MemoryHandler:
 
             if data.get("title") and not user_mentioned_event_title(user_input):
                 data["title"] = None
-            
+
             # Mark time as user-provided if user mentioned a time
             # This prevents finalize_schedule_dict from clearing a valid timestamp
             data["_time_user"] = user_mentioned_time(user_input)
-            
+
             data = finalize_schedule_dict(data)
 
             # If complete → save now
@@ -4130,7 +4126,7 @@ class MemoryHandler:
             "please save about this",
             "store about this",
             "remember about this conversation",
-            "remember this conversation", 
+            "remember this conversation",
             "remember our conversation",
             "remember what we discussed",
             "remember what we talked about",
@@ -4147,7 +4143,7 @@ class MemoryHandler:
         # Only ambiguous if there's nothing after it
         BARE_SAVE_RE = re.compile(
             r"^(please\s+)?(can you\s+)?(save|store)(\s+about)?\s+this[.\s]*$",
-            re.IGNORECASE  
+            re.IGNORECASE
         )
 
         text = (user_input or "").lower().strip()
@@ -4192,19 +4188,19 @@ class MemoryHandler:
         # 1) No pending: classify request
         save_type = save_memory_request(
             user_input,
-            classifier=self.save_classifier,  
+            classifier=self.save_classifier,
         )
         print("[DEBUG] SAVE_TYPE:", save_type)
 
         if save_type == "general":
             # Start note-taking flow
             self.memory_manager.set_pending_topic("Awaiting_Topic")
-            self.memory_manager.pending_payload = TopicPayload() 
+            self.memory_manager.pending_payload = TopicPayload()
             return "Okay — what should I call this topic?"
 
         if save_type == "specific":
             topic_name = extract_topic_name(user_input)
-            
+
             # Reject vague topics that are just pronouns or save commands
             # VAGUE_TOPICS = {"this", "that", "it", "save", "store", "note", "something"}
             if not topic_name or topic_name.strip().lower() in VAGUE_TOPICS:
@@ -4212,7 +4208,7 @@ class MemoryHandler:
                 self.memory_manager.set_pending_topic("Awaiting_Topic")
                 self.memory_manager.pending_payload = TopicPayload()
                 return "Okay — what should I call this topic?"
-            
+
             self.memory_manager.set_last_topic(topic_name)
             self.memory_manager.set_pending_topic("Awaiting_Topic_Content")
             self.memory_manager.pending_payload = TopicPayload(topic=topic_name, draft="")
@@ -4239,10 +4235,10 @@ class MemoryHandler:
             if result["needs_clarification"]:
                 candidates = result["candidates"]
                 topics_phrase = _tts_join(candidates)
-                
+
                 self.memory_manager.set_pending_topic("Awaiting_ConversationSave_TopicPick")
                 self.memory_manager.pending_payload = CandidatesPayload(candidates=candidates)
-                
+
                 return (
                     f"I have conversations about {topics_phrase} "
                     "in memory. Which one should I save?"
@@ -4251,14 +4247,14 @@ class MemoryHandler:
             # Found it — confirm with user before saving
             topic = result["topic"]
             history = result["history"]
-            
+
             self.memory_manager.set_pending_topic("Awaiting_ConversationSave_Confirm")
             self.memory_manager.pending_payload = ConversationSavePayload(
                 topic=topic,
                 history=history,
                 date=get_date(),
             )
-            
+
             return (
                 f"I found our conversation about {topic} "
                 f"with {len(history)} exchanges. "
@@ -4269,14 +4265,14 @@ class MemoryHandler:
             # NEW: don't interrupt an ongoing conversation
             if self._looks_like_mid_conversation(user_input):
                 return None  # let it fall through to chat handler
-            
+
             self.memory_manager.set_pending_topic("Awaiting_Topic")
             self.memory_manager.pending_payload = TopicPayload(draft=user_input)
             return "Sure, I'm listening. What should I call this topic?"
 
         # Fallback
         return None
-    
+
     def execute_delete_from_router(self, target: str) -> str:
         target = (target or "").strip().lower()
         if not target:
@@ -4287,7 +4283,7 @@ class MemoryHandler:
                 self.memory_manager.set_last_topic(None)
             temp_topic_memory.pop(target, None)
         return deletion_response
-        
+
     def delete_memory_from_router(self, target: str) -> str:
         target = (target or "").strip()
         if not target:
@@ -4330,7 +4326,7 @@ class MemoryHandler:
                 on_decline=_on_decline,
                 state_name="Awaiting_Delete_Confirm",
             )
-    
+
         if pending_state == "Awaiting_Delete_TopicName":
             topic_name = extract_topic_name(user_input)
             if topic_name:
@@ -4339,7 +4335,7 @@ class MemoryHandler:
                 return f"Are you sure you want to delete **{topic_name}** from long-term memory?"
             else:
                 return "I couldn’t extract a topic from that. Could you rephrase or be more specific?"
-            
+
         if pending_state == "Awaiting_Temporal_Delete_Confirm":
 
             def _on_confirm():
@@ -4404,7 +4400,7 @@ class MemoryHandler:
         elif delete_type == "general":
             self.memory_manager.set_pending_topic("Awaiting_Delete_TopicName")
             return "Which topic would you like me to delete from memory?"
-        
+
 
         elif delete_type == "temporal":
             time_reference = extract_time_reference(user_input)
@@ -4412,38 +4408,38 @@ class MemoryHandler:
 
             if not time_reference:
                 return "I couldn’t extract a valid time from your request."
-            
+
             ref_type = time_reference["type"]
 
             if ref_type == "date":
                 ref_value = time_reference["value"]
                 print("[DEBUG] Retrieve memory based on date")
                 memory_text, _, matching_ids = retrieve_memory_by_date(ref_value)
-            
+
             elif ref_type == "month":
                 ref_value = time_reference["value"]
                 print("[DEBUG] Retrieve memory based on month")
                 memory_text, _, matching_ids = retrieve_memory_by_month(ref_value)
-            
+
             elif ref_type == "year":
                 ref_value = time_reference["value"]
                 print("[DEBUG] Retrieve memory based on year")
                 memory_text, _, matching_ids = retrieve_memory_by_year(ref_value)
-            
+
             elif ref_type == "week":
                 start = time_reference["start"]
                 end = time_reference["end"]
                 print("[DEBUG] Retrieve memory based on week")
                 memory_text, _, matching_ids = retrieve_memory_by_week(start, end)
                 ref_value = f"{start} to {end}"
-            
+
             else:
                 return "I recognized a time reference, but I’m not sure how to search for it."
-            
+
             if not matching_ids:
                 return f"I couldn’t find anything saved from **{ref_value}**."
-            
-            self.memory_manager.set_last_topic(f"__TEMP_DATE__{time_reference}") 
+
+            self.memory_manager.set_last_topic(f"__TEMP_DATE__{time_reference}")
             self.memory_manager.set_pending_topic("Awaiting_Temporal_Delete_Confirm")
             self.memory_manager.temp_ids_to_delete = matching_ids
 
@@ -4452,10 +4448,10 @@ class MemoryHandler:
                 f"{memory_text}\n\n"
                 "Would you like to delete all of this?"
             )
-        
-        
+
+
         return None
-    
+
     def delete_schedule(self, user_input: str):
         pending_state = self.memory_manager.get_pending_topic()
 
@@ -4483,7 +4479,7 @@ class MemoryHandler:
                 on_decline=_on_decline,
                 state_name="Awaiting_Schedule_Delete_Confirm",
             )
-        
+
         # ── Disambiguation pending (multiple matches found) ────────────────
         if pending_state == "Awaiting_Schedule_Delete_Pick":
             payload = self.memory_manager.pending_payload or {}
@@ -4572,7 +4568,7 @@ def distill_search_query(raw_query: str, topic_thread: str = "") -> str:
     Falls back to raw_query if LLM fails.
     """
     context = f"Topic context: {topic_thread}\n" if topic_thread else ""
-    
+
     prompt = (
         f"{context}"
         f"User said: \"{raw_query}\"\n\n"
@@ -4580,7 +4576,7 @@ def distill_search_query(raw_query: str, topic_thread: str = "") -> str:
         "Remove conversational filler. Focus on the core information need.\n"
         "Return ONLY the search query, nothing else."
     )
-    
+
     try:
         response = ollama.generate(model="llama3.2:latest", prompt=prompt)
         result = (response.get("response") or "").strip().strip('"').strip("'")
@@ -4589,7 +4585,7 @@ def distill_search_query(raw_query: str, topic_thread: str = "") -> str:
             return result
     except Exception:
         pass
-    
+
     return raw_query  # fallback
 
 
@@ -4624,8 +4620,8 @@ class ConversationManager:
             mm=self.memory_manager,
             tello_client=self.tello_client,
             rover_client=self.rover_client,
-            memory_handler=self.memory_handler,          
-            conversation_manager=self,                   
+            memory_handler=self.memory_handler,
+            conversation_manager=self,
         )
 
         # simulation
@@ -4639,7 +4635,7 @@ class ConversationManager:
         self.explorer = explorer
 
         # RAG DEMO 01
-        self.rag = RagCore(llm_fn=generate_llm_response) 
+        self.rag = RagCore(llm_fn=generate_llm_response)
         # ---- RAG (safe init) ----
         self.use_rag = USE_RAG
         self.rag_opts = RetrievalOptions(
@@ -4668,7 +4664,7 @@ class ConversationManager:
             friday=self.friday,
         )
 
-        self.belief = BeliefStateManager() 
+        self.belief = BeliefStateManager()
 
         self.spotify = SpotifyManager(memory_manager=self.memory_manager)
         self.friday = Friday(
@@ -4679,7 +4675,7 @@ class ConversationManager:
 
         # ── Presence detection ─────────────────────────────────────────────
         self.last_voice_input_time: float = time.time()
-        self.away_threshold_seconds: int = 120  
+        self.away_threshold_seconds: int = 120
         self._pending_friday_notifications: list = []
 
         self.episodic_router = EpisodicMemoryRouter(
@@ -4743,7 +4739,7 @@ class ConversationManager:
             self.memory_manager._confirm_retry_count = 0
             print(f"[ConfirmState] {state_name}: exceeded retries -> defaulting to decline")
             return on_decline()
-    
+
         UNCLEAR_REPROMPTS = [
             "Sorry, was that a yes or a no?",
             "Not sure I caught that — should I go ahead, or skip it?",
@@ -4821,7 +4817,7 @@ class ConversationManager:
                     paths.append(candidate)
 
         return paths
-    
+
     def _score_friday_file_for_opening(self, path: Path, msg: str = "") -> Dict[str, object]:
         """
         Decide whether Buddy should auto-open a file from Friday's response.
@@ -4914,7 +4910,7 @@ class ConversationManager:
 
         try:
             if os.name == "nt":
-                os.startfile(str(path))  
+                os.startfile(str(path))
             elif sys.platform == "darwin":
                 subprocess.Popen(["open", str(path)])
             else:
@@ -4923,7 +4919,7 @@ class ConversationManager:
         except Exception as e:
             print(f"[Friday] Could not open file {path}: {e}")
             return False
-    
+
     def _clean_friday_message(self, msg: str) -> str:
         clean = re.sub(r'\*\*(.+?)\*\*', r'\1', msg)
         clean = re.sub(r'\*(.+?)\*', r'\1', clean)
@@ -4932,7 +4928,7 @@ class ConversationManager:
         clean = re.sub(r'#+\s*', '', clean)
         clean = clean.replace('→', 'passed').strip()
         return clean
-    
+
     def _handle_friday_notification(self, msg: str) -> None:
         clean = self._clean_friday_message(msg)
 
@@ -5015,7 +5011,7 @@ class ConversationManager:
                 "ask_first": [str(p) for p, _ in ask_first],
             })
             print(f"[Friday] User away — notification queued ({len(self._pending_friday_notifications)} pending)")
-            
+
     # Phase 01 Idea -> implement to make the system smarter to decide an action
     def _device_intent_fusion(
         self,
@@ -5034,7 +5030,7 @@ class ConversationManager:
 
         ABSOLUTE_BYPASS = [
             "take off", "takeoff", "hover at",
-            "land the drone", "land the rover", 
+            "land the drone", "land the rover",
             "emergency stop",
         ]
         text = user_input.lower().strip()
@@ -5065,7 +5061,7 @@ class ConversationManager:
 
         if device_score >= COMMAND_THRESHOLD and (device_score - discussion_score) >= MARGIN:
             print(f"[FUSION] → device_control confirmed (score={device_score:.3f})")
-            return intent_result 
+            return intent_result
 
         print(f"[FUSION] → demoted to chat (device={device_score:.3f} discussion={discussion_score:.3f})")
         return {
@@ -5089,7 +5085,7 @@ class ConversationManager:
     def _validate_tool_args(self, tool_name: str, args: dict) -> bool:
         schema = self.TOOL_REQUIRED_ARGS.get(tool_name)
         if schema is None:
-            return False  
+            return False
         for key, allowed_values in schema.items():
             value = (args or {}).get(key)
             if value is None:
@@ -5161,7 +5157,7 @@ class ConversationManager:
             # ── S7: Tool call specificity — NEW ──────────────────────────────────
             if source.startswith("ollama_tool:"):
                 tool_name = source.split("ollama_tool:", 1)[1]
-                args = intent_result.get("tool_args", {}) 
+                args = intent_result.get("tool_args", {})
                 print(f"[FUSION_DEBUG] tool_name={tool_name!r} args_from_intent_result={args!r} full_intent_result_keys={list(intent_result.keys())}")
                 S7 = 1.0 if self._validate_tool_args(tool_name, args) else 0.3
             else:
@@ -5174,7 +5170,7 @@ class ConversationManager:
                 "S4_phase":             S4,
                 "S5_context_sim":       S5,
                 "S6_entity_overlap":    S6,
-                "S7_tool_specificity":  S7,   
+                "S7_tool_specificity":  S7,
             }
 
 
@@ -5228,7 +5224,7 @@ class ConversationManager:
             exchanges = temp_topic_memory.get(topic, [])
             if exchanges:
                 recent_context = "\n".join(exchanges[-2:])
-        
+
         system_ctx = ""
         if self.identity:
             system_ctx = self.identity.build_system_context(
@@ -5241,7 +5237,7 @@ class ConversationManager:
     def _make_ctx(self, **kwargs) -> RagContext:
         topic = kwargs.get("topic", "")
         short_term = kwargs.get("short_term", "")
-        
+
         system_ctx = ""
         if self.identity:
             system_ctx = self.identity.build_system_context(
@@ -5388,7 +5384,7 @@ class ConversationManager:
                             if w not in {"with", "that", "this", "from", "about", "what"}]
                 if any(w in text for w in query_words):
                     return True
-                
+
         # Named entity from search results mentioned
         if wctx:
             results = wctx.get("results") or []
@@ -5534,7 +5530,6 @@ class ConversationManager:
 
         # Default: enrich conservatively
         return f"{raw_query} {topic_thread}"
-
 
 
     def handle_internet_request(self, user_input: str, max_results: int = 5) -> str:
@@ -5825,12 +5820,12 @@ class ConversationManager:
                 if fn:
                     return fn(args)
                 return "Something went wrong, it seems I lost track of that action"
-            
+
             def _on_decline():
                 self.memory_manager.set_pending_topic(None)
                 self.memory_manager.pending_payload = None
                 return "Okay, I wont do that."
-            
+
             return self.handle_confirm_state(
                 user_input,
                 question_context=format_tool_confirm_question(tool_name),
@@ -5838,7 +5833,7 @@ class ConversationManager:
                 on_decline=_on_decline,
                 state_name="Awaiting_LLM_Tool_Confirm"
             )
-        
+
         # ── Friday confirmation handler ────────────────────────────────────────
         if pending_state == "Awaiting_Friday_Confirm":
             payload = self.memory_manager.pending_payload or {}
@@ -5862,7 +5857,7 @@ class ConversationManager:
                 on_decline=_on_decline,
                 state_name="Awaiting_Friday_Confirm",
             )
-        
+
         if pending_state == "Awaiting_Rover_Sequence_Confirmation":
             return self._handle_rover_sequence_confirmation(user_input)
 
@@ -5892,7 +5887,7 @@ class ConversationManager:
                     topic=topic,
                 )
                 return response
-            
+
             def _on_decline():
                 self.memory_manager.set_pending_topic(None)
                 self.memory_manager.pending_payload = None
@@ -5922,13 +5917,13 @@ class ConversationManager:
                 user_input,
                 conversation_manager=self,
             )
-        
+
         if pending_state == "Awaiting_Note_Confirm":
             return self.project_handler._handle_note_confirm(
                 user_input, conversation_manager=self
             )
 
-        
+
         if pending_state == "Awaiting_ConversationSave_TopicPick":
             p = self.memory_manager.pending_payload
             if isinstance(payload, CandidatesPayload):
@@ -6080,7 +6075,7 @@ class ConversationManager:
             ROVER_PIVOT_SIGNALS = [
                 "actually", "wait", "what controller", "what algorithm",
                 "by the way", "how should", "what about",
-                "can the rover",     
+                "can the rover",
                 "on steep", "incline", "terrain", "capability",
             ]
             if _pivot_match(user_input.lower(), ROVER_PIVOT_SIGNALS):
@@ -6089,14 +6084,14 @@ class ConversationManager:
                 self.memory_manager.set_last_topic(None)  # ← add this
                 return self.handle_request(user_input)
             return self.device_handler.handle(user_input)
-        
+
         # ── NEW: General vision awareness confirm (non-device contexts) ──────────
         if pending_state == "Awaiting_VisionAwareness_Confirm":
             return self._handle_vision_awareness_confirm(user_input)
 
         if pending_state in ("Awaiting_Device_Name", "Awaiting_Rover_Correction_Confirm"):
             return self.device_handler.handle(user_input)
-        
+
         if pending_state == "Awaiting_DeviceControl_Confirm":
             text_lower = user_input.lower()
             print(f"[PIVOT_DEBUG] input={text_lower[:60]!r}")
@@ -6110,20 +6105,20 @@ class ConversationManager:
                 "battery drain", "what is the battery",
                 "can the rover", "is it possible to",
             ]
-            
+
             for s in DEVICE_PIVOT_SIGNALS:
                 pattern = r'\b' + re.escape(s) + r'\b'
                 if re.search(pattern, text_lower):
                     print(f"[PIVOT_DEBUG] matched: {s!r}")
-            
+
             if _pivot_match(text_lower, DEVICE_PIVOT_SIGNALS):
                 print(f"[PIVOT_DEBUG] → pivot fired, clearing pending")
                 self.memory_manager.set_pending_topic(None)
                 return self.handle_request(user_input)
-            
+
             print(f"[PIVOT_MISS] no match → device_handler")
             return self.device_handler.handle(user_input)
-        
+
         # if pending_state in ["Awaiting_Topic"]:
         #     return self.memory_handler.save_memory(user_input)
         if pending_state in ["Awaiting_Topic", "Awaiting_Topic_Content"]:
@@ -6138,20 +6133,20 @@ class ConversationManager:
                 "what did i save", "what did we", "do i have",
                 "what was", "remind me about", "did we discuss"
             ]
-            
+
             is_pivot = (
                 PIVOT_RE.match(user_input.strip())
                 and not any(s in user_input.lower() for s in
                             ["save", "store", "note", "remember this", "keep"])
             )
             is_recall = any(s in user_input.lower() for s in RECALL_SIGNALS)
-            
+
             if is_pivot or is_recall:
                 print(f"[DEBUG] Awaiting_Topic: pivot detected → re-routing")
                 self.memory_manager.set_pending_topic(None)
                 self.memory_manager.pending_payload = None
                 return self.handle_request(user_input)
-            
+
             result = self.memory_handler.save_memory(user_input)
             if result is None:
                 return self.start_new_conversation(user_input)
@@ -6163,7 +6158,7 @@ class ConversationManager:
 
         # --- Schedule flows (delegated to handler) ---
         if pending_state in ["Awaiting_Schedule_Details"]:
-            
+
             # ── Pivot guard — user switched topic mid-schedule flow ──────────
             PIVOT_SIGNALS = [
                 r"\bactually\b.{0,15}\b(how|what|why|explain|tell me|can you)\b",
@@ -6176,7 +6171,7 @@ class ConversationManager:
                 return self.handle_request(user_input)  # re-route cleanly
 
             return self.memory_handler.save_memory(user_input, routed_intent="schedule_save")
-        
+
         if pending_state == "Awaiting_Temporal_Recall":
             p = self.memory_manager.pending_payload
             if isinstance(p, RecallPayload):
@@ -6196,13 +6191,13 @@ class ConversationManager:
             return self.memory_handler.specific_flow.start(chosen)
 
         if pending_state == "Awaiting_General_Recall":
-            REJECTION_SIGNALS = ["none", "none of them", "not these", "never mind", 
+            REJECTION_SIGNALS = ["none", "none of them", "not these", "never mind",
                                 "forget it", "not any of those"]
             if any(s in user_input.lower() for s in REJECTION_SIGNALS):
                 self.memory_manager.set_pending_topic(None)
                 self.memory_manager.pending_payload = None
                 return "Okay, what would you like to do instead?"
-            
+
             p = self.memory_manager.pending_payload
             if isinstance(p, RecallPayload):
                 topics = p.topics
@@ -6265,7 +6260,7 @@ class ConversationManager:
                     return f"You meant: **{s['title']}** at **{s['timestamp']}** in **{s.get('location') or '—'}**."
             return "Please reply with a number (1-5)."
 
-        if pending_state in ["Awaiting_Schedule_Delete_Confirm", 
+        if pending_state in ["Awaiting_Schedule_Delete_Confirm",
                             "Awaiting_Schedule_Delete_Pick"]:
             return self.memory_handler.delete_schedule(user_input)
 
@@ -6343,12 +6338,12 @@ class ConversationManager:
                 on_decline=_on_decline,
                 state_name="Awaiting_Update_Confirm",
             )
-            
+
         # --- Unknown pending state safety fallback ---
         print(f"[DEBUG] Awaiting_Update_Confirm: neither yes/no — re-routing as new question")
         self.memory_manager.set_pending_topic(None)
         self.memory_manager.pending_update_payload = None
-        self.memory_manager.set_last_topic(None)  
+        self.memory_manager.set_last_topic(None)
         return self.handle_request(user_input)
 
     def build_resume_prompt(self, snap=None):
@@ -6394,11 +6389,11 @@ class ConversationManager:
         if intent not in AWARENESS_ELIGIBLE:
             print(f"[VACheck] skipped — intent not eligible")
             return None
-        
+
         if wants_vision(user_input):
             print(f"[VACheck] skipped — wants_vision triggered")
             return None
-        
+
         FACE_IDIOMS = [
             "made the face", "make the face", "face of", "facing the",
             "in the face", "face it", "face this", "face that",
@@ -6407,7 +6402,7 @@ class ConversationManager:
         if any(p in user_input.lower() for p in FACE_IDIOMS):
             print(f"[VACheck] skipped — face idiom detected")
             return None
-        
+
         last_topic = self.memory_manager.get_last_topic() or ""
         pending = self.memory_manager.get_pending_topic() or ""
 
@@ -6418,7 +6413,7 @@ class ConversationManager:
         if last_topic.startswith("vision_awareness_"):
             print(f"[VACheck] skipped — recent vision grab")
             return None
-        
+
 
         recent = list(sensory_memory)[-2:] if sensory_memory else []
 
@@ -6437,7 +6432,7 @@ class ConversationManager:
         if THEORETICAL_Q_RE.match(user_input.strip()):
             print(f"[VACheck] skipped — theoretical/action question")
             return None
-        
+
         awareness = score_vision_need(
             user_text=user_input,
             last_topic=self.memory_manager.get_last_topic() or "",
@@ -6487,7 +6482,7 @@ class ConversationManager:
             return combined
 
         if awareness.decision == VisionDecision.ASK:
-            
+
             offer = get_camera_offer_text(self.memory_manager.get_last_topic() or "")
 
             self.memory_manager.set_pending_topic("Awaiting_VisionAwareness_Confirm")
@@ -6502,7 +6497,7 @@ class ConversationManager:
 
     def _resolve_return_to_topic(self, user_input: str) -> str | None:
         text = (user_input or "").lower()
-        
+
         RETURN_SIGNALS = [
             "back to", "return to", "go back to", "discuss back",
             "back again", "continue with", "resume", "back regarding",
@@ -6511,7 +6506,7 @@ class ConversationManager:
         ]
         if not any(s in text for s in RETURN_SIGNALS):
             return None
-        
+
         for topic, exchanges in temp_topic_memory.items():
             if not re.match(r"^topic_\d+$", topic):
                 continue
@@ -6521,20 +6516,20 @@ class ConversationManager:
             context_words = set(re.findall(r"[a-z]{4,}", context.lower()))
             if len(input_words & context_words) >= 2:
                 return topic
-        
+
         existing_topics = list(temp_topic_memory.keys())
         if not existing_topics:
             return None
-        
+
         best = None
         best_score = 0
-        
+
         for topic in existing_topics:
             if topic.startswith("session:") or topic.startswith("web:"):
                 continue
             if topic == "current_conversation":
                 continue
-                
+
             topic_words = set(re.findall(r"[a-z]{3,}", topic.lower()))
             input_words = set(re.findall(r"[a-z]{3,}", text))
             overlap = len(topic_words & input_words)
@@ -6548,11 +6543,11 @@ class ConversationManager:
                         overlap = 1
                 except ImportError:
                     pass
-            
+
             if overlap > best_score:
                 best_score = overlap
                 best = topic
-        
+
         return best if best_score >= 1 else None
 
     def _check_proactive_link(self, user_input: str, last_response: str) -> str | None:
@@ -6561,11 +6556,11 @@ class ConversationManager:
         with any existing topic group that wasn't retrieved.
         """
         current_topic = self.memory_manager.get_last_topic() or ""
-        
+
         # Only fire when a new topic just started
         if not current_topic or current_topic.startswith(("web:", "session:", "vision")):
             return None
-        
+
         # Score all OTHER groups against the current input
         suggestions = []
         for topic, exchanges in temp_topic_memory.items():
@@ -6573,15 +6568,15 @@ class ConversationManager:
                 continue
             if topic.startswith(("web:", "session:", "vision")):
                 continue
-            
+
             context = " ".join(exchanges)
             is_related = compute_similarity_hybrid(user_input, topic, context)
             if is_related:
                 suggestions.append(topic)
-        
+
         if not suggestions:
             return None
-        
+
         # Build a natural suggestion
         topic_list = " and ".join(suggestions[:2])
         return f"By the way, this connects to what we discussed about {topic_list}. Want me to link them?"
@@ -6753,7 +6748,7 @@ class ConversationManager:
 
     def _make_rover_sequence_confirmation_response(self, sequence: list[str]) -> str:
         return self._format_rover_confirm_question(sequence)
-    
+
     def _execute_rover_sequence(self, sequence: list[str]) -> str:
         if not sequence:
             return "I could not recover a valid rover sequence, so I will not execute anything."
@@ -6781,7 +6776,7 @@ class ConversationManager:
             "Rover sequence completed:\n"
             + "\n".join(f"- {item}" for item in results)
         )
-    
+
     def _handle_rover_sequence_confirmation(self, user_input: str) -> str:
         payload = getattr(self.memory_manager, "pending_payload", None) or {}
         sequence = payload.get("sequence", [])
@@ -6797,7 +6792,7 @@ class ConversationManager:
             self.memory_manager.pending_payload = None
             self.memory_manager.set_last_topic(topic)
             return "Got it, I just cancelled. I will not run the rover sequence"
-        
+
         sequence_text = self._format_rover_sequence(sequence)
         question_context = self._format_rover_confirm_question(sequence)
 
@@ -6876,7 +6871,7 @@ class ConversationManager:
             self._shadow_prev_turn = (user_input, (response or "").strip())
             note_last_reply(response)  # context guard 3: next turn needs to know if a question was open
             return response
-        
+
         # Safety Purposes
         STOP_ROVER_PHRASES = re.compile(
             r"\b(stop|halt|freeze)\b.{0,15}\b(rover)\b|\b(rover)\b.{0,15}\b(stop|halt|freeze)\b",
@@ -6959,13 +6954,13 @@ class ConversationManager:
                         result = fn(routed["tool_args"])
                         if result:
                             return _respond(result, routed)
-                        
+
                 elif decision == "confirm":
                     self.memory_manager.set_pending_topic("Awaiting_LLM_Tool_Confirm")
                     self.memory_manager.pending_payload = {"tool_name": routed["tool_name"], "tool_args": routed["tool_args"]}
                     question = format_tool_confirm_question(routed["tool_name"])
                     return _respond(question, routed)
-              
+
         # ── Layer 5: Intent Classification + Guards ────────────────────────────
         raw_intent = classify_intent(user_input, self.memory_manager,
                             conversation_manager=self)
@@ -6988,7 +6983,7 @@ class ConversationManager:
 
         # ── Fusion gate — wires all signals together for device_control ───────
         if intent_result["intent"] == "device_control":
-            intent_result = self._device_intent_fusion(  
+            intent_result = self._device_intent_fusion(
                 user_input,
                 intent_result,
                 self.belief.state,
@@ -7105,7 +7100,7 @@ class ConversationManager:
                 if intent == "job_watchdog":
             """
             text = (user_input or "").lower()
-        
+
             # User wants to read the existing recap
             READ_SIGNALS = [
                 "show me", "read", "what jobs", "tell me", "recap",
@@ -7113,7 +7108,7 @@ class ConversationManager:
             ]
             if any(s in text for s in READ_SIGNALS):
                 recap_text = conversation_manager.job_watchdog.read_latest_recap()
-        
+
                 # If it's a full markdown file, give a spoken summary + offer to open the file
                 if recap_text.startswith("#"):
                     from brain.friday.job_watchdog import _parse_recap_for_tts
@@ -7134,7 +7129,7 @@ class ConversationManager:
                             pass
                     return spoken
                 return recap_text
-        
+
             # User wants to trigger a new scan right now
             SCAN_SIGNALS = [
                 "scan", "check", "search", "find", "scan for", "new scan",
@@ -7142,7 +7137,7 @@ class ConversationManager:
             ]
             if any(s in text for s in SCAN_SIGNALS):
                 return conversation_manager.job_watchdog.trigger_now()
-        
+
             # Ambiguous — offer both options
             return (
                 "I can either scan for new jobs now, or read you the latest recap. "
@@ -7168,7 +7163,6 @@ class ConversationManager:
 
             response = self.friday._dispatch_async(task, session_label="buddy_voice")
             return _respond(response, intent_result)
-
 
 
         # ── Layer 6: Route to Skill ────────────────────────────────────────────
@@ -7256,7 +7250,7 @@ class ConversationManager:
             )
             if system_output:
                 return _respond(system_output, intent_result)
-            
+
         # check vision context continuation
         last_topic = self.memory_manager.get_last_topic() or ""
         if last_topic.startswith("vision_awareness_"):
@@ -7273,7 +7267,7 @@ class ConversationManager:
         #         self.continue_conversation(user_input, resolved_topic),
         #         intent_result
         #     )
-        
+
         #return _respond(self.start_new_conversation(user_input), intent_result)
 
         # new type
@@ -7315,11 +7309,11 @@ class ConversationManager:
             )
 
         response = _respond(self.start_new_conversation(user_input), intent_result)
-        
+
         proactive = self._check_proactive_link(user_input, response)
         if proactive:
             response = response + "\n\n" + proactive
-        
+
         return response
 
     def _resolve_system_query(self, text: str) -> str:
@@ -7372,7 +7366,7 @@ class ConversationManager:
             blocks.append(block)
 
         return "\n\n---\n\n".join(blocks)
-    
+
     def _register_topic_in_graph(self, child: str, parent: Optional[str]):
         """
         Records that `child` topic was born while `parent` was active.
@@ -7503,9 +7497,9 @@ class ConversationManager:
                 "not your bench", "just a test pattern",
                 "color test pattern", "colour test pattern",
             ]
-            vision_failed = any(s in short_term_str.lower() 
+            vision_failed = any(s in short_term_str.lower()
                                 for s in VISION_FAILURE_SIGNALS)
-            
+
             if vision_failed:
                 # deterministic response — no LLM variance possible
                 return ("I still can't get a clear view of your setup — "
@@ -7522,7 +7516,7 @@ class ConversationManager:
             response = self.rag.answer(user_input=raw_input, ctx=ctx)
             store_short_term_memory(raw_input, response, topic=last_topic)
             return response
-        
+
         # ---- SESSION SEED FLOW ----
         if last_topic.startswith("session:"):
             short_term_context = temp_topic_memory.get(last_topic, [])
@@ -7560,7 +7554,7 @@ class ConversationManager:
         if is_short_followup(raw_input) and last_topic and last_topic != "current_conversation":
             print(f"[CONT] short followup → staying on {last_topic!r}")
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         # ── STEP 2: Explicit topic shift ────────────────────────────────
         # User said "let's talk about X" or "different question" —
         # honor that intent regardless of similarity scores.
@@ -7575,7 +7569,7 @@ class ConversationManager:
             # User signaled shift but didn't name one — keep current
             # rather than invent a topic_NNNN
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         # ── STEP 3: No current topic — try to extract one ───────────────
         if not last_topic or last_topic == "current_conversation":
             raw_topic = extract_topic_name(raw_input)
@@ -7586,14 +7580,14 @@ class ConversationManager:
                 return self.start_new_conversation(raw_input)
             # No extractable topic — answer without setting a placeholder
             return self._answer_topicless(raw_input)
-    
+
         # ── STEP 4: Drift detection — but against EXCHANGES, not labels ─
         # The old code compared raw_input cosine to last_topic (a 2-word
         # string). That always scored low for follow-ups. We now compare
         # against the actual recent conversation.
         recent_exchanges = temp_topic_memory.get(last_topic, [])
         recent_context = "\n".join(recent_exchanges[-3:]) if recent_exchanges else ""
-    
+
         # additional
         # Run the assembler against ALL topic memory
         assembler = ContextAssembler(temp_topic_memory)
@@ -7609,7 +7603,7 @@ class ConversationManager:
 
         if recent_context:
             is_continuation = compute_similarity_hybrid(raw_input, last_topic, recent_context)
-            
+
             # Override: if assembler thinks current topic is highly relevant,
             # treat as continuation even if cosine missed
             if not is_continuation and current_in_assembled:
@@ -7617,7 +7611,7 @@ class ConversationManager:
                 if primary and primary.score >= 0.50:
                     print(f"[CONT] cosine said drift but assembler kept current (score={primary.score:.2f})")
                     is_continuation = True
-            
+
             if is_continuation:
                 return self._answer_in_topic(raw_input, last_topic)
         ####
@@ -7627,34 +7621,34 @@ class ConversationManager:
             # No history yet — assume continuation
             print(f"[CONT] no exchange history, staying on {last_topic!r}")
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         is_continuation = compute_similarity_hybrid(
             raw_input,
             last_topic,
             recent_context,
         )
-    
+
         if is_continuation:
             print(f"[CONT] similarity says continuation, staying on {last_topic!r}")
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         # ── STEP 5: Similarity says drift — but be conservative ─────────
         # Only drift if we can extract a REAL topic. Otherwise keep current.
         # This is what stops topic_NNNN from being created.
         raw_topic = extract_topic_name(raw_input)
         clean = self._clean_extracted_topic(raw_topic)
-    
+
         if not clean:
             # Similarity flagged drift, but we can't name what we drifted to.
             # That means the utterance is conversational, not a new topic.
             # Stay put.
             print(f"[CONT] drift signal but no extractable topic, staying on {last_topic!r}")
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         if clean == last_topic:
             print(f"[CONT] extracted topic matches current, staying")
             return self._answer_in_topic(raw_input, last_topic)
-    
+
         # ── STEP 6: Check episodic memory for an existing match ─────────
         # Before creating a new topic, see if this is a return to an
         # older topic we already have.
@@ -7669,7 +7663,7 @@ class ConversationManager:
         )
         route = router.route(user_input=raw_input, last_topic=last_topic)
         print(f"[CONT] router: kind={route.kind!r} topic={route.topic!r} score={route.score:.2f}")
-    
+
         if route.kind == "episodic_recall" and route.topic and not re.match(r"^topic_\d+$", route.topic):
             print(f"[CONT] episodic recall: → {route.topic!r}")
             self.memory_manager.set_last_topic(route.topic)
@@ -7684,12 +7678,12 @@ class ConversationManager:
             )
             store_short_term_memory(raw_input, response, topic=route.topic)
             return response
-    
+
         # ── STEP 7: Genuine new topic ───────────────────────────────────
         print(f"[CONT] genuine drift: {last_topic!r} → {clean!r}")
         self.memory_manager.set_last_topic(clean)
-        return self.start_new_conversation(raw_input, prefetched_topic=clean) 
-    
+        return self.start_new_conversation(raw_input, prefetched_topic=clean)
+
 
     def _answer_in_topic(self, user_input: str, topic: str) -> str:
         # ── Layer 1: Graph-based context (explicit parent-child links) ──────
@@ -7780,8 +7774,8 @@ class ConversationManager:
         )
         store_short_term_memory(user_input, response, topic=topic)
         return response
-        
-    
+
+
     def _answer_topicless(self, user_input: str) -> str:
         """
         Answer when there's no topic yet AND we couldn't extract one.
@@ -7806,7 +7800,7 @@ class ConversationManager:
 
     # def start_new_conversation(self, user_input):
     #     print(f"[DEBUG] start_new_conversation detected being used")
-        
+
     #     raw_topic = extract_topic_name(user_input)
     #     clean = self._clean_extracted_topic(raw_topic)
 
@@ -7826,7 +7820,7 @@ class ConversationManager:
     #     self.memory_manager.set_last_topic(clean)
     #     store_short_term_memory(user_input, response, topic=clean)
     #     print(f"[DEBUG] start_new_conversation topic set: {clean!r}")
-        
+
     #     return response
 
     def start_new_conversation(self, user_input, prefetched_topic: str | None = None):
@@ -7865,7 +7859,7 @@ def check_exit_intent(user_input):
     if any(keyword in user_input.lower() for keyword in exit_keywords):
         return True
 
-    return False 
+    return False
 
 def greeting_for(dt: datetime) -> str:
     h = dt.hour
@@ -7959,8 +7953,6 @@ def _llm_polish_weather_line(ollama, model: str, weather: Dict[str, Any]) -> Opt
 
     except Exception:
         return None
-
-
 
 
 def _normalize_headline(text: str) -> str:
@@ -8202,7 +8194,7 @@ def introduce_bot_hybrid(
 
             # Only overwrite if valid
             if story and story.strip():
-                headlines = story  
+                headlines = story
                 used_llm_headlines = True
 
     if debug:
@@ -8215,7 +8207,7 @@ def introduce_bot_hybrid(
     return build_jarvis_briefing_template(
         startup_data,
         weather_line=weather_line,
-        headlines=headlines,  
+        headlines=headlines,
     )
 
 
@@ -8425,7 +8417,7 @@ def _get_morning_job_line(conversation_manager) -> str:
         return briefing or ""
     except Exception:
         return ""
-    
+
 
 def chat(tello_client=None):
 
@@ -8448,7 +8440,7 @@ def chat(tello_client=None):
     if news_diagnostic and startup_data is not None:
         print(news_diagnostic.as_debug_summary())
         startup_data["news_warning"] = news_diagnostic.as_buddy_explanation()
-        
+
     memory_manager = MemoryManager()
     conversation_manager = ConversationManager(
         memory_manager,
@@ -8507,17 +8499,17 @@ def chat(tello_client=None):
         )
         job_line = _get_morning_job_line(conversation_manager)
         if job_line:
-            bot_intro = bot_intro + "\n\n" + job_line   
+            bot_intro = bot_intro + "\n\n" + job_line
         _seed_session_context(bot_intro, memory_manager)
         print(f"Buddy: {bot_intro}\n")
         tts.speak(sanitize_tts(bot_intro))
     else:
-        
+
         gap = identity.hours_since_last_interaction()
         mins = int((gap or 0) * 60)
         short_greeting = f"Systems online. Last session {mins} minutes ago."
-        _seed_session_context(short_greeting, memory_manager) 
-        
+        _seed_session_context(short_greeting, memory_manager)
+
         print(f"Buddy: {short_greeting}\n")
 
 
@@ -8552,7 +8544,7 @@ def chat(tello_client=None):
             vad.mute()
 
             bot_reply = ""
-            spoken = ""     
+            spoken = ""
             try:
                 if identity.is_wake_phrase(user_text):
                     bot_reply = identity.wake_response()
@@ -8585,7 +8577,7 @@ def chat(tello_client=None):
                 clean = sanitize_for_tts(spoken)
                 tts.speak(spoken)
                 print(f"[DBG] tts.speak() returned")  # if this never prints, speak() is blocking
-               
+
 
                 def _force_unmute():
                     time.sleep(15)

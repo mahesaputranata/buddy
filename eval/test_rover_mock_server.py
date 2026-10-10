@@ -398,11 +398,11 @@ def run_tests(filter_category=None, verbose=False):
     print(f"{'═'*65}")
 
     if score >= 90:
-        print("\n  ✅ READY — safe to test with the real Pi.")
+        print("\n READY — safe to test with the real Pi.")
     elif score >= 70:
-        print("\n  ⚠️  MOSTLY READY — fix failures above before Pi testing.")
+        print("\n MOSTLY READY — fix failures above before Pi testing.")
     else:
-        print("\n  ❌ NOT READY — significant gaps, fix Layer 4 first.")
+        print("\n NOT READY — significant gaps, fix Layer 4 first.")
 
     print()
     return total_p, total_f, score

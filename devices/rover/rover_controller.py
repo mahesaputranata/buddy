@@ -41,7 +41,7 @@ _FILLER_PREFIX_RE = re.compile(
     re.IGNORECASE,
 )
 
-WATCHDOG_TIMEOUT_S = 2.0 
+WATCHDOG_TIMEOUT_S = 2.0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -70,7 +70,6 @@ class TelemetryCache:
             "updated_at": 0.0,   # float timestamp of last push
         }
 
-        
 
     def update(self, **kwargs):
         with self._lock:
@@ -258,31 +257,14 @@ class RoverPersonality:
 
         return merged
 
-    # def _recent_history(self, n: int = 4) -> str:
-    #     if not self.mm:
-    #         return ""
-    #     try:
-    #         messages = self.mm.get_recent_messages(n=n)
-    #         if not messages:
-    #             return ""
-    #         lines = []
-    #         for turn in messages:
-    #             role    = turn.get("role", "user").capitalize()
-    #             content = (turn.get("content") or "").strip()
-    #             if content:
-    #                 lines.append(f"{role}: {content}")
-    #         return "\n".join(lines)
-    #     except Exception:
-    #         return ""
-
     def _recent_history(self, n: int = 4) -> str:
         try:
             from brain.core.brain import temp_topic_memory
-            
+
             messages = temp_topic_memory.get(ROVER_TOPIC, [])
             if not messages:
                 return ""
-            
+
             # Each entry is already formatted as "User: X\nBuddy: Y"
             # Take the last n exchanges and join them
             recent = messages[-n:]
@@ -386,9 +368,9 @@ class RoverTaskManager:
         self._session_samples.extend(samples)
         summary = window.close()
         verdict = check_summary(summary, wheels_off=self.wheels_off_mode, samples=samples)
-        self._last_telemetry_verdict = verdict   
+        self._last_telemetry_verdict = verdict
         return verdict
-    
+
     def _close_current_segment(self, end_ts: float | None = None):
         if self._current_segment is None:
             return
@@ -412,7 +394,7 @@ class RoverTaskManager:
             "speed_percent": cmd.get("speed_percent", 0),
             "start_ts": now,
         }
-        
+
 
     def emergency_stop_and_report(self) -> str:
         self._emergency_stop_silent()
@@ -423,7 +405,7 @@ class RoverTaskManager:
             ok = False
         self._store_turn("stop", "Rover stopped." if ok else "Stop sent, but I couldn't confirm the rover received it.")
         return "Rover stopped." if ok else "Stop sent, but I couldn't confirm the rover received it."
-        
+
     def _fuzzy_rover_match(self, text: str) -> tuple[float, str | None, str | None]:
         """Scans words for phonetic closeness to rover vocabulary.
         Returns (confidence 0.0-1.0, matched_canonical_word, original_word)."""
@@ -446,7 +428,7 @@ class RoverTaskManager:
             return {"score": 0.0, "corrected_text": text, "canonical": None, "reason": "no_command_shape"}
 
         fuzzy_score, canonical, orig_word = self._fuzzy_rover_match(text)
-        
+
         # Continuity: mid-movement sessions lean toward "still talking to the rover"
         continuity_bonus = 0.10 if (self.session_active and self.current_direction != "stop") else 0.0
 
@@ -469,17 +451,17 @@ class RoverTaskManager:
             return "I don't have any recent telemetry to save yet."
         from .rover_telemetry import export_samples_csv
         import time as _time
-        
+
         if not self._session_samples:
             return "I don't have any recent telementry to save yet."
-        
+
         filepath = ROVER_LOG_DIR / f"rover_log_{int(_time.time())}.csv"
         n = export_samples_csv(self._session_samples, str(filepath))
         self._last_saved_log_path = str(filepath)
         reply = f"Saved {n} telemetry samples to {filepath.name}."
         self._store_turn("save this log", reply)
         return reply
-    
+
     def report_last_log_result(self) -> str:
         if not self._last_telemetry_verdict:
             return "I don't have a recent rover response to report on."
@@ -500,7 +482,7 @@ class RoverTaskManager:
             )
         self._store_turn("show me the result", reply)
         return reply
-    
+
     def plot_last_log(self, open_file_fn) -> str:
         if not self._last_saved_log_path:
             return "I haven't saved a log yet this session — say 'save this log' first."
@@ -527,12 +509,12 @@ class RoverTaskManager:
         EXIT_PHRASES = ("disconnect the rover", "disconnect from rover", "exit rover mode",
                         "done with the rover", "stop the rover session", "end rover session",
                         "close the rover")
-        
+
         if text.strip() in ("disconnect", "exit") or any(p in text for p in EXIT_PHRASES):
             self._emergency_stop_silent()
             self._close_session()
             return {"handled": True, "reply": "Rover session ended.", "session_active": False}
-        
+
         if any(p in text for p in EXIT_PHRASES):
             self._emergency_stop_silent()
             self._close_session()
@@ -575,7 +557,7 @@ class RoverTaskManager:
             return {"handled": False, "reply": "", "session_active": False}
 
         cmd = self._parse_command(text)  # ← parse FIRST
-        print(f"[ROVER_DEBUG] _parse_command → {cmd}") 
+        print(f"[ROVER_DEBUG] _parse_command → {cmd}")
 
         # Only treat as disconnect if mid-session AND not a reconnect attempt
         if not self.rover_bridge.is_connected and self.session_active:
@@ -604,10 +586,10 @@ class RoverTaskManager:
                 "handled": True,
                 "reply": reply,
                 "session_active": False,
-                "connection_failed": True,          
-                "error": str(e),                    
+                "connection_failed": True,
+                "error": str(e),
             }
-        
+
         if not bridge_result.get("ok", True):
             if cmd.get("action") != "status":
                 self._emergency_stop_silent()
@@ -623,10 +605,10 @@ class RoverTaskManager:
                 "handled": True,
                 "reply": reply,
                 "session_active": False,
-                "connection_failed": True,         
-                "error": error_msg,                 
+                "connection_failed": True,
+                "error": error_msg,
             }
-            
+
         self._last_was_connected = True
 
         # Feed bridge telemetry into cache so personality + watcher stay current
@@ -744,7 +726,7 @@ class RoverTaskManager:
         explanation_words = ["booting", "boot", "starting", "powering", "connecting",
                             "trying", "not working", "failing", "can't connect",
                             "won't connect", "no connection"]
-        
+
         if any(w in text for w in rover_words):
             return True
         if self.session_active and any(w in text for w in followup_words):
@@ -764,7 +746,7 @@ class RoverTaskManager:
             "stop following" / "exit follow"             → set_mode IDLE
             "stop"  → set_mode IDLE + stop motors (existing stop extended)
         """
-    
+
         # ── Vision mode commands ───────────────────────────────────────────────
         follow_triggers = ("follow me", "start following", "start follow", "follow mode")
         if any(p in text for p in follow_triggers) or (
@@ -774,17 +756,17 @@ class RoverTaskManager:
             self.current_speed      = 0
             self._current_mode      = "FOLLOW_ME"
             return self._make_mode_command("FOLLOW_ME")
-    
+
         # In the door_triggers tuple — add "find the door"
         door_triggers = ("find door", "find a door", "search for door",
                         "search door", "look for door", "locate door",
-                        "find the door")  
+                        "find the door")
         if any(p in text for p in door_triggers):
             self.current_direction  = "stop"
             self.current_speed      = 0
             self._current_mode      = "FIND_DOOR"
             return self._make_mode_command("FIND_DOOR")
-    
+
         stop_vision_triggers = ("stop following", "exit follow", "cancel follow",
                                 "stop vision", "manual mode")
         if any(p in text for p in stop_vision_triggers):
@@ -792,13 +774,13 @@ class RoverTaskManager:
             self.current_speed      = 0
             self._current_mode      = "IDLE"
             return self._make_mode_command("IDLE")
-    
+
         # ── Original movement commands (unchanged) ─────────────────────────────
         if any(w in text for w in ("activate", "start", "wake", "online", "connect")):
             self.current_direction = "stop"
             self.current_speed     = 0
             return self._make_command("status", "stop", 0)
-    
+
         if "stop" in text:
             self.current_direction  = "stop"
             self.current_speed      = 0
@@ -806,21 +788,21 @@ class RoverTaskManager:
             # Send both stop movement AND set_mode IDLE so vision loop also stops
             # We send set_mode IDLE — rover_server.py stop handler covers motors
             return self._make_mode_command("IDLE")
-    
+
         if "faster" in text:
             self.current_speed = min(self.current_speed + self.SPEED_STEP, self.MAX_SPEED)
             if self.current_speed == 0:
                 self.current_speed = self.DEFAULT_SPEED
             return self._make_command("set_speed", self.current_direction, self.current_speed)
-    
+
         if "slower" in text:
             self.current_speed = max(self.current_speed - self.SPEED_STEP, self.MIN_SPEED)
             return self._make_command("set_speed", self.current_direction, self.current_speed)
-    
+
         if any(p in text for p in ("full capacity", "full speed", "max speed")):
             self.current_speed = self.MAX_SPEED
             return self._make_command("set_speed", self.current_direction, self.current_speed)
-    
+
         # In the backward check — add "reverse"
         if "backward" in text or "go back" in text or "reverse" in text or re.search(r"\bback\b", text):
             self.current_direction = "backward"
@@ -834,7 +816,7 @@ class RoverTaskManager:
             if self.current_speed == 0:
                 self.current_speed = self.DEFAULT_SPEED
             return self._make_command("move", "forward", self.current_speed)
-    
+
         # In the full speed check — add "maximum speed"
         if any(p in text for p in ("full capacity", "full speed", "max speed", "maximum speed")):   # ← added
             self.current_speed = self.MAX_SPEED
@@ -845,22 +827,22 @@ class RoverTaskManager:
             if self.current_speed == 0:
                 self.current_speed = self.DEFAULT_SPEED
             return self._make_command("turn", "left", self.current_speed)
-    
+
         if "right" in text:
             self.current_direction = "right"
             if self.current_speed == 0:
                 self.current_speed = self.DEFAULT_SPEED
             return self._make_command("turn", "right", self.current_speed)
-    
-        FRUSTRATION_WORDS = ["failing", "not working", "broken", "won't work", 
+
+        FRUSTRATION_WORDS = ["failing", "not working", "broken", "won't work",
                             "keeps failing", "problem", "trouble", "booting",
                             "not booting", "won't boot", "won't start"]
         if any(w in text for w in FRUSTRATION_WORDS):
             return self._make_command("status", "stop", 0)
 
         return None
-    
-    
+
+
     # ── New helper — add this to RoverTaskManager ──────────────────────────────────
     def _make_mode_command(self, mode: str) -> dict:
         """
@@ -882,15 +864,15 @@ class RoverTaskManager:
             "speed_percent": speed,
             "timestamp":     time.time(),
         }
-        
-    
+
+
     # ── Extended _build_reply — replace existing one ──────────────────────────────
     def _build_reply(self, cmd: dict) -> str:
         action    = cmd["action"]
         direction = cmd.get("direction", "stop")
         speed     = cmd.get("speed_percent", 0)
         mode      = cmd.get("mode", "")
-    
+
         # New mode replies
         if action == "set_mode":
             if mode == "FOLLOW_ME":
@@ -899,7 +881,7 @@ class RoverTaskManager:
                 return "Rover is searching for a door."
             if mode == "IDLE":
                 return "Rover vision stopped. Back to manual control."
-    
+
         # Original movement replies
         if action == "status":    return "Rover is online and ready for commands."
         if action == "stop":      return "Rover stopped."
@@ -920,5 +902,4 @@ class RoverTaskManager:
         text = re.sub(r"[^\w\s]", " ", text)
         text = re.sub(r"\s+", " ", text)
         return text
-    
 

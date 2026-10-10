@@ -96,7 +96,7 @@ INFER_DEVICE_CASES = [
     ("fly the drone",               "tello",  "drone keyword"),
     ("connect to drone",            "tello",  "drone connect"),
 
-    # ❌ KNOWN GAPS — these will likely FAIL with current code
+    # KNOWN GAPS — these will likely FAIL with current code
     # These are what you need to fix before testing with the real Pi
     ("move forward",                "rover",  "GAP: no 'rover' word, session not active"),
     ("go forward",                  "rover",  "GAP: casual movement, no device word"),
@@ -122,7 +122,7 @@ ROVER_CONTEXT_CASES_NO_SESSION = [
     ("tell me about NLP",       False, "chat topic, no session"),
     ("how does a PID work",     False, "engineering chat, no session"),
 
-    # ❌ KNOWN GAPS — these will FAIL without active session
+    # KNOWN GAPS — these will FAIL without active session
     ("go forward",              False, "no session + no rover word → correctly False"),
     ("move backward",           False, "no session + no rover word → correctly False"),
     ("follow me",               False, "no session + no rover word → correctly False"),
@@ -137,7 +137,7 @@ ROVER_CONTEXT_CASES_WITH_SESSION = [
     ("slower",                  True,  "session active + speed word"),
     ("go backward",             True,  "session active + backward"),
 
-    # ❌ KNOWN GAPS — these will FAIL even with session active
+    # KNOWN GAPS — these will FAIL even with session active
     ("follow me",               True,  "GAP: 'follow' not in followup_words list"),
     ("find the door",           True,  "GAP: 'find' not in followup_words list"),
     ("stop following",          True,  "GAP: only 'stop' would match, not 'stop following'"),

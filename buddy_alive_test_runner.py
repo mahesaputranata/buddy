@@ -86,7 +86,6 @@ def _import_vision_scorer():
         return None
 
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Result dataclasses
 # ─────────────────────────────────────────────────────────────────────────────
@@ -461,34 +460,6 @@ class BuddyAliveTestRunner:
             traceback.print_exc()
             sys.exit(1)
 
-    # def _reset_session(self):
-    #     """Reset memory manager state between scenarios."""
-    #     try:
-    #         self.cm.memory_manager.set_pending_topic(None)
-    #         self.cm.memory_manager.pending_payload = None
-    #         self.cm.memory_manager.set_last_topic(None)
-    #         self.cm.memory_manager._stuck_count = 0
-    #         self.cm.memory_manager._last_pending = None
-
-    #         # ── Clear test memory from previous scenario ──────────────
-    #         from brain.core.brain import temp_topic_memory
-
-    #         for key in list(temp_topic_memory.keys()):
-    #             if key.startswith("test:") or key in {
-    #                 "llm episodic memory",
-    #                 "robotic arm",
-    #                 "sql optimization",
-    #                 "rover:session",
-    #                 "web:research",
-    #                 "vision:bench",
-    #                 "session:weather",
-    #                 "session:news",
-    #                 "session:schedule",
-    #             }:
-    #                 temp_topic_memory.pop(key, None)
-
-    #     except Exception:
-    #         pass
     def _install_prompt_tracer(self):
         """Record every prompt Buddy sends to Ollama (module-level ollama.generate / ollama.chat)."""
         import ollama
@@ -562,11 +533,11 @@ class BuddyAliveTestRunner:
             except Exception:
                 pass
         self._active_patchers = []
- 
+
         setup = scenario.get("setup", {})
         if not setup:
             return
-        
+
         # ── seed_temp_topic_memory ─────────────────────────────────────────────
         seed_memory = setup.get("seed_temp_topic_memory")
         if seed_memory:
@@ -582,7 +553,7 @@ class BuddyAliveTestRunner:
             last_topic = setup.get("set_last_topic")
             self.cm.memory_manager.set_last_topic(last_topic)
             print(f"    [SETUP] last_topic set to: {last_topic!r}")
- 
+
         # ── seed_session_context ─────────────────────────────────────────────
         if setup.get("seed_session_context"):
             from brain.core.brain import temp_topic_memory, store_short_term_memory
@@ -596,15 +567,15 @@ class BuddyAliveTestRunner:
             )
             _seed_session_context(mock_intro, self.cm.memory_manager)
             print(f"    [SETUP] Session context seeded from mock intro")
- 
+
         # ── mock_note_result ─────────────────────────────────────────────────
         note_cfg = setup.get("mock_note_result")
         if note_cfg:
             from pathlib import Path
- 
+
             # Build a proper result dict matching find_latest_note_smart output
             path_val = Path(note_cfg["path"]) if note_cfg.get("path") else None
- 
+
             mock_result = {
                 "path":           path_val,
                 "confidence":     note_cfg.get("confidence", 1.0),
@@ -614,7 +585,7 @@ class BuddyAliveTestRunner:
                 "open_explorer":  note_cfg.get("open_explorer", False),
                 "all_candidates": [],
             }
- 
+
             # Patch find_latest_note_smart in the project_handler module
             p1 = self._mock.patch(
                 "brain.projects.project_handler.find_latest_note_smart",
@@ -622,7 +593,7 @@ class BuddyAliveTestRunner:
             )
             p1.start()
             self._active_patchers.append(p1)
- 
+
             # Also patch read_note_sections and summarize_note so we don't
             # need real files on disk
             p2 = self._mock.patch(
@@ -636,7 +607,7 @@ class BuddyAliveTestRunner:
             )
             p2.start()
             self._active_patchers.append(p2)
- 
+
             p3 = self._mock.patch(
                 "brain.projects.project_handler.summarize_note",
                 return_value=(
@@ -648,7 +619,7 @@ class BuddyAliveTestRunner:
             )
             p3.start()
             self._active_patchers.append(p3)
- 
+
             # Patch NoteAnalyzer.run so it doesn't hit the real DB or PDF
             p4 = self._mock.patch(
                 "brain.projects.note_analyzer.NoteAnalyzer.run",
@@ -656,7 +627,7 @@ class BuddyAliveTestRunner:
             )
             p4.start()
             self._active_patchers.append(p4)
- 
+
             p5 = self._mock.patch(
                 "brain.projects.note_analyzer.NoteAnalyzer.build_session_briefing",
                 return_value=(
@@ -667,11 +638,11 @@ class BuddyAliveTestRunner:
             )
             p5.start()
             self._active_patchers.append(p5)
- 
+
             print(f"    [SETUP] Note mock: conf={mock_result['confidence']:.2f} "
                   f"ask_user={mock_result['ask_user']} "
                   f"open_explorer={mock_result['open_explorer']}")
- 
+
         # ── mock_matlab_state ────────────────────────────────────────────────
         matlab_state = setup.get("mock_matlab_state")
         if matlab_state:
@@ -682,7 +653,7 @@ class BuddyAliveTestRunner:
             p6.start()
             self._active_patchers.append(p6)
             print(f"    [SETUP] MATLAB state mock: {matlab_state}")
- 
+
         # ── mock_matlab_open ─────────────────────────────────────────────────
         matlab_open = setup.get("mock_matlab_open")
         if matlab_open is not None:
@@ -692,7 +663,7 @@ class BuddyAliveTestRunner:
             )
             p7.start()
             self._active_patchers.append(p7)
- 
+
         # ── mock open_file_explorer (always mock — never open real explorer) ─
         p8 = self._mock.patch(
             "brain.projects.project_handler.open_file_explorer",
@@ -720,7 +691,7 @@ class BuddyAliveTestRunner:
             return None
 
     def run_turn(self, turn_spec: dict, scenario_id: str) -> TurnResult:
-       
+
         turn_num = turn_spec["turn"]
         user_input = turn_spec["input"]
         checks = dict(turn_spec.get("alive_checks", {}))
